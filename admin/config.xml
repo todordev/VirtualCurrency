@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-	<fieldset name="global" label="COM_VIRTUALCURRENCY_COMMON" description="COM_VIRTUALCURRENCY_COMMON_PARAMS">
-		<field name="load_jquery" type="list" default="0" label="COM_VIRTUALCURRENCY_LOAD_JQUERY" description="COM_VIRTUALCURRENCY_LOAD_JQUERY_DESC">
-            <option value="0">COM_VIRTUALCURRENCY_NONE</option>
-            <option value="1">COM_VIRTUALCURRENCY_JQUERY_LOCAL</option>
-            <option value="2">COM_VIRTUALCURRENCY_JQUERY_GOOGLE</option>
-        </field>
-        
-        <field name="jquery_noconflict" type="list" default="0" label="COM_VIRTUALCURRENCY_JQUERY_NOCONFLICT" description="COM_VIRTUALCURRENCY_JQUERY_NOCONFLICT_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
+	<fieldset name="common" label="COM_VIRTUALCURRENCY_JAVASCRIPT" description="COM_VIRTUALCURRENCY_JAVASCRIPT_PARAMS_DESC">
+        <field name="jquery_pnotify" type="radio" default="0" label="COM_VIRTUALCURRENCY_PNOTIFY" description="COM_VIRTUALCURRENCY_PNOTIFY_DESC">
+            <option value="0">JON</option>
+            <option value="1">JOFF</option>
         </field>
 	</fieldset>
 
-    <fieldset name="images" label="COM_VIRTUALCURRENCY_IMAGES_TITLE" description="COM_VIRTUALCURRENCY_IMAGES_PARAMS">
-        <field name="images_directory" type="text" default="images/gamification" size="50" label="COM_VIRTUALCURRENCY_IMAGES_DIRECTORY" description="COM_VIRTUALCURRENCY_IMAGES_DIRECTORY_DESC" />
-    </fieldset>
-    
 </config>
