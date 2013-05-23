@@ -26,7 +26,7 @@ class VirtualCurrencyVersion {
      * 
      * @var string
      */
-    public $product    = 'Virtual Currency Platform';
+    public $product    = 'Virtual Currency';
     
     /**
      * Main Release Level
@@ -61,7 +61,7 @@ class VirtualCurrencyVersion {
      * 
      * @var string
      */
-    public $releaseDate= '15-March-2013';
+    public $releaseDate= '30-May-2013';
     
     /**
      * License
@@ -89,7 +89,7 @@ class VirtualCurrencyVersion {
      * 
      * @var string
      */
-    public $backlink   = '<div style="width:100%; text-align: left; font-size: xx-small; margin-top: 10px;"><a href="#" target="_blank">Joomla! Virtual Currency Platform</a></div>';
+    public $backlink   = '<div style="width:100%; text-align: left; font-size: xx-small; margin-top: 10px;"><a href="#" target="_blank">Joomla! Virtual Currency</a></div>';
     
     /**
      * Developer

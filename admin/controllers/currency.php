@@ -14,7 +14,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('virtualcurrency.controller.form');
+jimport('itprism.controller.form.backend');
 
 /**
  * VirtualCurrency Currency controller class.
@@ -23,7 +23,7 @@ jimport('virtualcurrency.controller.form');
  * @subpackage	VirtualCurrency
  * @since		1.6
  */
-class VirtualCurrencyControllerCurrency extends VirtualCurrencyControllerForm {
+class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend {
     
 	/**
      * Proxy for getModel.
@@ -44,13 +44,16 @@ class VirtualCurrencyControllerCurrency extends VirtualCurrencyControllerForm {
         $app = JFactory::getApplication();
         /** @var $app JAdministrator **/
         
-        $msg     = "";
-        $link    = "";
         $data    = $app->input->post->get('jform', array(), 'array');
         $itemId  = JArrayHelper::getValue($data, "id");
         
+        $responseData = array(
+            "task" => $this->getTask(),
+            "id"   => $itemId
+        );
+        
         $model   = $this->getModel();
-        /** @var $model Virtual CurrencyModelCurrency **/
+        /** @var $model VirtualCurrencyModelCurrency **/
         
         $form    = $model->getForm($data, false);
         /** @var $form JForm **/
@@ -64,18 +67,16 @@ class VirtualCurrencyControllerCurrency extends VirtualCurrencyControllerForm {
         
         // Check for errors.
         if($validData === false){
-            $this->defaultLink .= "&view=".$this->view_item."&layout=edit";
-            if($itemId) {
-                $this->defaultLink .= "&id=" . $itemId;
-            } 
-            
-            $this->setMessage($model->getError(), "notice");
-            $this->setRedirect(JRoute::_($this->defaultLink, false));
+            $this->displayNotice($form->getErrors(), $responseData);
             return;
         }
             
         try{
+            
             $itemId = $model->save($validData);
+            
+            $responseData["id"] = $itemId;
+            
         } catch ( Exception $e ){
             
             JLog::add($e->getMessage());
@@ -83,37 +84,8 @@ class VirtualCurrencyControllerCurrency extends VirtualCurrencyControllerForm {
         
         }
         
-        $msg  = JText::_('COM_VIRTUALCURRENCY_CURRENCY_SAVED');
-        $link = $this->prepareRedirectLink($itemId);
-        
-        $this->setRedirect(JRoute::_($link, false), $msg);
+        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_CURRENCY_SAVED'), $responseData);
     
-    }
-    
-    protected function prepareRedirectLink($itemId = 0) {
-        
-        $task = $this->getTask();
-        $link = $this->defaultLink;
-        
-        // Prepare redirection
-        switch($task) {
-            case "apply":
-                $link .= "&view=".$this->view_item."&layout=edit";
-                if(!empty($itemId)) {
-                    $link .= "&id=" . (int)$itemId; 
-                }
-                break;
-                
-            case "save2new":
-                $link .= "&view=".$this->view_item."&layout=edit";
-                break;
-                
-            default:
-                $link .= "&view=".$this->view_list;
-                break;
-        }
-        
-        return $link;
     }
     
     

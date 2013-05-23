@@ -14,7 +14,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('virtualcurrency.controller.form');
+jimport('itprism.controller.form.backend');
 
 /**
  * VirtualCurrency Account controller class.
@@ -23,7 +23,7 @@ jimport('virtualcurrency.controller.form');
  * @subpackage	VirtualCurrency
  * @since		1.6
  */
-class VirtualCurrencyControllerAccount extends VirtualCurrencyControllerForm {
+class VirtualCurrencyControllerAccount extends ITPrismControllerFormBackend {
     
     /**
      * Save an item

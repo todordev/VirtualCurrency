@@ -11,12 +11,10 @@
 	<packagerurl>http://itprism.com</packagerurl>
 	<version>1.0</version>
 	<creationDate>March, 2013</creationDate>
-	<description>Virtual Currency Library</description>
+	<description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
 	<files folder="files">
 		<file>index.html</file>
-		<file>errors.php</file>
 		<file>init.php</file>
 		<file>version.php</file>
-		<folder>controller</folder>
 	</files>
 </extension>

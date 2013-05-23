@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-	<fieldset name="common" label="COM_VIRTUALCURRENCY_JAVASCRIPT" description="COM_VIRTUALCURRENCY_JAVASCRIPT_PARAMS_DESC">
-        <field name="jquery_pnotify" type="radio" default="0" label="COM_VIRTUALCURRENCY_PNOTIFY" description="COM_VIRTUALCURRENCY_PNOTIFY_DESC">
-            <option value="0">JON</option>
-            <option value="1">JOFF</option>
+    
+    <fieldset name="ordering" label="COM_VIRTUALCURRENCY_ORDERING" description="COM_VIRTUALCURRENCY_ORDERING_PARAMS">
+        <field name="ordering_service_terms" type="radio" default="0" label="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS" description="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS_DESC">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
-	</fieldset>
-
+        <field name="ordering_service_terms_url" type="text" default="" size="50" label="COM_VIRTUALCURRENCY_ORDERING_TERMS_URL" description="COM_VIRTUALCURRENCY_ORDERING_TERMS_URL_DESC" />
+        
+        <field name="ordering_bank_id" type="user" default="" label="COM_VIRTUALCURRENCY_ORDERING_BANK" description="COM_VIRTUALCURRENCY_ORDERING_BANK_DESC" />
+        
+    </fieldset>
+     
+    <fieldset name="debug" label="COM_VIRTUALCURRENCY_DEBUG" description="COM_VIRTUALCURRENCY_DEBUG_PARAMS">
+        <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED" description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        
+        <field name="debug_disabled_functionality_msg" type="text" default="" size="60" label="COM_VIRTUALCURRENCY_MESSAGE" description="COM_VIRTUALCURRENCY_DEBUG_DISABLED_FUNCTIONALITY_MSG_DESC" />
+     </fieldset>
+    
 </config>

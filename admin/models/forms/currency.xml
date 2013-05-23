@@ -15,7 +15,54 @@
             filter="trim" 
             required="true"
         />
-            
+        
+        <field name="symbol" type="text" class="inputbox" 
+            label="COM_VIRTUALCURRENCY_CURRENCY_SYMBOL"
+            description="COM_VIRTUALCURRENCY_CURRENCY_SYMBOL_DESC"
+            filter="trim" 
+        />
+        
+        <field name="amount" type="text" class="inputbox" 
+            label="COM_VIRTUALCURRENCY_AMOUNT"
+            description="COM_VIRTUALCURRENCY_AMOUNT_DESC"
+            filter="trim" 
+        />
+        
+		<field name="currency" type="list" class="inputbox" 
+		    label="COM_VIRTUALCURRENCY_CURRENCY" 
+            description="COM_VIRTUALCURRENCY_CURRENCY_DESC" 
+            size="1" 
+            default="USD"
+        >
+		    <option value="AUD">AUD - Australian Dollar</option>
+		    <option value="BRL">BRL - Brazilian Real</option>
+		    <option value="CAD">CAD - Canadian Collar</option>
+		    <option value="CHF">CHF - Swiss Franc</option>
+		    <option value="CZK">CZK - Czech Republic Koruna</option>
+		    <option value="DKK">DKK - Danish Krone</option>
+		    <option value="EUR">EUR - EURO</option>
+		    <option value="GBP">GBP - Pound Sterling</option>
+		    <option value="HKD">HKD - Hong Kong Dollar</option>
+		    <option value="HUF">HUF - Hungarian Forint</option>
+		    <option value="ILS">ILS - Israeli Shekel</option>
+		    <option value="JPY">JPY - Japanese Yen</option>
+		    <option value="MXN">MXN - Mexican Peso</option>
+		    <option value="NOK">NOK - Norwegian Krone</option>
+		    <option value="NZD">NZD - New Zealand Dollar</option>
+		    <option value="PHP">PHP - Philippine Peso</option>
+		    <option value="PLN">PLN - Polish Zloty</option>
+		    <option value="SEK">SEK - Swedish Krona</option>
+		    <option value="SGD">SGD - Singapore Dollar</option>
+		    <option value="THB">THB - Thai Baht</option>
+		    <option value="TWD">TWD - Taiwan Dollar</option>
+		    <option value="USD">USD - United States Dollar</option>
+        </field>
+        
+        <field name="minimum" type="text" class="inputbox" 
+            label="COM_VIRTUALCURRENCY_MIN_AMOUNT"
+            description="COM_VIRTUALCURRENCY_MIN_AMOUNT_DESC"
+        />
+        
 		<field name="published" type="list" class="inputbox" 
 		    label="JSTATUS" 
             description="JFIELD_PUBLISHED_DESC" 

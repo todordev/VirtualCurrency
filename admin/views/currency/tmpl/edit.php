@@ -26,6 +26,18 @@ defined('_JEXEC') or die;
                 <li><?php echo $this->form->getLabel('code'); ?>
                 <?php echo $this->form->getInput('code'); ?></li>
                 
+                <li><?php echo $this->form->getLabel('symbol'); ?>
+                <?php echo $this->form->getInput('symbol'); ?></li>
+                
+                <li><?php echo $this->form->getLabel('amount'); ?>
+                <?php echo $this->form->getInput('amount'); ?></li>
+                
+                <li><?php echo $this->form->getLabel('currency'); ?>
+                <?php echo $this->form->getInput('currency'); ?></li>
+                
+                <li><?php echo $this->form->getLabel('minimum'); ?>
+                <?php echo $this->form->getInput('minimum'); ?></li>
+                
                 <li><?php echo $this->form->getLabel('published'); ?>
                 <?php echo $this->form->getInput('published'); ?></li>
                    

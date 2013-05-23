@@ -19,12 +19,6 @@ jimport('joomla.application.component.modeladmin');
 class VirtualCurrencyModelCurrency extends JModelAdmin {
     
     /**
-     * @var     string  The prefix to use with controller messages.
-     * @since   1.6
-     */
-    protected $text_prefix = 'COM_VIRTUALCURRENCY';
-    
-    /**
      * Returns a reference to the a Table object, always creating it.
      *
      * @param   type    The table type to instantiate
@@ -83,6 +77,10 @@ class VirtualCurrencyModelCurrency extends JModelAdmin {
         $id           = JArrayHelper::getValue($data, "id");
         $title        = JArrayHelper::getValue($data, "title");
         $code         = JArrayHelper::getValue($data, "code");
+        $symbol       = JArrayHelper::getValue($data, "symbol");
+        $amount       = JArrayHelper::getValue($data, "amount");
+        $currency     = JArrayHelper::getValue($data, "currency");
+        $minimum      = JArrayHelper::getValue($data, "minimum");
         $published    = JArrayHelper::getValue($data, "published");
         
         // Load a record from the database
@@ -90,7 +88,11 @@ class VirtualCurrencyModelCurrency extends JModelAdmin {
         $row->load($id);
         
         $row->set("title",      $title);
-        $row->set("code",       JString::strtoupper($code) );
+        $row->set("code",       JString::strtoupper($code));
+        $row->set("symbol",     $symbol);
+        $row->set("amount",     $amount);
+        $row->set("currency",   $currency);
+        $row->set("minimum",    $minimum);
         $row->set("published",  $published);
         
         $row->store();

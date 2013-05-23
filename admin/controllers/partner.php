@@ -14,7 +14,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('virtualcurrency.controller.form');
+jimport('itprism.controller.form.backend');
 
 /**
  * Virtual Currency partner controller class.
@@ -24,7 +24,7 @@ jimport('virtualcurrency.controller.form');
  * @since		1.6
  */
 
-class VirtualCurrencyControllerPartner extends VirtualCurrencyControllerForm {
+class VirtualCurrencyControllerPartner extends ITPrismControllerFormBackend {
     
 	/**
      * Proxy for getModel.

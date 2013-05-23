@@ -14,7 +14,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('virtualcurrency.controller.admin');
+jimport('itprism.controller.admin');
 
 /**
  * VirtualCurrency Accounts controller
@@ -22,7 +22,7 @@ jimport('virtualcurrency.controller.admin');
  * @package     ITPrism Components
  * @subpackage  VirtualCurrency
   */
-class VirtualCurrencyControllerAccounts extends VirtualCurrencyControllerAdmin {
+class VirtualCurrencyControllerAccounts extends ITPrismControllerAdmin {
     
     /**
      * Proxy for getModel.

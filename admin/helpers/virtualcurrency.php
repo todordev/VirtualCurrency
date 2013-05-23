@@ -57,6 +57,12 @@ class VirtualCurrencyHelper {
 			$vName == 'transactions'
 		);
 		
+		JSubMenuHelper::addEntry(
+			JText::_('COM_VIRTUALCURRENCY_PLUGINS'),
+			'index.php?option=com_plugins&view=plugins&filter_search='.rawurlencode("virtual currency"),
+			$vName == 'plugins'
+		);
+		
 	}
 	
 }

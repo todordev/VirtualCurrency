@@ -13,22 +13,18 @@
 
 defined('JPATH_PLATFORM') or die;
 
-/**
- * This class provides functionality  
- * to manage errors of the extension
- */
-abstract class VirtualCurrencyErrors {
+JLoader::register("VirtualCurrencyTableTransaction", JPATH_ADMINISTRATOR .DIRECTORY_SEPARATOR."components".DIRECTORY_SEPARATOR."com_virtualcurrency".DIRECTORY_SEPARATOR."tables".DIRECTORY_SEPARATOR."transaction.php");
 
-    const CODE_WARNING         = 1001;
+/**
+ * This class contains methods that are used for managing transactions.
+ *
+ * @package 	 ITPrism Components
+ * @subpackage   Virtual Currency
+  */
+class VirtualCurrencyTransaction extends VirtualCurrencyTableTransaction {
     
-    /**
-     * This constant will be used when 
-     * developer does not want to display error message
-     * but he will display a default system error message.
-     * @var integer
-     */
-    const CODE_HIDDEN_WARNING  = 1002;
-    
-    const CODE_ERROR           = 500;
+    public function __construct( $db ) {
+        parent::__construct( $db );
+    }
     
 }
