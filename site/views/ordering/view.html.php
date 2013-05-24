@@ -64,6 +64,10 @@ class VirtualCurrencyViewOrdering extends JView {
                 $this->preparePayment();
                 break;
                 
+            case "information":
+                $this->preparePayment();
+                break;
+                
             default: //  Currency selecting
                 $this->prepareCurrency();
                 break;
@@ -86,10 +90,12 @@ class VirtualCurrencyViewOrdering extends JView {
         $this->currencyAmount = $app->getUserState("ordering.amount", 0);
 
         jimport("virtualcurrency.currencies");
-        $currencies           = new VirtualCurrencyCurrencies();
+        
+        $db = JFactory::getDbo();
+        $currencies           = new VirtualCurrencyCurrencies($db);
         $currencies->load(self::PUBLISHED);
         
-        $this->currencies     = $currencies->getData();
+        $this->currencies     = $currencies->getCurrencies();
         
         // Get item if there is one
         $itemId       = $app->getUserState("ordering.item_id", 0);
@@ -172,6 +178,33 @@ class VirtualCurrencyViewOrdering extends JView {
         $results            = $dispatcher->trigger('onProjectPayment', array('com_virtualcurrency.payment', $item));
 		$this->item->event->onProjectPayment = trim(implode("\n", $results));
 		
+    }
+    
+    protected function prepareInformation() {
+    
+        $app = JFactory::getApplication();
+        /** @var $app JSite **/
+        
+        $model        = $this->getModel();
+        
+        if($model->isDebugMode()) {
+            $app->redirect( JRoute::_('index.php?option=com_virtualcurrency&view=ordering', false) );
+            return; 
+        }
+        
+        $itemId       = $app->getUserState("ordering.item_id");
+        $this->amount = $app->getUserState("ordering.amount");
+        
+        $this->item   = $model->getItem($itemId);
+        
+        $this->currency = array(
+            "code"   => $this->item->code,
+            "symbol" => $this->item->symbol
+        );
+        
+        $this->total =  JHtml::_("virtualcurrency.total", $this->amount, $this->item->amount);
+    
+    
     }
     
     /**

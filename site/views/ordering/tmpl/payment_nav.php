@@ -14,7 +14,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-$active = array("currency" => false, "payment" => false, "share" => false);
+$active = array("currency" => false, "payment" => false, "information" => false);
 switch($this->layout) {
     case "default":
         $active["currency"] = true;
@@ -22,8 +22,8 @@ switch($this->layout) {
     case "payment":
         $active["payment"] = true;
         break;
-    case "share":
-        $active["share"] = true;
+    case "information":
+        $active["information"] = true;
         break;
 }
 
@@ -49,7 +49,7 @@ switch($this->layout) {
                 <?php }?>
             </li>
             
-            <li <?php echo ($active["share"]) ? 'class="active"' : '';?>>
+            <li <?php echo ($active["information"]) ? 'class="active"' : '';?>>
             	<?php if(!empty($this->flagStep2)){?> 
                 <a href="<?php echo JRoute::_("index.php?option=com_virtualcurrency&view=buying&layout=share");?>">
                 (3) <?php echo JText::_("COM_VIRTUALCURRENCY_INFORMATION");?>

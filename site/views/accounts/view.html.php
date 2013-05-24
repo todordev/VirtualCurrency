@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewTransactions extends JView {
+class VirtualCurrencyViewAccounts extends JView {
     
 	protected $state;
 	protected $items;
@@ -45,13 +45,7 @@ class VirtualCurrencyViewTransactions extends JView {
         
 		JHtml::addIncludePath(JPATH_COMPONENT_SITE.'/helpers/html');
 		
-		// Load currencies
-		$db = JFactory::getDbo();
-		jimport("virtualcurrency.currencies");
-		$this->currencies = new VirtualCurrencyCurrencies($db);
-		$this->currencies->load();
-		
-		$this->version        = new VirtualCurrencyVersion();
+		$this->version    = new VirtualCurrencyVersion();
 		
         $this->prepareDocument();
                 
@@ -109,7 +103,7 @@ class VirtualCurrencyViewTransactions extends JView {
         if($menu){
             $this->params->def('page_heading', $this->params->get('page_title', $menu->title));
         }else{
-            $this->params->def('page_heading', JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_DEFAULT_PAGE_TITLE'));
+            $this->params->def('page_heading', JText::_('COM_VIRTUALCURRENCY_ACCOUNTS_DEFAULT_PAGE_TITLE'));
         }
 		
     }

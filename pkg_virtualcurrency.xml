@@ -21,7 +21,10 @@
 	<files folder="packages">
 		<file type="component" 	id="com_virtualcurrency" >com_virtualcurrency.zip</file>
 		<file type="library" 	id="lib_virtualcurrency" >lib_virtualcurrency.zip</file>
+		<file type="library"    id="lib_itprism" >lib_itprism.zip</file>
 		<file type="plugin"     id="paypal" group="virtualcurrencypayment">plg_virtualcurrencypayment_paypal.zip</file>
+		<file type="plugin"     id="virtualcurrencynewaccount" group="user">plg_user_virtualcurrencynewaccount.zip</file>
+		<file type="module"     id="mod_virtualcurrencyaccounts" client="site">mod_virtualcurrencyaccounts.zip</file>
 	</files>
 
 	<scriptfile>install.php</scriptfile>

@@ -10,13 +10,14 @@
 	<packager>ITPrism</packager>
 	<packagerurl>http://itprism.com</packagerurl>
 	<version>1.0</version>
-	<creationDate>March, 2013</creationDate>
+	<creationDate>31 May, 2013</creationDate>
 	<description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
 	<files folder="files">
-		<file>index.html</file>
 		<file>account.php</file>
+		<file>accounts.php</file>
 		<file>currencies.php</file>
 		<file>currency.php</file>
+		<file>index.html</file>
 		<file>init.php</file>
 		<file>temporary.php</file>
 		<file>transaction.php</file>

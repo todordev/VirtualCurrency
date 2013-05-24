@@ -24,6 +24,8 @@ defined('_JEXEC') or die;
  */
 class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	
+    const PUBLISHED = 1;
+    
 	/**
 	 *
 	 * Method is called after user data is stored in the database
@@ -41,18 +43,87 @@ class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	    
 		if ($isnew) {
 		    
-			jimport('socialcommunity.profile');
+		    $db     = JFactory::getDbo();
+			$userId = JArrayHelper::getValue($user, 'id');
 			
-			$data = array(
-			    'id'     => JArrayHelper::getValue($user, 'id'),
-			    'name'	 => JArrayHelper::getValue($user, 'name')
-			);
-    		
-			$profile = new SocialCommunityProfile();
-			$profile->bind($data);
-			$profile->save();
+			// Create accounts
+			$this->createAccount($userId, $db);
+			
 		}
 		
 	}
+	
+	/**
+	 *
+	 * Method is called after user log in to the system.
+	 *
+	 * @param	array		$user		An associative array of JAuthenticateResponse type.
+	 * @param	array 		$options    An associative array containing these keys: ["remember"] => bool, ["return"] => string, ["entry_url"] => string.
+	 *
+	 * @return	void
+	 * @since	1.6
+	 * @throws	Exception on error.
+	 */
+	public function onUserLogin($user, $options) {
+
+	    // Get user id
+	    $userName = JArrayHelper::getValue($user, 'username');
+	     
+	    $db       = JFactory::getDbo();
+	    $query    = $db->getQuery(true);
+	     
+	    $query
+	    ->select("a.id")
+	    ->from($db->quoteName("#__users") . " AS a")
+	    ->where("a.username = " .$db->quote($userName));
+	     
+	    $db->setQuery($query, 0, 1);
+	    $userId = $db->loadResult();
+	    
+	    $this->createAccount($userId, $db);
+	    
+	}
+	
+	/**
+	 * This method checks for existing accounts current currencies.
+	 * If there is no account for a currency, it creates new one.
+	 * 
+	 * @param integer $userId
+	 * @param object  $db
+	 */
+	protected function createAccount($userId, $db) {
+	    
+	    // Get Accounts
+	    jimport('virtualcurrency.accounts');
+	    $accounts = new VirtualCurrencyAccounts($db);
+	    $accounts->load($userId);
+	    $a = $accounts->getAccounts();
+	     
+	    $accountIds = array();
+	    foreach($a as $value) {
+	        $accountIds[] = $value["currency_id"];
+	    }
+	     
+	    // Get currencies
+	    jimport('virtualcurrency.currencies');
+	    $currencies = new VirtualCurrencyCurrencies($db);
+	    $currencies->load(self::PUBLISHED);
+	     
+	    $c = $currencies->getCurrencies();
+	     
+	    // Check and create accounts
+	    foreach($c as $currency) {
+	        if(!in_array($currency["id"], $accountIds)) {
+	            jimport("virtualcurrency.account");
+	            $account = new VirtualCurrencyAccount($db);
+	            $account->amount      = 0;
+	            $account->currency_id = $currency["id"];
+	            $account->user_id     = $userId;
+	             
+	            $account->store();
+	        }
+	    }
+	    
+	} 
 
 }

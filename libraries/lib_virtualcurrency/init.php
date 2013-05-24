@@ -13,15 +13,27 @@
 
 defined('JPATH_PLATFORM') or die;
 
-if(!defined("VIRTUALCURRENCY_COMPONENT_ADMINISTRATOR")) {
-    define("VIRTUALCURRENCY_COMPONENT_ADMINISTRATOR", JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR. "components" . DIRECTORY_SEPARATOR ."com_virtualcurrency");
+if(!defined("VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR")) {
+    define("VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR", JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR. "components" . DIRECTORY_SEPARATOR ."com_virtualcurrency");
+}
+
+if(!defined("VIRTUALCURRENCY_PATH_COMPONENT_SITE")) {
+    define("VIRTUALCURRENCY_PATH_COMPONENT_SITE", JPATH_SITE . DIRECTORY_SEPARATOR. "components" . DIRECTORY_SEPARATOR ."com_virtualcurrency");
+}
+
+if(!defined("VIRTUALCURRENCY_PATH_LIBRARY")) {
+    define("VIRTUALCURRENCY_PATH_LIBRARY", JPATH_LIBRARIES . DIRECTORY_SEPARATOR. "virtualcurrency");
+}
+
+if(!defined("ITPRISM_PATH_LIBRARY")) {
+    define("ITPRISM_PATH_LIBRARY", JPATH_LIBRARIES . DIRECTORY_SEPARATOR. "itprism");
 }
 
 jimport('joomla.utilities.arrayhelper');
 
-// Import component libraries
-jimport("virtualcurrency.version");
-jimport("virtualcurrency.errors");
+// Register classes and helpers
+JLoader::register("VirtualCurrencyHelper",  VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . "helpers" . DIRECTORY_SEPARATOR . "virtualcurrency.php");
+JLoader::register("VirtualCurrencyVersion", VIRTUALCURRENCY_PATH_LIBRARY . DIRECTORY_SEPARATOR . "version.php");
 
-// Register helpers
-JLoader::register("VirtualCurrencyHelper", VIRTUALCURRENCY_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . "helpers" . DIRECTORY_SEPARATOR . "virtualcurrency.php");
+// ITPrism classes
+JLoader::register("ITPrismErrors", ITPRISM_PATH_LIBRARY . DIRECTORY_SEPARATOR . "errors.php");

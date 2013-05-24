@@ -21,7 +21,12 @@ defined('JPATH_PLATFORM') or die;
   */
 class VirtualCurrencyCurrencies {
     
-    protected $data = array();
+    protected $db         = null;
+    protected $currencies = array();
+    
+    public function __construct($db) {
+        $this->db = $db;
+    }
     
     /**
      * 
@@ -30,28 +35,27 @@ class VirtualCurrencyCurrencies {
      */
     public function load($state = null) {
         
-        $db = JFactory::getDbo();
-        $query = $db->getQuery(true);
+        $query = $this->db->getQuery(true);
         
         $query
             ->select("a.id, a.title, a.code, a.symbol, a.amount, a.currency, a.minimum, a.published")
-            ->from($db->quoteName("#__vc_currencies") . " AS a");
+            ->from($this->db->quoteName("#__vc_currencies") . " AS a");
             
         if(!is_null($state)) {
             $state = (!$state) ? 0 : 1;
             $query->where("a.published = ". (int)$state);
         }
             
-        $db->setQuery($query);
-        $results = $db->loadAssocList();
+        $this->db->setQuery($query);
+        $results = $this->db->loadAssocList();
         
         if(!empty($results)) {
-            $this->data = $results;
+            $this->currencies = $results;
         }
     }
     
-    public function getData() {
-        return $this->data;
+    public function getCurrencies() {
+        return $this->currencies;
     }
     
     /**
@@ -62,7 +66,7 @@ class VirtualCurrencyCurrencies {
         
         $currency = null;
         
-        foreach($this->data as $currency) {
+        foreach($this->currencies as $currency) {
             if($currency["id"] == $id) {
                 break;
             }

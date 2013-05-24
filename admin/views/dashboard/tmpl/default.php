@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 <div class="row-fluid">
      <div class="span8">&nbsp;</div>
 	<div class="span4">
-        <a href="#" target="_blank"><img src="../media/com_virtualcurrency/images/logo.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY");?>" /></a>
+        <a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank"><img src="../media/com_virtualcurrency/images/logo.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY");?>" /></a>
         <a href="http://itprism.com" target="_blank" title="<?php echo JText::_("COM_VIRTUALCURRENCY_ITPRISM_PRODUCT");?>"><img src="../media/com_virtualcurrency/images/product_of_itprism.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY_PRODUCT");?>" /></a>
         <p><?php echo JText::_("COM_VIRTUALCURRENCY_YOUR_VOTE"); ?></p>
         <p><?php echo JText::_("COM_VIRTUALCURRENCY_SPONSORSHIP"); ?></p>

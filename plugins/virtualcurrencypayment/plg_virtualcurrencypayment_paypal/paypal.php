@@ -75,7 +75,7 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         $html .= '<input type="hidden" name="tax" value="0" />';
         
         // Title
-        $title = JText::sprintf("PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_INVESTING_IN_S", htmlentities($item->title, ENT_QUOTES, "UTF-8"));
+        $title = htmlentities($item->title, ENT_QUOTES, "UTF-8");
         $html .= '<input type="hidden" name="item_name" value="'.$title.'" />';
         
         // Get an ID of temporary record
