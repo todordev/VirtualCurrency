@@ -26,7 +26,7 @@ defined('_JEXEC') or die;?>
 	</div>
 	
 	<div class="row-fluid">
-		<div class="span8">
+		<div class="span12">
 			<h2><?php echo JText::_("COM_VIRTUALCURRENCY_ORDER_SUMMARY");?></h2>
 			<div class="bs-docs-example">
 				<p><span class="vc-otitle"><?php echo JText::_("COM_VIRTUALCURRENCY_YOU_ARE_BUYING"); ?></span>

@@ -44,7 +44,7 @@ class VirtualCurrencyViewOrdering extends JView {
         $this->user        = JFactory::getUser();
         if (!$this->user->id) {
             $app->enqueueMessage(JText::_("COM_VIRTUALCURRENCY_ERROR_NOT_LOG_IN"), "notice");
-            $app->redirect(JRoute::_('index.php', false));
+            $app->redirect(JRoute::_('index.php?option=com_users&view=login', false));
             return;
         }
         

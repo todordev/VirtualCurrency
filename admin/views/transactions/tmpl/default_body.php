@@ -16,15 +16,39 @@ defined('_JEXEC') or die;
 ?>
 <?php foreach ($this->items as $i => $item) {
 	    $ordering  = ($this->listOrder == 'a.ordering');
+	    
+	    $currency  = $this->currencies->getCurrency($item->currency_id);
+	    
 	?>
 	<tr class="row<?php echo $i % 2; ?>">
-        <td><?php echo JHtml::_('grid.id', $i, $item->id); ?></td>
-		<td><?php echo $item->sender; ?></td>
-		<td><?php echo $item->receiver; ?></td>
-		<td><?php echo $item->amount; ?></td>
-		<td><?php echo $item->currency; ?> [ <?php echo $item->currency_code; ?> ]</td>
-		<td><?php echo JHtml::_('date', $item->record_date, JText::_('DATE_FORMAT_LC3')); ?></td>
-        <td class="center"><?php echo $item->id;?></td>
+        <td>
+            <?php echo JHtml::_('grid.id', $i, $item->id); ?>
+        </td>
+		<td>
+    		<?php echo $this->escape($item->title); ?>
+        </td>
+    	<td class="center">
+    	    <?php echo JHtml::_("virtualcurrency.amount", $item->number, $currency); ?>
+        </td>
+        <td class="center">
+    	    <?php echo $item->txn_amount." ".$item->txn_currency; ?>
+        </td>
+        
+        <td class="center"><?php echo $item->sender; ?></td>
+    	<td class="center"><?php echo $item->receiver; ?></td>
+    	
+    	<td class="center">
+    	    <?php echo JHtml::_('date', $item->txn_date, JText::_('DATE_FORMAT_LC3')); ?>
+        </td>
+    	<td class="center">
+    	    <?php echo $item->txn_id; ?>
+        </td>
+    	<td class="center">
+    	    <?php echo $item->txn_status; ?>
+        </td>
+    	<td class="center">
+    		<?php echo $item->id; ?>
+    	</td>
 	</tr>
 <?php }?>
 	  

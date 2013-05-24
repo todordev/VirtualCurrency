@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="user" method="upgrade">
+    <name>PLG_USER_VIRTUALCURRENCYNEWACCOUNT</name>
+    <author>Todor Iliev</author>
+    <copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <authorEmail>todor@itprism.com</authorEmail>
+    <authorUrl>http://itprism.com</authorUrl>
+    <version>1.0</version>
+    <creationDate>31 May, 2013</creationDate>
+    <description>PLG_USER_VIRTUALCURRENCYNEWACCOUNT_DESC</description>
+    
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_user_virtualcurrencynewaccount.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_user_virtualcurrencynewaccount.sys.ini</language>
+    </languages> 
+    
+    <files>
+        <filename plugin="virtualcurrencynewaccount">virtualcurrencynewaccount.php</filename>
+        <filename>index.html</filename>
+    </files>
+    
+</extension>

@@ -37,7 +37,7 @@ defined('_JEXEC') or die;
 		<?php echo JHtml::_('grid.sort',  'COM_VIRTUALCURRENCY_TXN_ID', 'a.txn_id', $this->listDirn, $this->listOrder); ?>
 	</th>
 	<th>
-		<?php echo JHtml::_('grid.sort',  'COM_VIRTUALCURRENCY_STATE', 'a.txn_status', $this->listDirn, $this->listOrder); ?>
+		<?php echo JHtml::_('grid.sort',  'COM_VIRTUALCURRENCY_STATUS', 'a.txn_status', $this->listDirn, $this->listOrder); ?>
 	</th>
 	<th>
 		<?php echo JHtml::_('grid.sort',  'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>

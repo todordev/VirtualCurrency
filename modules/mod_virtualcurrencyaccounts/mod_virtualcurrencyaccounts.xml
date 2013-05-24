@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="2.5" client="site" method="upgrade" >
+	<name>MOD_VIRTUALCURRENCYACCOUNTS</name>
+	<author>Todor Iliev</author>
+	<copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com )</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html</license>
+	<authorEmail>todor@itprism.com</authorEmail>
+	<authorUrl>http://itprism.com</authorUrl>
+	<version>1.0</version>
+	<creationDate>31 May, 2013</creationDate>
+	<description>MOD_VIRTUALCURRENCYACCOUNTS_DESC</description>
+	
+	<languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.mod_virtualcurrencyaccounts.ini</language>
+        <language tag="en-GB">en-GB/en-GB.mod_virtualcurrencyaccounts.sys.ini</language>
+    </languages> 
+
+    <help url="MOD_VIRTUALCURRENCYACCOUNTS_HELP_URL" />
+
+	<files>
+	    <filename module="mod_virtualcurrencyaccounts">mod_virtualcurrencyaccounts.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+	</files>
+	
+	<config>
+		<fields name="params">
+			
+			<fieldset name="advanced">
+                <field
+                    name="moduleclass_sfx"
+                    type="text"
+                    label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+                    description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+                    
+                <field
+                    name="cache"
+                    type="list"
+                    default="1"
+                    label="COM_MODULES_FIELD_CACHING_LABEL"
+                    description="COM_MODULES_FIELD_CACHING_DESC">
+                    <option
+                        value="1">JGLOBAL_USE_GLOBAL</option>
+                    <option
+                        value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+                </field>
+                <field
+                    name="cache_time"
+                    type="text"
+                    default="900"
+                    label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+                    description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+                
+                <field name="cachemode" type="hidden" default="static">
+                    <option value="static"></option>
+                </field>
+            </fieldset>
+            
+		</fields>
+	</config>
+</extension>

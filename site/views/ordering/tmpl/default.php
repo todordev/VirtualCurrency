@@ -27,7 +27,7 @@ defined('_JEXEC') or die;?>
 	
 	<?php foreach($this->currencies as $currency) {?>
 	<div class="row-fluid">
-		<div class="span8">
+		<div class="span12">
 			
 			<div class="bs-docs-example">
     			<form method="post" action="<?php echo JRoute::_("index.php")?>" id="form-payment" autocomplete="off">

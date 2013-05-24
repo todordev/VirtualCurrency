@@ -30,11 +30,14 @@ class VirtualCurrencyModelTransactions extends JModelList {
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = array(
                 'id', 'a.id',
-            	'amount', 'a.amount',
-            	'record_date', 'a.record_date',
-                'sender', 'b.name',
-                'receiver', 'c.name',
-                'currency', 'd.title',
+            	'number', 'a.number',
+            	'date', 'a.txn_date',
+            	'amount', 'a.txn_amount',
+            	'title', 'b.title',
+            	'sender', 'c.name',
+            	'receiver', 'd.name',
+            	'txn_id', 'a.txn_id',
+            	'txn_status', 'a.txn_status',
             );
         }
 
@@ -60,7 +63,7 @@ class VirtualCurrencyModelTransactions extends JModelList {
         $this->setState('filter.search', $value);
 
         // List state information.
-        parent::populateState('a.record_date', 'asc');
+        parent::populateState('a.txn_date', 'asc');
     }
 
     /**
@@ -101,16 +104,17 @@ class VirtualCurrencyModelTransactions extends JModelList {
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.amount, a.record_date, a.currency_id, a.sender_id, a.receiver_id, '.
-                'b.name AS sender, ' .
-                'c.name AS receiver, ' .
-            	'd.title AS currency, d.code AS currency_code '
+                'a.id, a.number, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
+                'a.currency_id, a.sender_id, a.receiver_id, a.service_provider, '.
+                'b.title AS title, ' .
+                'c.name AS sender, ' .
+                'd.name AS receiver'
             )
         );
         $query->from($db->quoteName('#__vc_transactions').' AS a');
-        $query->innerJoin($db->quoteName('#__users').' AS b ON a.sender_id = b.id');
-        $query->innerJoin($db->quoteName('#__users').' AS c ON a.receiver_id = c.id');
-        $query->innerJoin($db->quoteName('#__vc_currencies').' AS d ON a.currency_id = d.id');
+        $query->innerJoin($db->quoteName('#__vc_currencies').' AS b ON a.currency_id = b.id');
+        $query->innerJoin($db->quoteName('#__users').' AS c ON a.sender_id = c.id');
+        $query->innerJoin($db->quoteName('#__users').' AS d ON a.receiver_id = d.id');
 
         // Filter by search in title
         $search = $this->getState('filter.search');
@@ -120,7 +124,7 @@ class VirtualCurrencyModelTransactions extends JModelList {
             } else {
                 $escaped = $db->escape($search, true);
                 $quoted  = $db->quote("%" . $escaped . "%", false);
-                $query->where('(sender LIKE '.$quoted  . ') OR ( receiver LIKE '.$quoted . ')');
+                $query->where('(c.name LIKE '.$quoted  . ') OR ( d.name LIKE '.$quoted . ')');
             }
         }
 

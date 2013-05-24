@@ -43,8 +43,7 @@ class VirtualCurrencyViewTransactions extends JView {
         $this->listDirn   = $this->escape($this->state->get('list.direction'));
         $this->saveOrder  = (strcmp($this->listOrder, 'a.ordering') != 0 ) ? false : true;
         
-		JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
-//		JLoader::register('JHtmlString', JPATH_LIBRARIES.'/joomla/html/html/string.php');
+		JHtml::addIncludePath(JPATH_COMPONENT_SITE.'/helpers/html');
 		
 		// Load currencies
 		$db = JFactory::getDbo();

@@ -26,7 +26,7 @@ defined('_JEXEC') or die;?>
 	</div>
 	
 	<div class="row-fluid">
-		<div class="span8">
+		<div class="span12">
 			<h2><?php echo JText::_("COM_USERIDEAS_THANK_YOU_VERY_MUCH");?></h2>
 			<p class="message"><?php echo JText::_("COM_USERIDEAS_SUCCESSFULL_INVESTMENT");?></p>
 			<h3><?php echo JText::_("COM_USERIDEAS_INVESTMENT_SUMMARY");?></h3>

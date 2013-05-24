@@ -31,7 +31,7 @@ switch($this->layout) {
 ?>
 <div class="navbar">
     <div class="navbar-inner">
-    	<a class="brand" href="#"><?php echo JText::_("COM_USERIDEAS_INVESTMENT_PROCESS");?></a>
+    	<a class="brand" href="<?php echo JRoute::_("index.php?option=com_virtualcurrency&view=ordering", false)?>"><?php echo JText::_("COM_USERIDEAS_INVESTMENT_PROCESS");?></a>
 
     	<ul class="nav">
             <li <?php echo ($active["rewards"]) ? 'class="active"' : '';?>>
