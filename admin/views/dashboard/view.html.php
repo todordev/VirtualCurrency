@@ -29,6 +29,15 @@ class VirtualCurrencyViewDashboard extends JView {
         
         $this->version = new VirtualCurrencyVersion();
         
+        // Load ITPrism library version
+        jimport("itprism.version");
+        if(!class_exists("ITPrismVersion")) {
+            $this->itprismVersion = JText::_("COM_VIRTUALCURRENCY_ITPRISM_LIBRARY_DOWNLOAD");
+        } else {
+            $itprismVersion = new ITPrismVersion();
+            $this->itprismVersion = $itprismVersion->getShortVersion();
+        }
+        
         // Add submenu
         VirtualCurrencyHelper::addSubmenu($this->getName());
         
