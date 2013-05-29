@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      ITPrism Components
-* @subpackage   Virtual Currency
+* @package      Virtual Currency
+* @subpackage   Library
 * @author       Todor Iliev
 * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
 * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -18,13 +18,17 @@ JLoader::register("VirtualCurrencyTableTemporary", JPATH_ADMINISTRATOR .DIRECTOR
 /**
  * This class contains methods that are used for managing temporary table.
  *
- * @package 	 ITPrism Components
- * @subpackage   Virtual Currency
-  */
+ * @package 	 Virtual Currency
+ * @subpackage   Library
+ */
 class VirtualCurrencyTemporary extends VirtualCurrencyTableTemporary {
     
-    public function __construct( $db ) {
-        parent::__construct( $db );
+    public function __construct() {
+        
+        // Set database driver
+        $db = JFactory::getDbo();
+        parent::__construct($db);
+        
     }
     
 }

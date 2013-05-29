@@ -132,14 +132,14 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         }
 
         $doc     = JFactory::getDocument();
-        /**  @var $doc JDocumentHtml **/
+        /**  @var $doc JDocumentRaw **/
         
         // Check document type
         $docType = $doc->getType();
         if(strcmp("raw", $docType) != 0){
             return;
         }
-       
+
         if(strcmp("com_virtualcurrency.notify", $context) != 0){
             return;
         }
@@ -170,7 +170,7 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         if($paypalVerify->isVerified()) {
             
             // Validate transaction data
-            $validData = $this->validateData($post);
+            $validData = $this->validateData($post, $params);
             if(is_null($validData)) {
                 return $result;
             }
@@ -189,11 +189,10 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
     
 	/**
      * Validate PayPal transaction
-     * @param array $data
+     * @param array $data    POST data
+     * @param array $params  The parameters of the component
      */
-    protected function validateData($data, $currency) {
-        
-        $db = JFactory::getDbo();
+    protected function validateData($data, $params) {
         
         // Prepare transaction data
         $custom    = JArrayHelper::getValue($data, "custom");
@@ -203,22 +202,16 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
             
         // Get temporary data
         jimport("virtualcurrency.temporary");
-        $temporary = new VirtualCurrencyTemporary($db);
+        $temporary = new VirtualCurrencyTemporary();
         $temporary->load($tmpId);
         
         // Check for valid temporary data
         if(!$temporary->id) {
             $error  = JText::_("PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_ERROR_INVALID_TEMPORARY_DATA");
-            $error .= "\n". JText::sprintf("PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_CUSTOM_DATA", var_export($custom, true));
+            $error .= "\n". JText::sprintf("PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_CUSTOM_DATA", var_export($temporary, true));
             JLog::add($error);
             return null;
         }
-        
-        $app = JFactory::getApplication();
-        /** @var $app JSite **/
-        
-        // Get component parameters
-        $componentParams     = $app->getParams("com_virtualcurrency");
         
         // Prepare transaction data
         $transaction = array(
@@ -227,10 +220,10 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         	"txn_amount"		 => JArrayHelper::getValue($data, "mc_gross"),
             "txn_currency"       => JArrayHelper::getValue($data, "mc_currency"),
             "txn_status"         => strtolower( JArrayHelper::getValue($data, "payment_status") ),
-        	"txn_date"           => JArrayHelper::getValue($data, "txn_date"),
+        	"txn_date"           => JArrayHelper::getValue($data, "payment_date"),
         	"service_provider"   => "PayPal",
         	"currency_id"		 => $temporary->currency_id,
-        	"sender_id"			 => $componentParams->get("ordering_bank_id"),
+        	"sender_id"			 => $params->get("ordering_bank_id"),
         	"receiver_id"		 => $temporary->user_id,
         ); 
         
@@ -244,8 +237,7 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         
         // Get currency
         jimport("virtualcurrency.currency");
-        $currency = new VirtualCurrencyCurrency($db);
-        $currency->load($temporary->currency_id);
+        $currency = VirtualCurrencyCurrency::getInstance($temporary->currency_id);
 
         // Check currency
         if(strcmp($transaction["txn_currency"], $currency->currency) != 0) {
@@ -256,7 +248,7 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         }
         
         // I am using the number of items to calculate how does it cost.
-        $amount = $currency->calucalte($temporary->number);
+        $amount = $currency->calculate($temporary->number);
         
         // Check for valid amount
         if($transaction["txn_amount"] != $amount) {
@@ -298,14 +290,17 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         // Save data about donation
         $db     = JFactory::getDbo();
         
+        $date             = new JDate($data["txn_date"]);
+        $data["txn_date"] = $date->toSql();
+        
         jimport("virtualcurrency.transaction");
-        $transaction = new VirtualCurrencyTransaction($db);
+        $transaction      = new VirtualCurrencyTransaction();
         $transaction->bind($data);
         $transaction->store();
         
         // Get account and update item amount
         jimport("virtualcurrency.account");
-        $account = new VirtualCurrencyAccount($db);
+        $account = new VirtualCurrencyAccount();
         $keys = array(
         	"user_id"     => $data["receiver_id"], 
         	"currency_id" => $data["currency_id"]

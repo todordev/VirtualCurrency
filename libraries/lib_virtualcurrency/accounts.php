@@ -19,14 +19,33 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package 	 Virtual Currency
  * @subpackage   Library
-  */
+ */
 class VirtualCurrencyAccounts {
     
-    protected $db       = null;
-    protected $accounts = array();
+    protected $db               = null;
+    protected $accounts         = array();
     
-    public function __construct($db) {
-        $this->db = $db;
+    protected static $instances = array();
+    
+    public function __construct($userId = 0) {
+        
+        // Set database driver
+        $this->db = JFactory::getDbo();
+        
+        // Load data
+        if(!empty($userId)) {
+            $this->load($userId);
+        }
+    }
+    
+    public static function getInstance($userId = 0)  {
+    
+        if (empty(self::$instances[$userId])){
+            $accounts = new VirtualCurrencyAccounts($userId);
+            self::$instances[$userId] = $accounts;
+        }
+    
+        return self::$instances[$userId];
     }
     
     /**

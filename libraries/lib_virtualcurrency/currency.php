@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      ITPrism Components
-* @subpackage   Virtual Currency
+* @package      Virtual Currency
+* @subpackage   Library
 * @author       Todor Iliev
 * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
 * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -18,13 +18,32 @@ JLoader::register("VirtualCurrencyTableCurrency", JPATH_ADMINISTRATOR .DIRECTORY
 /**
  * This class contains methods that are used for managing currency.
  *
- * @package 	 ITPrism Components
- * @subpackage   Virtual Currency
-  */
-class VirtualCurrencyCurrency extends VirtualCurrencyTableCurrency{
+ * @package      Virtual Currency
+ * @subpackage   Library
+ */
+class VirtualCurrencyCurrency extends VirtualCurrencyTableCurrency {
     
-    public function __construct( $db ) {
-        parent::__construct( $db );
+    protected static $instances = array();
+    
+    public function __construct($id = 0) {
+        
+        // Set database driver
+        $db = JFactory::getDbo();
+        parent::__construct($db);
+        
+        if(!empty($id)) {
+            $this->load($id);
+        }
+    }
+    
+    public static function getInstance($id = 0)  {
+    
+        if (empty(self::$instances[$id])){
+            $currency = new VirtualCurrencyCurrency($id);
+            self::$instances[$id] = $currency;
+        }
+    
+        return self::$instances[$id];
     }
     
     /*

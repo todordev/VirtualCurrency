@@ -40,7 +40,7 @@ defined('_JEXEC') or die;
     	<td class="center">
     	    <?php echo JHtml::_('date', $item->txn_date, JText::_('DATE_FORMAT_LC3')); ?>
         </td>
-    	<td class="center">
+    	<td>
     	    <?php echo $item->txn_id; ?>
         </td>
     	<td class="center">

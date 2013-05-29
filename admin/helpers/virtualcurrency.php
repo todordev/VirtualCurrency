@@ -16,7 +16,6 @@
  */
 class VirtualCurrencyHelper {
 	
-    static $currency   = null;
     static $extension  = "com_virtualcurrency";
       
 	/**
@@ -63,6 +62,30 @@ class VirtualCurrencyHelper {
 			$vName == 'plugins'
 		);
 		
+	}
+	
+	
+	/**
+	 * This method returns account ID using user id and currency id.
+	 *
+	 * @param  integer $userId
+	 * @param  integer $currencyId
+	 * @return boolean
+	 */
+	public static function getAccountId($userId, $currencyId) {
+	
+	    $db    = JFactory::getDbo();
+	
+	    $query = $db->getQuery(true);
+	    $query
+    	    ->select("a.id")
+    	    ->from($db->quoteName("#__vc_accounts") . " AS a")
+    	    ->where("a.user_id = " . (int)$userId)
+    	    ->where("a.currency_id = " . (int)$currencyId);
+	
+	    $db->setQuery($query, 0, 1);
+	
+	    return (bool)$db->loadResult();
 	}
 	
 }

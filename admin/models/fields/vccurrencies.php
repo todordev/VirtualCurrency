@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package      Virtual Currency
+ * @subpackage   Component
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -20,9 +20,9 @@ JFormHelper::loadFieldClass('list');
 /**
  * Form Field class for the Joomla Framework.
  *
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
- * @since       1.6
+ * @package      Virtual Currency
+ * @subpackage   Fields
+ * @since        1.6
  */
 class JFormFieldVcCurrencies extends JFormFieldList {
     /**

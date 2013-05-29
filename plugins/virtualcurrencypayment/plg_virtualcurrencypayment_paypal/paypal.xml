@@ -29,7 +29,7 @@
 				<field name="paypal_url" type="text" size="80" default="https://www.paypal.com/cgi-bin/webscr" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_PAYPAL_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_PAYPAL_URL_DESC" />
 				<field name="paypal_return_url" type="text" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_RETURN_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_RETURN_URL_DESC" />
 				<field name="paypal_cancel_url" type="text" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_CANCEL_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_CANCEL_URL_DESC" />
-				<field name="paypal_notify_url" type="text" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_NOTIFY_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_NOTIFY_URL_DESC" />
+				<field name="paypal_notify_url" type="text" default="index.php?option=com_virtualcurrency&amp;task=notifier.notify&amp;format=raw" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_NOTIFY_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_NOTIFY_URL_DESC" />
 				<field name="paypal_image_url" type="text" default="" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_IMAGE_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_IMAGE_URL_DESC" />
 				<field name="paypal_cpp_headerback_color" type="text" default="" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_HEADERBACK_COLOR" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_HEADERBACK_COLOR_DESC" />
 				<field name="spacer" type="spacer" hr="true" />

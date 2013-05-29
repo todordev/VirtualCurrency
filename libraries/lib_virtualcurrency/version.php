@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      ITPrism Components
-* @subpackage   Virtual Currency
+* @package      Virtual Currency
+* @subpackage   Library
 * @author       Todor Iliev
 * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
 * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -16,9 +16,9 @@ defined('JPATH_PLATFORM') or die;
 /**
  * Version information
  *
- * @package 	 ITPrism Components
- * @subpackage   Virtual Currency
-  */
+ * @package      Virtual Currency
+ * @subpackage   Library
+ */
 class VirtualCurrencyVersion {
 	
     /**
@@ -61,7 +61,7 @@ class VirtualCurrencyVersion {
      * 
      * @var string
      */
-    public $releaseDate= '30-May-2013';
+    public $releaseDate= '31-May-2013';
     
     /**
      * License

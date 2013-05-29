@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      ITPrism Components
-* @subpackage   Virtual Currency
+* @package      Virtual Currency
+* @subpackage   Libarary
 * @author       Todor Iliev
 * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
 * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -14,26 +14,33 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * Version information
+ * This class contains methods used for managing a set of currencies.
  *
- * @package 	 ITPrism Components
- * @subpackage   Virtual Currency
-  */
+ * @package      Virtual Currency
+ * @subpackage   Library
+ */
 class VirtualCurrencyCurrencies {
     
-    protected $db         = null;
-    protected $currencies = array();
+    protected $db               = null;
+    protected $currencies       = array();
     
-    public function __construct($db) {
-        $this->db = $db;
+    public function __construct($state = null) {
+        
+        // Set database driver
+        $this->db = JFactory::getDbo();
+        
+        if(!is_null($state)) {
+            $this->load($state);
+        }
+        
     }
     
     /**
-     * 
      * Load all currencies
-     * @param mixed $state 1 = published, 2 = unpublished, null = all
+     * 
+     * @param integer $state 1 = published, 2 = unpublished, 0 = all
      */
-    public function load($state = null) {
+    public function load($state = 0) {
         
         $query = $this->db->getQuery(true);
         

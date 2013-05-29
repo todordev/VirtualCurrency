@@ -46,12 +46,11 @@ class VirtualCurrencyViewTransactions extends JView {
 		JHtml::addIncludePath(JPATH_COMPONENT_SITE.'/helpers/html');
 		
 		// Load currencies
-		$db = JFactory::getDbo();
 		jimport("virtualcurrency.currencies");
-		$this->currencies = new VirtualCurrencyCurrencies($db);
-		$this->currencies->load();
+		$published        = 1;
+		$this->currencies = new VirtualCurrencyCurrencies($published);
 		
-		$this->version        = new VirtualCurrencyVersion();
+		$this->version    = new VirtualCurrencyVersion();
 		
         $this->prepareDocument();
                 

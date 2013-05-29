@@ -17,8 +17,6 @@ jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewOrdering extends JView {
     
-    const PUBLISHED = 1;
-    
     protected $state;
     protected $item;
     protected $params;
@@ -91,10 +89,8 @@ class VirtualCurrencyViewOrdering extends JView {
 
         jimport("virtualcurrency.currencies");
         
-        $db = JFactory::getDbo();
-        $currencies           = new VirtualCurrencyCurrencies($db);
-        $currencies->load(self::PUBLISHED);
-        
+        $published            = 1;
+        $currencies           = new VirtualCurrencyCurrencies($published);
         $this->currencies     = $currencies->getCurrencies();
         
         // Get item if there is one

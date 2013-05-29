@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      ITPrism Components
-* @subpackage   Virtual Currency
+* @package      Virtual Currency
+* @subpackage   Library
 * @author       Todor Iliev
 * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
 * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -18,13 +18,17 @@ JLoader::register("VirtualCurrencyTableTransaction", JPATH_ADMINISTRATOR .DIRECT
 /**
  * This class contains methods that are used for managing transactions.
  *
- * @package 	 ITPrism Components
- * @subpackage   Virtual Currency
-  */
+ * @package 	 Virtual Currency
+ * @subpackage   Library 
+ */
 class VirtualCurrencyTransaction extends VirtualCurrencyTableTransaction {
     
-    public function __construct( $db ) {
-        parent::__construct( $db );
+    public function __construct() {
+        
+        // Set database driver
+        $db = JFactory::getDbo();
+        parent::__construct($db);
+        
     }
     
 }

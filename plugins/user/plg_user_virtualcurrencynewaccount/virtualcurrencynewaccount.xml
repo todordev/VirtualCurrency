@@ -20,4 +20,22 @@
         <filename>index.html</filename>
     </files>
     
+    <config>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="/administrator/components/com_virtualcurrency/models/fields">
+                <field name="give_units" type="radio" default="0" label="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_GIVE_UNITS" description="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_GIVE_UNITS_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="give_units_unit" type="vccurrencies" label="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_UNIT_DESC" />
+                <field name="give_units_number" type="text" label="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_NUMBER_DESC" />
+                <field name="give_units_integrate" type="list" default="" label="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_INTEGRATE" description="PLG_USER_VIRTUALCURRENCYNEWACCOUNT_INTEGRATE_DESC">
+                    <option value="">PLG_USER_VIRTUALCURRENCYNEWACCOUNT_NONE</option>
+                    <option value="gamification">PLG_USER_VIRTUALCURRENCYNEWACCOUNT_GAMIFICATION_PLATFORM</option>
+                    <option value="socialcommunity">PLG_USER_VIRTUALCURRENCYNEWACCOUNT_SOCIAL_COMMUNITY</option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+    
 </extension>

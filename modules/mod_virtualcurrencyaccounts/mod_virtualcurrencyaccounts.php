@@ -29,12 +29,8 @@ if(!empty($userId)) {
     
     jimport("virtualcurrency.accounts");
     
-    $db       = JFactory::getDbo();
-    
-    $vcAccounts = new VirtualCurrencyAccounts($db);
-    $vcAccounts->load($userId);
-    
-    $accounts = $vcAccounts->getAccounts();
+    $vcAccounts = new VirtualCurrencyAccounts($userId);
+    $accounts   = $vcAccounts->getAccounts();
     
 }
 
