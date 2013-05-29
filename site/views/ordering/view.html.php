@@ -271,7 +271,6 @@ class VirtualCurrencyViewOrdering extends JView {
         
         // Prepare page title
         $title = $this->params->get('page_title', '');
-//        $title = JText::sprintf("COM_VIRTUALCURRENCY_BUY_VIRTUAL_CURRENCY", $this->escape($this->item->title) );
         
         // Add title before or after Site Name
         if (!$title) {

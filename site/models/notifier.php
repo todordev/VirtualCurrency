@@ -50,7 +50,9 @@ class VirtualCurrencyModelNotifier extends JModel {
         $app = JFactory::getApplication();
         /** @var $app JSite **/
         
-        $db = JFactory::getDbo();
+        $user = JFactory::getUser($data["receiver_id"]);
+        
+        $db   = JFactory::getDbo();
         
         // Get currency
         jimport("virtualcurrency.currency");
@@ -60,7 +62,7 @@ class VirtualCurrencyModelNotifier extends JModel {
          // Send email to the administrator
         $subject = JText::sprintf("COM_VIRTUALCURRENCY_NEW_ORDER_USER_SUBJECT", $app->getCfg("sitename"));
         $body    = JText::sprintf("COM_VIRTUALCURRENCY_NEW_ORDER_USER_BODY", $data["number"], $currency->title, $app->getCfg("sitename") );
-        $return  = JFactory::getMailer()->sendMail($app->getCfg("mailfrom"), $app->getCfg("fromname"), $app->getCfg("mailfrom"), $subject, $body);
+        $return  = JFactory::getMailer()->sendMail($app->getCfg("mailfrom"), $app->getCfg("fromname"), $user->email, $subject, $body);
 		
 		// Check for an error.
 		if ($return !== true) {

@@ -58,7 +58,7 @@ class VirtualCurrencyControllerNotifier extends JController {
         
         $requestMethod = $app->input->getMethod();
         if("POST" != $requestMethod) {
-            $error  = "COM_VIRTUALCURRENCY_ERROR_INVALID_TRANSACTION_REQUEST_METHOD (" .$requestMethod . "):\n";
+            $error  = JText::sprintf("COM_VIRTUALCURRENCY_ERROR_INVALID_TRANSACTION_REQUEST_METHOD", $requestMethod)."\n";
             $error .= "INPUT: " . var_export($app->input, true) . "\n";
             JLog::add($error);
             return;
@@ -74,10 +74,10 @@ class VirtualCurrencyControllerNotifier extends JController {
             JPluginHelper::importPlugin('virtualcurrencypayment');
             $results     = $dispatcher->trigger('onPaymenNotify', array('com_virtualcurrency.notify', $_POST, $params));
             
+            // Prepare results
             $transaction = null;
-            
             if(!empty($results)) {
-                $transaction = array_shift($results);
+                $transaction = (array)array_shift($results);
             }
             
             // Check for error.

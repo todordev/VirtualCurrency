@@ -48,6 +48,12 @@ class VirtualCurrencyControllerPartner extends ITPrismControllerFormBackend {
         $data    = $app->input->post->get('jform', array(), 'array');
         $itemId  = JArrayHelper::getValue($data, "id");
         
+        // Prepare return data
+        $redirectData = array(
+            "task" => $this->getTask(),
+            "id"   => $itemId
+        );
+        
         $model   = $this->getModel();
         /** @var $model Virtual CurrencyModelPartner **/
         
@@ -63,27 +69,23 @@ class VirtualCurrencyControllerPartner extends ITPrismControllerFormBackend {
         
         // Check for errors
         if($validData === false){
-            
-            $this->defaultLink .= "&view=".$this->view_item.$this->getRedirectToItemAppend($itemId);
-            
-            $this->setMessage($model->getError(), "notice");
-            $this->setRedirect(JRoute::_($this->defaultLink, false));
-            return ;
+            $this->displayNotice($form->getErrors(), $redirectData);
+            return;
         }
             
-        try{
+        try {
             
             $itemId = $model->save($validData);
                 
-        } catch (Exception $e){
+            // Prepare return data
+            $redirectData["id"] = $itemId;
             
+        } catch (Exception $e) {
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
-        
         }
         
-        $link = $this->prepareRedirectLink($itemId);
-        $this->setRedirect(JRoute::_($link, false), JText::_('COM_VIRTUALCURRENCY_PARTNER_SAVED'));
+        $this->displayMessage(JText::_("COM_VIRTUALCURRENCY_PARTNER_SAVED"), $redirectData);
     
     }
     

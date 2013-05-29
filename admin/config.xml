@@ -9,8 +9,18 @@
         <field name="ordering_service_terms_url" type="text" default="" size="50" label="COM_VIRTUALCURRENCY_ORDERING_TERMS_URL" description="COM_VIRTUALCURRENCY_ORDERING_TERMS_URL_DESC" />
         
         <field name="ordering_bank_id" type="user" default="" label="COM_VIRTUALCURRENCY_ORDERING_BANK" description="COM_VIRTUALCURRENCY_ORDERING_BANK_DESC" />
-        
     </fieldset>
+     
+     <fieldset name="security" label="COM_VIRTUALCURRENCY_SECURITY" description="COM_VIRTUALCURRENCY_SECURITY_PARAMS">
+        <field name="security_send_mail_admin" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN_DESC">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field name="security_send_mail_user" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER_DESC">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+     </fieldset>
      
     <fieldset name="debug" label="COM_VIRTUALCURRENCY_DEBUG" description="COM_VIRTUALCURRENCY_DEBUG_PARAMS">
         <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED" description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC">

@@ -76,8 +76,7 @@ class VirtualCurrencyModelAccount extends JModelAdmin {
      * Save data into the DB
      * 
      * @param $data   The data about item
-     * 
-     * @return     Item ID
+     * @return mixed  Item ID or null
      */
     public function save($data){
         
@@ -102,5 +101,27 @@ class VirtualCurrencyModelAccount extends JModelAdmin {
     
     }
     
+    /**
+     * This method checks for available account.
+     * 
+     * @param integer $userId
+     * @param integer $currencyId
+     * @return boolean
+     */
+    public function isExist($userId, $currencyId) {
+        
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $query
+            ->select("COUNT(*) AS number")
+            ->from($db->quoteName("#__vc_accounts") . " AS a")
+            ->where("a.user_id = " . (int)$userId)
+            ->where("a.currency_id = " . (int)$currencyId);
+        
+        $db->setQuery($query, 0, 1);
+        $result = $db->loadResult();
+        
+        return (!$result) ? false : true;
+    }
     
 }

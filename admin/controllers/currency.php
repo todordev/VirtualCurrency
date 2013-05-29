@@ -47,7 +47,7 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend {
         $data    = $app->input->post->get('jform', array(), 'array');
         $itemId  = JArrayHelper::getValue($data, "id");
         
-        $responseData = array(
+        $redirectData = array(
             "task" => $this->getTask(),
             "id"   => $itemId
         );
@@ -67,7 +67,7 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend {
         
         // Check for errors.
         if($validData === false){
-            $this->displayNotice($form->getErrors(), $responseData);
+            $this->displayNotice($form->getErrors(), $redirectData);
             return;
         }
             
@@ -75,7 +75,7 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend {
             
             $itemId = $model->save($validData);
             
-            $responseData["id"] = $itemId;
+            $redirectData["id"] = $itemId;
             
         } catch ( Exception $e ){
             
@@ -84,7 +84,7 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend {
         
         }
         
-        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_CURRENCY_SAVED'), $responseData);
+        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_CURRENCY_SAVED'), $redirectData);
     
     }
     

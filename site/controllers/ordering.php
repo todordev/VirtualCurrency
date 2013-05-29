@@ -59,6 +59,10 @@ class VirtualCurrencyControllerOrdering extends ITPrismControllerFormFrontend {
 		// Get the data from the form
 		$itemId    = $app->input->post->getInt('id', 0);
 		
+		$redirectDataError = array(
+	        "view" => "ordering"
+		);
+		
         $model     = $this->getModel();
         /** @var $model VirtualCurrencyModelOrdering **/
         
@@ -73,11 +77,7 @@ class VirtualCurrencyControllerOrdering extends ITPrismControllerFormFrontend {
             
             $terms = $app->input->post->get("terms", 0);
             if(!$terms) {
-                $redirectData = array(
-                    "view" => "ordering"
-                );
-                
-                $this->displayNotice(JText::_("COM_VIRTUALCURRENCY_ERROR_TERMS_NOT_ACCEPTED"), $redirectData);
+                $this->displayNotice(JText::_("COM_VIRTUALCURRENCY_ERROR_TERMS_NOT_ACCEPTED"), $redirectDataError);
                 return; 
             }
         }
@@ -85,10 +85,7 @@ class VirtualCurrencyControllerOrdering extends ITPrismControllerFormFrontend {
         // Check for valid amount
         $amount       = $app->input->post->get("amount", 0, "float");
         if(!$amount) {
-            $redirectData = array(
-                "view" => "ordering"
-            );
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectData);
+            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectDataError);
             return; 
         }
         
@@ -96,19 +93,13 @@ class VirtualCurrencyControllerOrdering extends ITPrismControllerFormFrontend {
         // Check for valid item
         $item   = $model->getItem($itemId);
         if(empty($item->id))  {
-            $redirectData = array(
-                "view" => "ordering"
-            );
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_CURRENCY'), $redirectData);
+            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_CURRENCY'), $redirectDataError);
             return;
         }
         
         // Check for valid allowed items for buying
         if($amount < $item->minimum) {
-            $redirectData = array(
-                "view" => "ordering"
-            );
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectData);
+            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectDataError);
             return; 
         }
         
@@ -167,10 +158,7 @@ class VirtualCurrencyControllerOrdering extends ITPrismControllerFormFrontend {
             "view"   => "ordering"
         );
         
-        $link = $this->prepareRedirectLink($redirectData);
-	    $this->setRedirect(JRoute::_($link, false));
-		    
-        return true;
+        $this->displayNotice($msg, $redirectData);
     } 
     
 }

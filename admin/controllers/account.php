@@ -35,10 +35,14 @@ class VirtualCurrencyControllerAccount extends ITPrismControllerFormBackend {
         $app = JFactory::getApplication();
         /** @var $app JAdministrator **/
         
-        $msg     = "";
-        $link    = "";
         $data    = $app->input->post->get('jform', array(), 'array');
         $itemId  = JArrayHelper::getValue($data, "id");
+        
+        // Prepare return data
+        $redirectData = array(
+            "task" => $this->getTask(),
+            "id"   => $itemId
+        );
         
         $model   = $this->getModel();
         /** @var $model Virtual CurrencyModelAccount **/
@@ -55,36 +59,37 @@ class VirtualCurrencyControllerAccount extends ITPrismControllerFormBackend {
         
         // Check for errors.
         if($validData === false){
-            
-            $link = $this->prepareRedirectLink();
-            
-            $this->setMessage($model->getError(), "notice");
-            $this->setRedirect(JRoute::_($link, false));
+            $this->displayNotice($form->getErrors(), $redirectData);
             return;
         }
         
         // Check user ID
         $userId = JArrayHelper::getValue($validData, "user_id");
         if(!$userId){
-            
-            $link = $this->prepareRedirectLink();
-            
-            $this->setMessage(JText::_("COM_VIRTUALCURRENCY_ERROR_INVALID_USER"), "notice");
-            $this->setRedirect(JRoute::_($link, false));
+            $this->displayNotice(JText::_("COM_VIRTUALCURRENCY_ERROR_INVALID_USER"), $redirectData);
             return;
         }
             
-        try{
+        // Check for existing account for that currency
+        $currencyId  = JArrayHelper::getValue($data, "currency_id");
+        if(!$itemId AND $model->isExist($userId, $currencyId)){
+            $this->displayNotice(JText::_("COM_VIRTUALCURRENCY_ERROR_ACCOUNT_EXISTS"), $redirectData);
+            return;
+        }
+        
+        try {
+            
             $itemId = $model->save($validData);
-        }catch(Exception $e){
+            
+            // Prepare return data
+            $redirectData["id"] = $itemId;
+            
+        } catch(Exception $e) {
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
         
-        $msg  = JText::_('COM_VIRTUALCURRENCY_ACCOUNT_SAVED');
-        $link = $this->prepareRedirectLink($itemId);
-        
-        $this->setRedirect(JRoute::_($link, false), $msg);
+        $this->displayMessage(JText::_("COM_VIRTUALCURRENCY_ACCOUNT_SAVED"), $redirectData);
     
     }
     
