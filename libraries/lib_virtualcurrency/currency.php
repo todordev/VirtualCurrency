@@ -61,4 +61,29 @@ class VirtualCurrencyCurrency extends VirtualCurrencyTableCurrency {
         
     }
     
+    /**
+     * This method generates an amount using symbol or code of the currency.
+     * 
+     * @param mixed $value This is a value used in the amount string. This can be float, integer,...
+     * @return string
+     */
+    public function getAmountString($value) {
+        
+        if(!empty($this->symbol)) { // Symbol
+            $amount = $this->symbol.$value;
+        } else { // Code
+            $amount = $value.$this->code;
+        }
+        
+        return $amount;
+    }
+    
+    public function getAmount() {
+        return $this->amount;
+    }
+    
+    public function setAmount($amount) {
+        $this->amount = $amount;
+    }
+    
 }

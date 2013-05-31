@@ -159,7 +159,7 @@ class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	            // Add the units to the account
 	            jimport("virtualcurrency.account");
 	            $account  = VirtualCurrencyAccount::getInstance($accountId);
-	            $account->addAmount($number);
+	            $account->increaseAmount($number);
 	            $account->store();
 
 	            // Store transaction

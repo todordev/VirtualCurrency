@@ -38,15 +38,23 @@ class VirtualCurrencyAccount extends VirtualCurrencyTableAccount {
     
     public static function getInstance($id = 0)  {
         
-        if (empty(self::$instances[$id])){
+        // If it is array with user id and currency id, 
+        // I will generate a new array index.
+        if(is_array($id)) {
+            $index = $id["user_id"].":".$id["currency_id"];
+        } else {
+            $index = $id;
+        }
+        
+        if (empty(self::$instances[$index])){
             $account = new VirtualCurrencyAccount($id);
-            self::$instances[$id] = $account;
+            self::$instances[$index] = $account;
         }
     
-        return self::$instances[$id];
+        return self::$instances[$index];
     }
     
-    public function addAmount($value) {
+    public function increaseAmount($value) {
         
         if(is_numeric($value)) {
             $this->amount += $value;
@@ -54,4 +62,14 @@ class VirtualCurrencyAccount extends VirtualCurrencyTableAccount {
         
         return $this;
     }
+    
+    public function decreaseAmount($value) {
+    
+        if(is_numeric($value)) {
+            $this->amount -= $value;
+        }
+    
+        return $this;
+    }
+    
 }

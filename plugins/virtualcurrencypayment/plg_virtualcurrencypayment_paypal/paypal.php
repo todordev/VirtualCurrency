@@ -308,7 +308,7 @@ class plgVirtualCurrencyPaymentPayPal extends JPlugin {
         $account->load($keys);
         
         // Store the number of paid items
-        $account->addAmount($data["number"]);
+        $account->increaseAmount($data["number"]);
         $account->store();
     }
     

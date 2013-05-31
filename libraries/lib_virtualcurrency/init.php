@@ -34,6 +34,7 @@ jimport('joomla.utilities.arrayhelper');
 // Register classes and helpers
 JLoader::register("VirtualCurrencyHelper",  VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . "helpers" . DIRECTORY_SEPARATOR . "virtualcurrency.php");
 JLoader::register("VirtualCurrencyVersion", VIRTUALCURRENCY_PATH_LIBRARY . DIRECTORY_SEPARATOR . "version.php");
+JLoader::register("VirtualCurrencyHelperRoute", VIRTUALCURRENCY_PATH_COMPONENT_SITE . DIRECTORY_SEPARATOR . "helpers" . DIRECTORY_SEPARATOR . "route.php");
 
 // ITPrism classes
 JLoader::register("ITPrismErrors", ITPRISM_PATH_LIBRARY . DIRECTORY_SEPARATOR . "errors.php");

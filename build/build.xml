@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="userideas" default="build" basedir=".">
+	<description>Virtual Currency Ant Build File</description>
+
+	<!-- load variables from config file -->
+	<property name="cfg.configFile" location="antconfig.txt" />
+	<loadproperties srcfile="${cfg.configFile}" />
+
+	<!-- auto values but should be checked -->
+	<property name="cfg.comName" value="com_${cfg.name}" />
+	<property name="cfg.pkgName" value="pkg_${cfg.name}" />
+	
+	<!-- destination directories -->
+	<property name="cfg.adminDestDir" location="${cfg.pkgDir}/admin" />
+	<property name="cfg.adminLanguageDestDir" location="${cfg.pkgDir}/admin/language" />
+	<property name="cfg.mediaDestDir" location="${cfg.pkgDir}/media" />
+	<property name="cfg.siteDestDir" location="${cfg.pkgDir}/site" />
+	<property name="cfg.siteLanguageFilesDir" location="${cfg.pkgDir}/site/language" />
+	<property name="cfg.librariesDestDir" location="${cfg.pkgDir}/libraries" />
+	
+	<property name="cfg.pluginsDestDir" location="${cfg.pkgDir}/plugins" />
+	<property name="cfg.modulesDestDir" location="${cfg.pkgDir}/modules" />
+
+	<!-- Admin, Site and Media source -->
+	<property name="cfg.adminSourceDir" location="${cfg.sourceDir}/administrator/components" />
+	<property name="cfg.siteSourceDir" location="${cfg.sourceDir}/components" />
+	<property name="cfg.mediaSourceDir" location="${cfg.sourceDir}/media" />
+	<property name="cfg.librariesSourceDir" location="${cfg.sourceDir}/libraries" />
+
+	<!-- language source -->
+	<property name="cfg.adminLanguageSourceDir" location="${cfg.sourceDir}/administrator/language/en-GB" />
+	<property name="cfg.siteLanguageSourceDir" location="${cfg.sourceDir}/language/en-GB" />
+
+	<!-- plugins source -->
+    <property name="cfg.pluginsSourceDir" location="${cfg.sourceDir}/plugins" />
+	
+	<!-- modules source -->
+    <property name="cfg.modulesSourceDir" location="${cfg.sourceDir}/modules" />
+	
+	<target name="build" depends="init, build_component, info" />
+
+	<target name="init" description="creates nessecary directory to build with">
+		<mkdir dir="${cfg.pkgDir}/admin" />
+		<mkdir dir="${cfg.pkgDir}/admin/language" />
+		<mkdir dir="${cfg.pkgDir}/media" />
+		<mkdir dir="${cfg.pkgDir}/site" />
+		<mkdir dir="${cfg.pkgDir}/site/language" />
+		<mkdir dir="${cfg.pkgDir}/libraries" />
+		<mkdir dir="${cfg.pkgDir}/packages" />
+		<mkdir dir="${cfg.pkgDir}/modules" />
+		<mkdir dir="${cfg.pkgDir}/plugins" />
+		
+		<!-- plugins -->
+		<mkdir dir="${cfg.pkgDir}/plugins/user/plg_user_virtualcurrencynewaccount" />
+		<mkdir dir="${cfg.pkgDir}/plugins/user/plg_user_virtualcurrencynewaccount/language" />
+		
+		<mkdir dir="${cfg.pkgDir}/plugins/virtualcurrencypayment/plg_virtualcurrencypayment_paypal" />
+		<mkdir dir="${cfg.pkgDir}/plugins/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language" />
+		
+		<!-- modules -->
+		<mkdir dir="${cfg.pkgDir}/modules/mod_virtualcurrencyaccounts" />
+		<mkdir dir="${cfg.pkgDir}/modules/mod_virtualcurrencyaccounts/language" />
+		
+	</target>
+
+	<!-- copy administration files of the componet -->
+	<copy todir="${cfg.adminDestDir}">
+		<fileset dir="${cfg.adminSourceDir}/${cfg.comName}">
+			<exclude name="**/${cfg.pkgName}.xml" />
+			<exclude name="**/${cfg.name}.xml" />
+			<exclude name="**/README.md" />
+			<exclude name="**/install.php" />
+		</fileset>
+	</copy>
+
+	<!-- copy site files of the componet -->
+	<copy todir="${cfg.siteDestDir}">
+		<fileset dir="${cfg.siteSourceDir}/${cfg.comName}">
+			<include name="**/*" />
+		</fileset>
+	</copy>
+
+	<!-- copy media files of the componet -->
+	<copy todir="${cfg.mediaDestDir}">
+		<fileset dir="${cfg.mediaSourceDir}/${cfg.comName}">
+			<include name="**/*" />
+		</fileset>
+	</copy>
+
+	<!-- copy admin language files of the componet -->
+	<copy file="${cfg.adminLanguageSourceDir}/en-GB.${cfg.comName}.ini" todir="${cfg.adminLanguageDestDir}/en-GB/" />
+	<copy file="${cfg.adminLanguageSourceDir}/en-GB.${cfg.comName}.sys.ini" todir="${cfg.adminLanguageDestDir}/en-GB/" />
+	<copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.adminLanguageDestDir}/" />
+	<copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.adminLanguageDestDir}/en-GB/" />
+
+	<!-- copy site language files of the componet -->
+	<copy file="${cfg.siteLanguageSourceDir}/en-GB.${cfg.comName}.ini" todir="${cfg.siteLanguageFilesDir}/en-GB/" />
+	<copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.siteLanguageFilesDir}/" />
+	<copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.siteLanguageFilesDir}/en-GB/" />
+
+	<!-- copy main files of the componet -->
+    <copy file="${cfg.adminSourceDir}/${cfg.comName}/install.php" todir="${cfg.pkgDir}" />
+    <copy file="${cfg.adminSourceDir}/${cfg.comName}/README.md" todir="${cfg.pkgDir}" />
+    <copy file="${cfg.adminSourceDir}/${cfg.comName}/${cfg.pkgName}.xml" todir="${cfg.pkgDir}" />
+    <copy file="${cfg.adminSourceDir}/${cfg.comName}/${cfg.name}.xml" todir="${cfg.pkgDir}" />
+
+	<!-- copy library files of the componet -->
+    <copy todir="${cfg.librariesDestDir}/lib_${cfg.name}">
+        <fileset dir="${cfg.librariesSourceDir}/${cfg.name}">
+            <include name="**/*" />
+        </fileset>
+    </copy>
+
+	<!-- COPY PLUGINS -->
+	
+	<!-- USER/VIRTUALCURRENCYNEWACCOUNT -->
+	
+	<!-- copy plugin files of user/virtualcurrencynewaccount -->
+    <copy todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount">
+        <fileset dir="${cfg.pluginsSourceDir}/user/virtualcurrencynewaccount">
+            <include name="**/*" />
+        </fileset>
+    </copy>
+	
+	<!-- copy plugin language files of user/virtualcurrencynewaccount -->
+    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_user_virtualcurrencynewaccount.ini" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB" />
+    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_user_virtualcurrencynewaccount.sys.ini" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB" />
+    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language" />
+    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB/" />
+	
+	<!-- VIRTUALCURRENCYPAYMENT/PAYPA -->
+	
+	<!-- copy plugin files of virtualcurrencypayment/paypal -->
+    <copy todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal">
+        <fileset dir="${cfg.pluginsSourceDir}/virtualcurrencypayment/paypal">
+            <include name="**/*" />
+        </fileset>
+    </copy>
+    
+    <!-- copy plugin language files of virtualcurrencypayment/paypal -->
+    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_virtualcurrencypayment_paypal.ini" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB" />
+    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_virtualcurrencypayment_paypal.sys.ini" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB" />
+    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language" />
+    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB/" />
+
+	<!-- END COPY PLUGINS -->
+	
+	
+	<!-- COPY MODULES -->
+	
+	<!-- USER/VIRTUALCURRENCYNEWACCOUNT -->
+	    
+    <!-- copy module files of mod_virtualcurrencyaccounts -->
+    <copy todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts">
+        <fileset dir="${cfg.modulesSourceDir}/mod_virtualcurrencyaccounts">
+            <include name="**/*" />
+        </fileset>
+    </copy>
+
+	<!-- copy module language files of mod_virtualcurrencyaccounts -->
+    <copy file="${cfg.siteLanguageSourceDir}/en-GB.mod_virtualcurrencyaccounts.ini" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB" />
+    <copy file="${cfg.siteLanguageSourceDir}/en-GB.mod_virtualcurrencyaccounts.sys.ini" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB" />
+    <copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language" />
+    <copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB/" />
+	
+	<!-- END COPY MODULES -->
+	
+	<target name="build_component" depends="init" description="packages the finaly component file">
+		
+		<!-- build component -->
+		<zip destfile="${cfg.pkgDir}/packages/${cfg.comName}.zip" basedir="${cfg.pkgDir}" 
+			includes="admin/**,media/**,site/**,${cfg.name}.xml" />
+		
+		<!-- build library -->
+		<zip destfile="${cfg.pkgDir}/packages/lib_${cfg.name}.zip" basedir="${cfg.librariesDestDir}/lib_${cfg.name}" />
+		
+		<!-- build plugins -->
+		<zip destfile="${cfg.pkgDir}/packages/plg_user_virtualcurrencynewaccount.zip" basedir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount" />
+		<zip destfile="${cfg.pkgDir}/packages/plg_virtualcurrencypayment_paypal.zip" basedir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal" />
+		
+		<!-- build modules -->
+		<zip destfile="${cfg.pkgDir}/packages/mod_virtualcurrencyaccounts.zip" basedir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts" />
+		
+		<!-- build package -->
+		<zip destfile="${cfg.pkgDir}/${cfg.pkgName}_${cfg.version}-${cfg.joomlaVersion}.zip" basedir="${cfg.pkgDir}" 
+			includes="packages/**,${cfg.pkgName}.xml,install.php,README.md" />
+		
+	</target>
+
+	<target name="info" description="prints information">
+		<echo message="Project:                 ${cfg.name}" />
+		<tstamp>
+			<format property="buildtime" pattern="yyyy-MM-dd'T'HH:mm:ss" />
+		</tstamp>
+		<echo message="Buildtime:       ${buildtime}" />
+	</target>
+</project>
