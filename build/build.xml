@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="userideas" default="build" basedir=".">
+<project name="virtualcurrency" default="build" basedir=".">
 	<description>Virtual Currency Ant Build File</description>
 
 	<!-- load variables from config file -->
