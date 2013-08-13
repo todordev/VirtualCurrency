@@ -128,7 +128,7 @@
     <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language" />
     <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB/" />
 	
-	<!-- VIRTUALCURRENCYPAYMENT/PAYPA -->
+	<!-- VIRTUALCURRENCYPAYMENT/PAYPAL -->
 	
 	<!-- copy plugin files of virtualcurrencypayment/paypal -->
     <copy todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal">
@@ -148,7 +148,7 @@
 	
 	<!-- COPY MODULES -->
 	
-	<!-- USER/VIRTUALCURRENCYNEWACCOUNT -->
+	<!-- MOD_VIRTUALCURRENCYNEWACCOUNT -->
 	    
     <!-- copy module files of mod_virtualcurrencyaccounts -->
     <copy todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts">
