@@ -41,6 +41,10 @@ class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	    
 		if ($isnew) {
 		    
+		    if(!JComponentHelper::isEnabled("com_virtualcurrency")) {
+		        return;
+		    }
+		    
 			$userId = JArrayHelper::getValue($user, 'id');
 			
 			// Create accounts
@@ -67,6 +71,10 @@ class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	 */
 	public function onUserLogin($user, $options) {
 
+	    if(!JComponentHelper::isEnabled("com_virtualcurrency")) {
+	        return;
+	    }
+	    
 	    // Get user id
 	    $userName = JArrayHelper::getValue($user, 'username');
 	     
@@ -107,11 +115,11 @@ class plgUserVirtualCurrencyNewAccount extends JPlugin {
 	    // Get currencies
 	    jimport('virtualcurrency.currencies');
 	    
-	    $published = 1;
+	    $options = array(
+            "state" => 1
+	    );
 	    
-	    $currencies = new VirtualCurrencyCurrencies();
-	    $currencies->load($published);
-	    
+	    $currencies = new VirtualCurrencyCurrencies($options);
 	    $c = $currencies->getCurrencies();
 	    
 	    // Check and create accounts

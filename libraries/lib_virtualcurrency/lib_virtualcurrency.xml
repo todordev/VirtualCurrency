@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="library" version="2.5" method="upgrade">
+<extension type="library" version="3.1" method="upgrade">
 	<name>Virtual Currency Library</name>
 	<libraryname>virtualcurrency</libraryname>
 	<author>Todor Iliev</author>
@@ -9,8 +9,8 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
 	<packager>ITPrism</packager>
 	<packagerurl>http://itprism.com</packagerurl>
-	<version>1.0</version>
-	<creationDate>31 May, 2013</creationDate>
+	<version>1.1</version>
+	<creationDate>25 August, 2013</creationDate>
 	<description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
 	<files folder="files">
 		<file>account.php</file>

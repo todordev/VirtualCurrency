@@ -21,7 +21,10 @@ defined('_JEXEC') or die;?>
 	
 	<div class="row-fluid">
 		<div class="span12">
-    		<?php echo $this->loadTemplate("nav");?>	
+    		<?php 
+    		$layout      = new JLayoutFile('wizard', $this->layoutsBasePath);
+    		echo $layout->render($this->layoutData);
+    		?>
     	</div>
 	</div>
 	
@@ -49,7 +52,7 @@ defined('_JEXEC') or die;?>
                     <?php }?>
     				
     				<div class="clearfix"></div>
-    				<button type="submit" class="button" <?php echo $this->disabledButton;?>><?php echo JText::_("COM_VIRTUALCURRENCY_CONTINUE");?></button>
+    				<button type="submit" class="btn" <?php echo $this->disabledButton;?>><?php echo JText::_("COM_VIRTUALCURRENCY_CONTINUE");?></button>
         				
                 </form>
             </div>

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package      Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -29,19 +29,19 @@ class VirtualCurrencyHelper {
 	 */
 	public static function addSubmenu($vName = 'dashboard') {
 	    
-	    JSubMenuHelper::addEntry(
+	    JHtmlSidebar::addEntry(
 			JText::_('COM_VIRTUALCURRENCY_DASHBOARD'),
 			'index.php?option='.self::$extension.'&view=dashboard',
 			$vName == 'dashboard'
 		);
 		
-		JSubMenuHelper::addEntry(
+		JHtmlSidebar::addEntry(
 			JText::_('COM_VIRTUALCURRENCY_CURRENCIES'),
 			'index.php?option='.self::$extension.'&view=currencies',
 			$vName == 'currencies'
 		);
 		
-		JSubMenuHelper::addEntry(
+		JHtmlSidebar::addEntry(
 			JText::_('COM_VIRTUALCURRENCY_ACCOUNTS'),
 			'index.php?option='.self::$extension.'&view=accounts',
 			$vName == 'accounts'
@@ -53,13 +53,13 @@ class VirtualCurrencyHelper {
 			$vName == 'partners'
 		);*/
 		
-		JSubMenuHelper::addEntry(
+		JHtmlSidebar::addEntry(
 			JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS'),
 			'index.php?option='.self::$extension.'&view=transactions',
 			$vName == 'transactions'
 		);
 		
-		JSubMenuHelper::addEntry(
+		JHtmlSidebar::addEntry(
 			JText::_('COM_VIRTUALCURRENCY_PLUGINS'),
 			'index.php?option=com_plugins&view=plugins&filter_search='.rawurlencode("virtual currency"),
 			$vName == 'plugins'

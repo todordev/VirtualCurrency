@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -14,31 +14,37 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<form enctype="multipart/form-data"  action="<?php echo JRoute::_('index.php?option=com_virtualcurrency'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate" >
-    <div class="width-40 fltlft">
-        <fieldset class="adminform">
-            <legend><?php echo JText::_("COM_VIRTUALCURRENCY_ACCOUNT_LEGEND"); ?></legend>
+<div class="row-fluid">
+	<div class="span6 form-horizontal">
+        <form action="<?php echo JRoute::_('index.php?option=com_virtualcurrency'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate" >
+            <fieldset class="adminform">
             
-            <ul class="adminformlist">
-                <li><?php echo $this->form->getLabel('user_id'); ?>
-                <?php echo $this->form->getInput('user_id'); ?></li>
+                <div class="control-group">
+                    <div class="control-label"><?php echo $this->form->getLabel('user_id'); ?></div>
+    				<div class="controls"><?php echo $this->form->getInput('user_id'); ?></div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><?php echo $this->form->getLabel('amount'); ?></div>
+    				<div class="controls"><?php echo $this->form->getInput('amount'); ?></div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><?php echo $this->form->getLabel('currency_id'); ?></div>
+    				<div class="controls"><?php echo $this->form->getInput('currency_id'); ?></div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><?php echo $this->form->getLabel('note'); ?></div>
+    				<div class="controls"><?php echo $this->form->getInput('note'); ?></div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><?php echo $this->form->getLabel('id'); ?></div>
+    				<div class="controls"><?php echo $this->form->getInput('id'); ?></div>
+                </div>
                 
-                <li><?php echo $this->form->getLabel('amount'); ?>
-                <?php echo $this->form->getInput('amount'); ?></li>
-                
-                <li><?php echo $this->form->getLabel('currency_id'); ?>
-                <?php echo $this->form->getInput('currency_id'); ?></li>
-                
-    			<li><?php echo $this->form->getLabel('note'); ?>
-                <?php echo $this->form->getInput('note'); ?></li>   
-                
-                <li><?php echo $this->form->getLabel('id'); ?>
-                <?php echo $this->form->getInput('id'); ?></li>
-            </ul>
+            </fieldset>
+        
+            <input type="hidden" name="task" value="" />
+            <?php echo JHtml::_('form.token'); ?>
             
-        </fieldset>
+        </form>
     </div>
-
-    <input type="hidden" name="task" value="" />
-    <?php echo JHtml::_('form.token'); ?>
-</form>
+</div>

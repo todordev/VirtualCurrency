@@ -1,15 +1,11 @@
 <?php
 /**
-* @package      Virtual Currency
-* @subpackage   Library
-* @author       Todor Iliev
-* @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
-* @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
-* Virtual Currency is free software. This vpversion may have been modified pursuant
-* to the GNU General Public License, and as distributed it includes or
-* is derivative of works licensed under the GNU General Public License or
-* other free or open source software licenses.
-*/
+ * @package      VirtualCurrency
+ * @subpackage   Library
+ * @author       Todor Iliev
+ * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ */
 
 defined('JPATH_PLATFORM') or die;
 
@@ -17,12 +13,34 @@ JLoader::register("VirtualCurrencyTableTemporary", JPATH_ADMINISTRATOR .DIRECTOR
 
 /**
  * This class contains methods that are used for managing temporary table.
+ * In the temporary table are saved data, 
+ * which will be used during the process of completing transactions.
  *
- * @package 	 Virtual Currency
+ * @package 	 VirtualCurrency
  * @subpackage   Library
  */
 class VirtualCurrencyTemporary extends VirtualCurrencyTableTemporary {
     
+    /**
+     * This method initializes the object.
+     * 
+     * <code>
+     *
+     *  // Prepare data
+     *  $data = array(
+     *      "user_id"     => 300,
+     *      "currency_id" => 1,
+     *      "number"      => 100
+     *  );
+     *  
+     *  // Create an object for storing temporary data.
+     *  $temporary    = new VirtualCurrencyTemporary();
+     *  $temporary->bind($data);
+     *  $temporary->store();
+     *
+     * </code>
+     * 
+     */
     public function __construct() {
         
         // Set database driver

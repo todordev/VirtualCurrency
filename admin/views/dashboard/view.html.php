@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewDashboard extends JView {
+class VirtualCurrencyViewDashboard extends JViewLegacy {
     
     protected $option;
     
@@ -42,9 +42,17 @@ class VirtualCurrencyViewDashboard extends JView {
         VirtualCurrencyHelper::addSubmenu($this->getName());
         
         $this->addToolbar();
+        $this->addSidebar();
         $this->setDocument();
         
         parent::display($tpl);
+    }
+    
+    /**
+     * Add a menu on the sidebar of page
+     */
+    protected function addSidebar() {
+        $this->sidebar = JHtmlSidebar::render();
     }
     
     /**
@@ -72,11 +80,6 @@ class VirtualCurrencyViewDashboard extends JView {
 	    
 		$this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_DASHBOARD'));
 		
-		// Header styles
-		$this->document->addStyleSheet('../media/'.$this->option.'/css/admin/bootstrap.min.css');
-		
-		// Load scripts
-//		JHtml::_('behavior.modal', 'a.modal');
 	}
 	
 }

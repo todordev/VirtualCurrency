@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.model');
 
-class VirtualCurrencyModelNotifier extends JModel {
+class VirtualCurrencyModelNotifier extends JModelLegacy {
     
     /**
      * Send mail to administrator and notify him about new transaction.

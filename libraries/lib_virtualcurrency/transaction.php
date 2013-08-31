@@ -1,15 +1,11 @@
 <?php
 /**
-* @package      Virtual Currency
-* @subpackage   Library
-* @author       Todor Iliev
-* @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
-* @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
-* Virtual Currency is free software. This vpversion may have been modified pursuant
-* to the GNU General Public License, and as distributed it includes or
-* is derivative of works licensed under the GNU General Public License or
-* other free or open source software licenses.
-*/
+ * @package      VirtualCurrency
+ * @subpackage   Library
+ * @author       Todor Iliev
+ * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ */
 
 defined('JPATH_PLATFORM') or die;
 
@@ -18,14 +14,40 @@ JLoader::register("VirtualCurrencyTableTransaction", JPATH_ADMINISTRATOR .DIRECT
 /**
  * This class contains methods that are used for managing transactions.
  *
- * @package 	 Virtual Currency
+ * @package 	 VirtualCurrency
  * @subpackage   Library 
  */
 class VirtualCurrencyTransaction extends VirtualCurrencyTableTransaction {
     
+    /**
+     * This method initializes the object.
+     *
+     * <code>
+     *
+     *  // Prepare data
+     *  $data = array(
+     *      "number"        => 100,
+     *      "txn_id"        => TXN0J09290U2,
+     *      "txn_amount"    => "10.0",
+     *      "txn_currency"  => "USD",
+     *      "txn_status"    => "completed",
+     *      "txn_date"      => "2013-08-18 20:46:16",
+     *      "currency_id"   => 1,
+     *      "seneder_id"    => 200,
+     *      "receiver_id"   => 300,
+     *      "service_provider"      => "PayPal"
+     *  );
+     *
+     *  // Create an object and store transaction data.
+     *  $temporary    = new VirtualCurrencyTransaction();
+     *  $temporary->bind($data);
+     *  $temporary->store();
+     *
+     * </code>
+     *
+     */
     public function __construct() {
         
-        // Set database driver
         $db = JFactory::getDbo();
         parent::__construct($db);
         

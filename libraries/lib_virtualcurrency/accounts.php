@@ -1,15 +1,11 @@
 <?php
 /**
-* @package      Virtual Currency
-* @subpackage   Library
-* @author       Todor Iliev
-* @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
-* @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
-* Virtual Currency is free software. This vpversion may have been modified pursuant
-* to the GNU General Public License, and as distributed it includes or
-* is derivative of works licensed under the GNU General Public License or
-* other free or open source software licenses.
-*/
+ * @package      VirtualCurrency
+ * @subpackage   Library
+ * @author       Todor Iliev
+ * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ */
 
 defined('JPATH_PLATFORM') or die;
 
@@ -17,7 +13,7 @@ defined('JPATH_PLATFORM') or die;
  * This class provides functionality 
  * for managing user accounts.
  *
- * @package 	 Virtual Currency
+ * @package 	 VirtualCurrency
  * @subpackage   Library
  */
 class VirtualCurrencyAccounts {
@@ -27,6 +23,19 @@ class VirtualCurrencyAccounts {
     
     protected static $instances = array();
     
+    /**
+     * Initialize the object loading accounts data.
+     * 
+     * <code>
+     * 
+     *  // Create an object that represents user accounts.
+     *  $userId    = 1;
+     *  $accounts  = new VirtualCurrencyAccounts($userId);
+     *  
+     * </code>
+     * 
+     * @param integer $userId
+     */
     public function __construct($userId = 0) {
         
         // Set database driver
@@ -38,6 +47,20 @@ class VirtualCurrencyAccounts {
         }
     }
     
+    /**
+     * Create an object and store it as an instance.
+     *
+     * <code>
+     * 
+     *  // Create an object that represents user accounts and stores it as an instance.
+     *  $userId    = 1;
+     *  $accounts  = VirtualCurrencyAccounts::getInstance($userId);
+     *  
+     * </code>
+     * 
+     * @param integer $userId
+     * @return VirtualCurrencyAccounts
+     */
     public static function getInstance($userId = 0)  {
     
         if (empty(self::$instances[$userId])){
@@ -49,7 +72,16 @@ class VirtualCurrencyAccounts {
     }
     
     /**
-     * Load all accounts by userId
+     * Load the data for all user accounts by userId
+     * 
+     * <code>
+     * 
+     *  // Load the data of all user virtual accounts.
+     *  $userId    = 1;
+     *  $accounts  = VirtualCurrencyAccounts::getInstance();
+     *  $accounts->load($userId);
+     *  
+     * </code>
      * 
      * @param integer $userId 
      */
@@ -76,6 +108,20 @@ class VirtualCurrencyAccounts {
         }
     }
     
+    /**
+     * Return accounts data.
+     * 
+     * <code>
+     * 
+     *  // Get the data of all user virtual accounts.
+     *  $userId    = 1;
+     *  $accounts  = VirtualCurrencyAccounts::getInstance($userId);
+     *  $data      = $accounts->getAccounts();
+     *  
+     * </code>
+     * 
+     * @return array
+     */
     public function getAccounts() {
         return $this->accounts;
     }

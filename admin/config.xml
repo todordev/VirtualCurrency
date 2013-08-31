@@ -2,7 +2,7 @@
 <config>
     
     <fieldset name="ordering" label="COM_VIRTUALCURRENCY_ORDERING" description="COM_VIRTUALCURRENCY_ORDERING_PARAMS">
-        <field name="ordering_service_terms" type="radio" default="0" label="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS" description="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS_DESC">
+        <field name="ordering_service_terms" type="radio" default="0" label="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS" description="COM_VIRTUALCURRENCY_ORDERING_DISPLAY_TERMS_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
@@ -12,23 +12,23 @@
     </fieldset>
      
      <fieldset name="security" label="COM_VIRTUALCURRENCY_SECURITY" description="COM_VIRTUALCURRENCY_SECURITY_PARAMS">
-        <field name="security_send_mail_admin" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN_DESC">
+        <field name="security_send_mail_admin" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_ADMIN_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
-        <field name="security_send_mail_user" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER_DESC">
+        <field name="security_send_mail_user" type="radio" default="0" label="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER" description="COM_VIRTUALCURRENCY_SECURITY_SEND_MAIL_USER_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
      </fieldset>
      
     <fieldset name="debug" label="COM_VIRTUALCURRENCY_DEBUG" description="COM_VIRTUALCURRENCY_DEBUG_PARAMS">
-        <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED" description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC">
+        <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED" description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
         
-        <field name="debug_disabled_functionality_msg" type="text" default="" size="60" label="COM_VIRTUALCURRENCY_MESSAGE" description="COM_VIRTUALCURRENCY_DEBUG_DISABLED_FUNCTIONALITY_MSG_DESC" />
+        <field name="debug_disabled_functionality_msg" type="text" default="" class="span6" label="COM_VIRTUALCURRENCY_MESSAGE" description="COM_VIRTUALCURRENCY_DEBUG_DISABLED_FUNCTIONALITY_MSG_DESC" />
      </fieldset>
     
 </config>

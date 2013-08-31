@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modelform');
 
-class VirtualCurrencyModelTemporary extends JModel {
+class VirtualCurrencyModelTemporary extends JModelLegacy {
     
     /**
      * Returns a reference to the a Table object, always creating it.

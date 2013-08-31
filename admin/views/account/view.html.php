@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewAccount extends JView {
+class VirtualCurrencyViewAccount extends JViewLegacy {
     
     protected $state;
     protected $item;
@@ -59,16 +59,16 @@ class VirtualCurrencyViewAccount extends JView {
         $this->documentTitle = $isNew  ? JText::_('COM_VIRTUALCURRENCY_NEW_ACCOUNT')
                                        : JText::_('COM_VIRTUALCURRENCY_EDIT_ACCOUNT');
                      
+        JToolBarHelper::title($this->documentTitle);
+        
         JToolBarHelper::apply('account.apply');
         JToolBarHelper::save2new('account.save2new');
         JToolBarHelper::save('account.save');
     
         if(!$isNew){
             JToolBarHelper::cancel('account.cancel',    'JTOOLBAR_CANCEL');
-            JToolBarHelper::title($this->documentTitle, 'itp-edit-account');
         }else{
             JToolBarHelper::cancel('account.cancel',    'JTOOLBAR_CLOSE');
-            JToolBarHelper::title($this->documentTitle, 'itp-new-account');
         }
         
     }
@@ -80,13 +80,12 @@ class VirtualCurrencyViewAccount extends JView {
 	 */
 	protected function setDocument() {
 	    
-	    // Add behaviors
-        JHtml::_('behavior.tooltip');
-        JHtml::_('behavior.formvalidation');
-        
 		$this->document->setTitle($this->documentTitle);
         
 		// Add scripts
+		JHtml::_('behavior.tooltip');
+		JHtml::_('behavior.formvalidation');
+		
 		$this->document->addScript('../media/'.$this->option.'/js/admin/'.JString::strtolower($this->getName()).'.js');
         
 	}

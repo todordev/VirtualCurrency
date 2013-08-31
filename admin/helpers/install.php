@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      ITPrism components
+ * @package     Virtual Currency
  * @subpackage   VirtualCurrency
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.

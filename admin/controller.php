@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -19,10 +19,10 @@ jimport( 'joomla.application.component.controller' );
 /**
  * Default Controller
  *
- * @package		ITPrism Components
+ * @package		Virtual Currency
  * @subpackage	Virtual Currency
   */
-class VirtualCurrencyController extends JController {
+class VirtualCurrencyController extends JControllerLegacy {
     
 	public function display( ) {
 

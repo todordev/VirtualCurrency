@@ -15,17 +15,20 @@
 defined('_JEXEC') or die;
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewOrdering extends JView {
+class VirtualCurrencyViewOrdering extends JViewLegacy {
     
     protected $state;
     protected $item;
     protected $params;
     
     protected $option;
+    protected $layoutsBasePath;
     
     public function __construct($config) {
         parent::__construct($config);
         $this->option = JFactory::getApplication()->input->get("option");
+        
+        $this->layoutsBasePath = JPath::clean(JPATH_COMPONENT_ADMINISTRATOR."/layouts");
     }
     
     public function display($tpl = null) {
@@ -46,17 +49,19 @@ class VirtualCurrencyViewOrdering extends JView {
             return;
         }
         
-        // Set the flag for step one.
-        $this->flagStep1      = $app->getUserState("ordering.step1", false);
-        
         // Include HTML helper
         JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
         
 	    $this->version        = new VirtualCurrencyVersion();
 	    
-        $this->layout         = $this->getLayout();
+        // Prepare the data of the layout
+        $this->layoutData  = new stdClass();
+        $this->layoutData->layout = $this->getLayout();
         
-        switch($this->layout) {
+        // Set the flag for step one.
+        $this->layoutData->flagStep1 = $app->getUserState("ordering.step1", false);
+        
+        switch($this->layoutData->layout) {
             
             case "payment":
                 $this->preparePayment();
@@ -87,10 +92,13 @@ class VirtualCurrencyViewOrdering extends JView {
         // Get amount from session
         $this->currencyAmount = $app->getUserState("ordering.amount", 0);
 
-        jimport("virtualcurrency.currencies");
+        // Load currencies
+        $options              = array(
+            "state" => 1
+        );
         
-        $published            = 1;
-        $currencies           = new VirtualCurrencyCurrencies($published);
+        jimport("virtualcurrency.currencies");
+        $currencies           = new VirtualCurrencyCurrencies($options);
         $this->currencies     = $currencies->getCurrencies();
         
         // Get item if there is one
@@ -112,7 +120,7 @@ class VirtualCurrencyViewOrdering extends JView {
                 // Initialize temporary ID
                 $app->setUserState("ordering.tmp_id", 0);
                 
-                $this->flagStep1 = false;
+                $this->layoutData->flagStep1 = false;
                 
             }
         }
@@ -200,7 +208,6 @@ class VirtualCurrencyViewOrdering extends JView {
         
         $this->total =  JHtml::_("virtualcurrency.total", $this->amount, $this->item->amount);
     
-    
     }
     
     /**
@@ -233,11 +240,10 @@ class VirtualCurrencyViewOrdering extends JView {
         }
         
         // Add styles
-        $this->document->addStyleSheet( 'media/'.$this->option.'/css/site/bootstrap.min.css');
-        $this->document->addStyleSheet( 'media/'.$this->option.'/css/site/style.css');
+        $this->document->addStyleSheet('media/'.$this->option.'/css/site/style.css');
         
         // Add scripts
-        $this->document->addScript(JURI::root() . 'media/'.$this->option.'/js/site/ordering.js');
+        $this->document->addScript('media/'.$this->option.'/js/site/ordering.js');
         
     }
     

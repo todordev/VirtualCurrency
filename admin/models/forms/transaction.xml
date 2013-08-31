@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+
+        <field name="currency_id" type="vccurrencies" 
+            label="COM_VIRTUALCURRENCY_CURRENCY" 
+            required="true"
+        />
+            
+		<field name="number" type="text" 
+			label="COM_VIRTUALCURRENCY_AMOUNT" 
+			description="COM_VIRTUALCURRENCY_AMOUNT_DESC"
+			filter="float" 
+		/>
+
+        <field name="txn_id" type="text" 
+            label="COM_VIRTUALCURRENCY_TXN_ID" 
+            description="COM_VIRTUALCURRENCY_TXN_ID_DESC"
+        />
+        
+        <field name="txn_amount" type="text"  
+            label="COM_VIRTUALCURRENCY_TXN_AMOUNT"
+            description="COM_VIRTUALCURRENCY_TXN_AMOUNT_DESC"  
+            filter="float" 
+        />
+        
+        <field name="txn_currency" type="text"  
+            label="COM_VIRTUALCURRENCY_TXN_CURRENCY"
+            description="COM_VIRTUALCURRENCY_TXN_CURRENCY_DESC"  
+        />
+        
+        <field name="txn_status" type="list"  
+            label="COM_VIRTUALCURRENCY_TXN_STATUS"
+            description="COM_VIRTUALCURRENCY_TXN_STATUS_DESC"  
+        >
+            <option value="completed">COM_VIRTUALCURRENCY_COMPLETED</option>
+            <option value="pending">COM_VIRTUALCURRENCY_PENDING</option>
+        </field>
+        
+        <field name="txn_date" type="calendar"  
+            label="COM_VIRTUALCURRENCY_TXN_DATE"
+            description="COM_VIRTUALCURRENCY_TXN_DATE_DESC"  
+        />
+        
+        <field name="service_provider" type="text"  
+            label="COM_VIRTUALCURRENCY_SERVICE_PROVIDER"
+            description="COM_VIRTUALCURRENCY_SERVICE_PROVIDER_DESC"  
+        />
+        
+        <field name="sender_id" type="user"  
+            label="COM_VIRTUALCURRENCY_SENDER"
+            description="COM_VIRTUALCURRENCY_SENDER_DESC"  
+        />
+        
+        <field name="receiver_id" type="user"  
+            label="COM_VIRTUALCURRENCY_BENEFICIARY"
+            description="COM_VIRTUALCURRENCY_BENEFICIARY_DESC"  
+        />
+        
+		<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+            readonly="true" class="readonly"
+            description="JGLOBAL_FIELD_ID_DESC" />
+            
+	</fieldset>
+</form>

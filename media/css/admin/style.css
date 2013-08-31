@@ -1,18 +1,5 @@
 @CHARSET "UTF-8";
 
-.icon-48-itp-accounts 	    { background-image: url(../../images/accounts_48.png); }
-.icon-48-itp-new-account 	{ background-image: url(../../images/account_new_48.png); }
-.icon-48-itp-edit-account 	{ background-image: url(../../images/account_edit_48.png); }
-
-.icon-48-itp-currencies 	    { background-image: url(../../images/currencies_48.png); }
-.icon-48-itp-new-currency 	{ background-image: url(../../images/currency_new_48.png); }
-.icon-48-itp-edit-currency	{ background-image: url(../../images/currency_edit_48.png); }
-
-.icon-48-itp-partners 	    { background-image: url(../../images/partners_48.png); }
-.icon-48-itp-new-partner 	 { background-image: url(../../images/partner_new_48.png); }
-.icon-48-itp-edit-partner	 { background-image: url(../../images/partner_edit_48.png); }
-
-.icon-48-itp-transactions 	    { background-image: url(../../images/transactions_48.png); }
-
-.icon-48-itp-dashboard 	{ background-image: url(../../images/dashboard_48.png); }
-.icon-32-itp-dashboard-back { background-image: url(../../images/dashboard_back_32.png); }
+.tooltip-inner {
+	white-space: pre-wrap;
+}

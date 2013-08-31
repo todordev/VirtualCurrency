@@ -16,12 +16,11 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewAccounts extends JView {
+class VirtualCurrencyViewAccounts extends JViewLegacy {
     
 	protected $state;
 	protected $items;
 	protected $params;
-	protected $pagination;
 	
     protected $option;
     
@@ -36,12 +35,6 @@ class VirtualCurrencyViewAccounts extends JView {
         $this->items      = $this->get('Items');
 		$this->state	  = $this->get('State');
 		$this->params	  = $this->state->get('params');
-		$this->pagination = $this->get('Pagination');
-        
-		// Prepare filters
-        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn   = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder  = (strcmp($this->listOrder, 'a.ordering') != 0 ) ? false : true;
         
 		JHtml::addIncludePath(JPATH_COMPONENT_SITE.'/helpers/html');
 		
@@ -83,7 +76,6 @@ class VirtualCurrencyViewAccounts extends JView {
 		}
 		
         // Head styles
-        $this->document->addStyleSheet(JURI::root() . 'media/'.$this->option.'/css/site/bootstrap.min.css');
         $this->document->addStyleSheet('media/'.$this->option.'/css/site/style.css');
         
         JHtml::_('behavior.tooltip');

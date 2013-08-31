@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   VirtualCurrency
+ * @package      Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -18,10 +18,10 @@ jimport('joomla.application.component.controller');
 
 /**
  * @package		VirtualCurrency
- * @subpackage	Payments
+ * @subpackage	Components
  * @since		2.5
  */
-class VirtualCurrencyControllerNotifier extends JController {
+class VirtualCurrencyControllerNotifier extends JControllerLegacy {
    
 	/**
      * Method to get a model object, loading it if required.

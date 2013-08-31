@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   VirtualCurrency
+ * @package      Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -15,7 +15,8 @@
 defined('_JEXEC') or die;
 
 $active = array("currency" => false, "payment" => false, "information" => false);
-switch($this->layout) {
+
+switch($displayData->layout) {
     case "default":
         $active["currency"] = true;
         break;
@@ -40,7 +41,7 @@ switch($this->layout) {
             </li>
             
             <li <?php echo ($active["payment"]) ? 'class="active"' : '';?>>
-            	<?php if(!empty($this->flagStep1)){?> 
+            	<?php if(!empty($displayData->flagStep1)){?> 
                 <a href="<?php echo JRoute::_("index.php?option=com_virtualcurrency&view=ordering&layout=payment");?>">
                 (2) <?php echo JText::_("COM_VIRTUALCURRENCY_PAYMENT");?>
                 </a>
@@ -50,7 +51,7 @@ switch($this->layout) {
             </li>
             
             <li <?php echo ($active["information"]) ? 'class="active"' : '';?>>
-            	<?php if(!empty($this->flagStep2)){?> 
+            	<?php if(!empty($displayData->flagStep2)){?> 
                 <a href="<?php echo JRoute::_("index.php?option=com_virtualcurrency&view=buying&layout=share");?>">
                 (3) <?php echo JText::_("COM_VIRTUALCURRENCY_INFORMATION");?>
                 </a>

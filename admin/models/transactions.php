@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -58,9 +58,13 @@ class VirtualCurrencyModelTransactions extends JModelList {
         $params = JComponentHelper::getParams($this->option);
         $this->setState('params', $params);
         
-        // Load the filter state.
+        // Load the filter searc.
         $value = $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search');
         $this->setState('filter.search', $value);
+        
+        // Load the filter state.
+        $value = $this->getUserStateFromRequest($this->context.'.filter.state', 'filter_state');
+        $this->setState('filter.state', $value);
 
         // List state information.
         parent::populateState('a.txn_date', 'asc');
@@ -116,11 +120,19 @@ class VirtualCurrencyModelTransactions extends JModelList {
         $query->innerJoin($db->quoteName('#__users').' AS c ON a.sender_id = c.id');
         $query->innerJoin($db->quoteName('#__users').' AS d ON a.receiver_id = d.id');
 
+        // Filter by state
+        $state = $this->getState('filter.state');
+        if (!empty($state)) {
+            $query->where('a.txn_status = ' . $db->quote($state));
+        }
+        
         // Filter by search in title
         $search = $this->getState('filter.search');
         if (!empty($search)) {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = '.(int) substr($search, 3));
+            } else if (stripos($search, 'tid:') === 0) {
+                $query->where('a.txn_id = '. $db->quote( substr($search, 3)) );
             } else {
                 $escaped = $db->escape($search, true);
                 $quoted  = $db->quote("%" . $escaped . "%", false);

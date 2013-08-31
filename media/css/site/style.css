@@ -38,7 +38,7 @@
 }
 
 .vc-txns-results th, .vc-accounts-results th{
-	text-align: center;
+	text-align: center !important;
 }
 
 .center {

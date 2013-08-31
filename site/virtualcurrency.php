@@ -18,6 +18,6 @@ jimport("virtualcurrency.init");
 
 jimport('joomla.application.component.controller');
 
-$controller = JController::getInstance('VirtualCurrency');
+$controller = JControllerLegacy::getInstance('VirtualCurrency');
 $controller->execute(JFactory::getApplication()->input->getCmd('task'));
 $controller->redirect();

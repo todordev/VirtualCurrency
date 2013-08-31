@@ -16,10 +16,10 @@ defined('_JEXEC') or die;
 ?>
 <tr>
 	<th>
-	    <?php echo JHtml::_('grid.sort',  'COM_VIRTUALCURRENCY_CURRENCY', 'b.title', $this->listDirn, $this->listOrder); ?>
+	    <?php echo JText::_("COM_VIRTUALCURRENCY_CURRENCY"); ?>
     </th>
 	<th>
-		<?php echo JHtml::_('grid.sort',  'COM_VIRTUALCURRENCY_AMOUNT', 'a.amount', $this->listDirn, $this->listOrder); ?>
+		<?php echo JText::_("COM_VIRTUALCURRENCY_AMOUNT"); ?>
 	</th>
 </tr>
 	  

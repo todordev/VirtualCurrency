@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -32,7 +32,10 @@ class VirtualCurrencyModelCurrencies extends JModelList {
                 'id', 'a.id',
                 'title', 'a.title',
                 'code', 'a.code',
-                'published', 'a.published'
+                'published', 'a.published',
+                'amount', 'a.amount',
+                'currency', 'a.currency',
+                'minimum', 'a.minimum',
             );
         }
 
@@ -102,8 +105,8 @@ class VirtualCurrencyModelCurrencies extends JModelList {
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.code, '.
-                'a.published '
+                'a.id, a.title, a.code, a.symbol, a.currency, '.
+                'a.amount, a.minimum, a.published '
             )
         );
         $query->from($db->quoteName('#__vc_currencies').' AS a');

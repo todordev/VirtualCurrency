@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.model');
 
-class VirtualCurrencyModelOrdering extends JModel {
+class VirtualCurrencyModelOrdering extends JModelLegacy {
     
     protected $item;
     

@@ -21,7 +21,10 @@ defined('_JEXEC') or die;?>
 	
 	<div class="row-fluid">
 		<div class="span12">
-    		<?php echo $this->loadTemplate("nav");?>	
+    		<?php 
+    		$layout      = new JLayoutFile('wizard', $this->layoutsBasePath);
+    		echo $layout->render($this->layoutData);
+    		?>	
     	</div>
 	</div>
 	
@@ -49,4 +52,4 @@ defined('_JEXEC') or die;?>
 	</div>
 </div>
 <div class="clearfix">&nbsp;</div>
-<?php echo $this->version->backlink;?>
+<?php //echo $this->version->backlink;?>

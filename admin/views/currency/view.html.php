@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewCurrency extends JView {
+class VirtualCurrencyViewCurrency extends JViewLegacy {
     
     protected $state;
     protected $item;
@@ -56,19 +56,19 @@ class VirtualCurrencyViewCurrency extends JView {
         JFactory::getApplication()->input->set('hidemainmenu', true);
         $isNew = ($this->item->id == 0);
         
-        $this->documentTitle= $isNew  ? JText::_('COM_VIRTUALCURRENCY_NEW_CURRENCY')
-                                      : JText::_('COM_VIRTUALCURRENCY_EDIT_CURRENCY');
+        $this->documentTitle = $isNew  ? JText::_('COM_VIRTUALCURRENCY_NEW_CURRENCY')
+                                       : JText::_('COM_VIRTUALCURRENCY_EDIT_CURRENCY');
 
+        JToolBarHelper::title($this->documentTitle);
+        
         JToolBarHelper::apply('currency.apply');
         JToolBarHelper::save2new('currency.save2new');
         JToolBarHelper::save('currency.save');
     
         if(!$isNew){
             JToolBarHelper::cancel('currency.cancel',   'JTOOLBAR_CANCEL');
-            JToolBarHelper::title($this->documentTitle, 'itp-edit-currency');
         }else{
             JToolBarHelper::cancel('currency.cancel',   'JTOOLBAR_CLOSE');
-            JToolBarHelper::title($this->documentTitle, 'itp-new-currency');
         }
         
     }

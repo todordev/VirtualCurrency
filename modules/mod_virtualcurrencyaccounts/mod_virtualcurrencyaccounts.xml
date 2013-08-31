@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="module" version="2.5" client="site" method="upgrade" >
+<extension type="module" version="3.1" client="site" method="upgrade" >
 	<name>MOD_VIRTUALCURRENCYACCOUNTS</name>
 	<author>Todor Iliev</author>
 	<copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com )</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html</license>
 	<authorEmail>todor@itprism.com</authorEmail>
 	<authorUrl>http://itprism.com</authorUrl>
-	<version>1.0</version>
-	<creationDate>31 May, 2013</creationDate>
+	<version>1.1</version>
+	<creationDate>25 August, 2013</creationDate>
 	<description>MOD_VIRTUALCURRENCYACCOUNTS_DESC</description>
 	
 	<languages folder="language">

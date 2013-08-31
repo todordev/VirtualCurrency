@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewTransactions extends JView {
+class VirtualCurrencyViewTransactions extends JViewLegacy {
     
     protected $state;
     protected $items;
@@ -35,11 +35,6 @@ class VirtualCurrencyViewTransactions extends JView {
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         
-        // Prepare filters
-        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn   = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder  = (strcmp($this->listOrder, 'a.ordering') != 0 ) ? false : true;
-        
         // Load all currencies
 		jimport("virtualcurrency.currencies");
 		$this->currencies = new VirtualCurrencyCurrencies();
@@ -49,11 +44,61 @@ class VirtualCurrencyViewTransactions extends JView {
         // Add submenu
         VirtualCurrencyHelper::addSubmenu($this->getName());
         
+        // Prepare sorting data
+        $this->prepareSorting();
+        
         // Prepare actions
         $this->addToolbar();
+        $this->addSidebar();
         $this->setDocument();
         
         parent::display($tpl);
+    }
+    
+    /**
+     * Prepare sortable fields, sort values and filters.
+     */
+    protected function prepareSorting() {
+    
+        // Prepare filters
+        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
+        $this->listDirn   = $this->escape($this->state->get('list.direction'));
+        $this->saveOrder  = (strcmp($this->listOrder, 'a.ordering') != 0 ) ? false : true;
+    
+        if ($this->saveOrder) {
+            $this->saveOrderingUrl = 'index.php?option='.$this->option.'&task='.$this->getName().'.saveOrderAjax&format=raw';
+            JHtml::_('sortablelist.sortable', $this->getName().'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
+        }
+    
+        $this->sortFields = array(
+            'a.title'         => JText::_('COM_VIRTUALCURRENCY_CURRENCY'),
+            'a.published'     => JText::_('JSTATUS'),
+            'a.code'          => JText::_('COM_VIRTUALCURRENCY_CURRENCY_CODE'),
+            'a.id'            => JText::_('JGRID_HEADING_ID')
+        );
+    
+    }
+    
+    /**
+     * Add a menu on the sidebar of page
+     */
+    protected function addSidebar() {
+    
+        JHtmlSidebar::setAction('index.php?option='.$this->option.'&view='.$this->getName());
+    
+        $states = array(
+            "completed" => JText::_('COM_VIRTUALCURRENCY_COMPLETED'),
+            "pending"   => JText::_('COM_VIRTUALCURRENCY_PENDING')
+        );
+        
+        JHtmlSidebar::addFilter(
+            JText::_('COM_VIRTUALCURRENCY_SELECT_STATUS'),
+            'filter_state',
+            JHtml::_('select.options', $states, 'value', 'text', $this->state->get('filter.state'), true)
+        );
+    
+        $this->sidebar = JHtmlSidebar::render();
+    
     }
     
     /**
@@ -64,8 +109,10 @@ class VirtualCurrencyViewTransactions extends JView {
     protected function addToolbar(){
         
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_MANAGER'), 'itp-transactions');
-        JToolBarHelper::custom('transactions.backToDashboard', "itp-dashboard-back", "", JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), false);
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_MANAGER'));
+        JToolBarHelper::editList('transaction.edit');
+        JToolBarHelper::divider();
+        JToolBarHelper::custom('transactions.backToDashboard', "dashboard", "", JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), false);
         
     }
     
@@ -76,9 +123,15 @@ class VirtualCurrencyViewTransactions extends JView {
 	 */
 	protected function setDocument() {
 	    
-	    JHtml::_('behavior.tooltip');
-	    
 		$this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_MANAGER'));
+		
+		// Scripts
+		JHtml::_('behavior.multiselect');
+		JHtml::_('bootstrap.tooltip');
+		
+		JHtml::_('formbehavior.chosen', 'select');
+		
+		$this->document->addScript('../media/'.$this->option.'/js/admin/list.js');
 	}
     
 }

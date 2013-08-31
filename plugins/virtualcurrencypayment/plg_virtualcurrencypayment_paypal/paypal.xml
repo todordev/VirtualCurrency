@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="plugin" group="virtualcurrencypayment" method="upgrade">
+<extension version="3.1" type="plugin" group="virtualcurrencypayment" method="upgrade">
     <name>PLG_VIRTUALCURRENCYPAYMENT_PAYPAL</name>
     <author>Todor Iliev</author>
     <copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>1.0</version>
-    <creationDate>31 May, 2013</creationDate>
+    <version>1.1</version>
+    <creationDate>25 August, 2013</creationDate>
     <description>PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_DESC</description>
     
     <languages  folder="language">
@@ -33,7 +33,7 @@
 				<field name="paypal_image_url" type="text" default="" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_IMAGE_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_IMAGE_URL_DESC" />
 				<field name="paypal_cpp_headerback_color" type="text" default="" size="80" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_HEADERBACK_COLOR" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_HEADERBACK_COLOR_DESC" />
 				<field name="spacer" type="spacer" hr="true" />
-				<field name="paypal_sandbox" type="radio" default="1" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_SANDBOX" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_SANDBOX_DESC">
+				<field name="paypal_sandbox" type="radio" default="1" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_SANDBOX" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_SANDBOX_DESC" class="btn-group">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>

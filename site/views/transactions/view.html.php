@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewTransactions extends JView {
+class VirtualCurrencyViewTransactions extends JViewLegacy {
     
 	protected $state;
 	protected $items;
@@ -46,9 +46,12 @@ class VirtualCurrencyViewTransactions extends JView {
 		JHtml::addIncludePath(JPATH_COMPONENT_SITE.'/helpers/html');
 		
 		// Load currencies
+		$options  = array(
+	        "state" => 1
+		);
+		
 		jimport("virtualcurrency.currencies");
-		$published        = 1;
-		$this->currencies = new VirtualCurrencyCurrencies($published);
+		$this->currencies = new VirtualCurrencyCurrencies($options);
 		
 		$this->version    = new VirtualCurrencyVersion();
 		
@@ -88,7 +91,6 @@ class VirtualCurrencyViewTransactions extends JView {
 		}
 		
         // Head styles
-        $this->document->addStyleSheet(JURI::root() . 'media/'.$this->option.'/css/site/bootstrap.min.css');
         $this->document->addStyleSheet('media/'.$this->option.'/css/site/style.css');
         
         JHtml::_('behavior.tooltip');

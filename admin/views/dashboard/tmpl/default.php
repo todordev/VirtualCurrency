@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -13,11 +13,21 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<div class="row-fluid">
-     <div class="span8">&nbsp;</div>
+<?php if(!empty( $this->sidebar)): ?>
+<div id="j-sidebar-container" class="span2">
+	<?php echo $this->sidebar; ?>
+</div>
+<div id="j-main-container" class="span10">
+<?php else : ?>
+<div id="j-main-container">
+<?php endif;?>
+
+    <div class="span8">
+        
+	</div>
 	<div class="span4">
         <a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank"><img src="../media/com_virtualcurrency/images/logo.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY");?>" /></a>
-        <a href="http://itprism.com" target="_blank" title="<?php echo JText::_("COM_VIRTUALCURRENCY_ITPRISM_PRODUCT");?>"><img src="../media/com_virtualcurrency/images/product_of_itprism.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY_PRODUCT");?>" /></a>
+        <a href="http://itprism.com" target="_blank" ><img src="../media/com_virtualcurrency/images/product_of_itprism.png" alt="<?php echo JText::_("COM_VIRTUALCURRENCY_PRODUCT");?>" /></a>
         <p><?php echo JText::_("COM_VIRTUALCURRENCY_YOUR_VOTE"); ?></p>
         <p><?php echo JText::_("COM_VIRTUALCURRENCY_SPONSORSHIP"); ?></p>
         <p><?php echo JText::_("COM_VIRTUALCURRENCY_SUBSCRIPTION"); ?></p>
@@ -46,4 +56,5 @@ defined('_JEXEC') or die;
             </tbody>
         </table>
 	</div>
+	
 </div>

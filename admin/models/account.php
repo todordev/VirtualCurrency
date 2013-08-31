@@ -1,7 +1,7 @@
 <?php
 /**
- * @package      ITPrism Components
- * @subpackage   Virtual Currency
+ * @package     Virtual Currency
+ * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
@@ -17,12 +17,6 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.modeladmin');
 
 class VirtualCurrencyModelAccount extends JModelAdmin {
-    
-    /**
-     * @var     string  The prefix to use with controller messages.
-     * @since   1.6
-     */
-    protected $text_prefix = 'COM_VIRTUALCURRENCY';
     
     /**
      * Returns a reference to the a Table object, always creating it.
