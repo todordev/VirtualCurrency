@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `#__vc_accounts` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `amount` decimal(10,0) NOT NULL DEFAULT '0',
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
   `note` varchar(512) DEFAULT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `currency_id` tinyint(4) unsigned NOT NULL,
@@ -11,12 +11,21 @@ CREATE TABLE IF NOT EXISTS `#__vc_accounts` (
 CREATE TABLE IF NOT EXISTS `#__vc_currencies` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(64) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `code` char(4) NOT NULL,
   `symbol` char(4) NOT NULL DEFAULT '',
-  `amount` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
-  `currency` char(4) NOT NULL,
-  `minimum` int(10) unsigned NOT NULL DEFAULT '0',
+  `params` varchar(255) DEFAULT NULL,
   `published` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__vc_emails` (
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(128) NOT NULL DEFAULT '',
+  `subject` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `sender_name` varchar(255) DEFAULT NULL,
+  `sender_email` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -30,22 +39,32 @@ CREATE TABLE IF NOT EXISTS `#__vc_partners` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `#__vc_tmp` (
+CREATE TABLE IF NOT EXISTS `#__vc_paymentsessions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `currency_id` int(10) unsigned NOT NULL,
-  `number` decimal(10,2) unsigned NOT NULL,
+  `amount` decimal(10,2) unsigned NOT NULL,
   `record_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__vc_realcurrencies` (
+  `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `abbr` char(3) NOT NULL,
+  `symbol` char(3) NOT NULL DEFAULT '',
+  `position` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_vc_ccode` (`abbr`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `#__vc_transactions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `number` decimal(10,2) unsigned NOT NULL COMMENT 'Number units of virtual currency',
+  `units` decimal(10,2) unsigned NOT NULL COMMENT 'Number units of virtual currency',
   `txn_id` varchar(255) NOT NULL,
   `txn_amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT 'Paid amount by payment gateway',
   `txn_currency` char(4) NOT NULL COMMENT 'A currency of payment by payment gateway.',
-  `txn_status` varchar(32) NOT NULL,
+  `txn_status` enum('pending','completed','canceled','refunded','failed') NOT NULL DEFAULT 'pending',
   `txn_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `service_provider` varchar(32) NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL COMMENT 'ID of virtual currency',

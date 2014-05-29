@@ -3,11 +3,13 @@
  * @package      VirtualCurrency
  * @subpackage   Library
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
 defined('JPATH_PLATFORM') or die;
+
+jimport("virtualcurrency.currency");
 
 /**
  * This class contains methods used for managing a set of currencies.
@@ -15,111 +17,184 @@ defined('JPATH_PLATFORM') or die;
  * @package      VirtualCurrency
  * @subpackage   Library
  */
-class VirtualCurrencyCurrencies {
-    
-    protected $db               = null;
-    protected $currencies       = array();
-    
+class VirtualCurrencyCurrencies implements Iterator, Countable, ArrayAccess
+{
+    /**
+     * @var JDatabaseDriver
+     */
+    protected $db;
+
+    protected $items = array();
+
+    protected $position = 0;
+
     /**
      * Initialize the object and load currencies data.
      *
      * <code>
-     * 
+     * // The state could be 1 = published, 0 = unpublished, null = all
+     * $options = array(
+     *     "state" => 1
+     * );
+     *
+     * $currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
+     * $currencies->load($options);
+     * </code>
+     *
+     * @param JDatabaseDriver $db
+     */
+    public function __construct(JDatabaseDriver $db = null)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * Set a database object.
+     *
+     * <code>
+     * $currencies    = new VirtualCurrencyCurrencies();
+     * $currencies->setDb(JFactory::getDbo());
+     * </code>
+     *
+     * @param JDatabaseDriver $db
+     *
+     * @return self
+     */
+    public function setDb(JDatabaseDriver $db)
+    {
+        $this->db = $db;
+
+        return $this;
+    }
+
+    /**
+     * Load currencies data.
+     *
+     * <code>
      *  // The state could be 1 = published, 0 = unpublished, null = all
      *  $options = array(
      *      "state" => 1
      *  );
-     *  
-     *  $currencies = new VirtualCurrencyCurrencies($options);
-     *  
+     *
+     *  $currencies = new VirtualCurrencyCurrencies();
+     *  $currencies->setDb(JFactory::getDbo());
+     *  $currencies->load($options);
      * </code>
-     * 
+     *
      * @param array $options
      *
      */
-    public function __construct($options = array()) {
-        
-        // Set database driver
-        $this->db = JFactory::getDbo();
-        
-        $this->load($options);
-        
-    }
-    
-    /**
-     * Load the data of the currencies.
-     * 
-     * <code>
-     *  
-     *  // The state could be 1 = published, 0 = unpublished, null = all
-     *  $options = array(
-     *      "state" => 1
-     *  );
-     *  
-     *  $currencies = new VirtualCurrencyCurrencies();
-     *  $currencies->load($options);
-     *  
-     * </code>
-     * 
-     * @param array $options 
-     * 
-     */
-    public function load($options = array()) {
-        
+    public function load($options = array())
+    {
         $query = $this->db->getQuery(true);
-        
+
         $query
-            ->select("a.id, a.title, a.code, a.symbol, a.amount, a.currency, a.minimum, a.published")
-            ->from($this->db->quoteName("#__vc_currencies") . " AS a");
-        
+            ->select("a.id, a.title, a.code, a.symbol, a.params, a.published")
+            ->from($this->db->quoteName("#__vc_currencies", "a"));
+
         $state = JArrayHelper::getValue($options, "state");
-        if(!is_null($state)) {
+        if (!is_null($state)) {
             $state = (!$state) ? 0 : 1;
-            $query->where("a.published = ". (int)$state);
+            $query->where("a.published = " . (int)$state);
         }
-            
+
         $this->db->setQuery($query);
-        $results = $this->db->loadAssocList("id");
-        
-        if(!empty($results)) {
-            $this->currencies = $results;
+        $results = $this->db->loadAssocList();
+
+        if (!empty($results)) {
+
+            foreach ($results as $key => $value) {
+
+                if (!empty($value["params"])) {
+                    $results[$key]["params"] = json_decode($value["params"], true);
+                }
+            }
+
+            $this->items = $results;
         }
+
     }
-    
-    /**
-     * Return the array that contains the data of the currencies.
-     * 
-     * <code>
-     *  
-     *  // Get the data of the currencies
-     *  $currencies = new VirtualCurrencyCurrencies();
-     *  $data       = $currencies->getCurrencies();
-     *  
-     * </code>
-     * 
-     * @return array
-     */
-    public function getCurrencies() {
-        return $this->currencies;
-    }
-    
+
     /**
      * Return a currency data, getting it by currency ID.
-     * 
+     *
      * <code>
-     *  
-     *  // Get a data of a currency.
-     *  $currencies = new VirtualCurrencyCurrencies();
-     *  $currencyId = 1;
-     *  $data       = $currencies->getCurrency($currencyId);
-     *  
+     * $currencyId = 1;
+     *
+     * $currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
+     * $currencies->load();
+     *
+     * $currency   = $currencies->getCurrency($currencyId);
      * </code>
-     * 
+     *
      * @param integer $id
-     * 
-     * @return array|null
+     *
+     * @return VirtualCurrencyCurrency|null
      */
-    public function getCurrency($id) {
-        return (!isset($this->currencies[$id])) ? null : $this->currencies[$id];
+    public function getCurrency($id)
+    {
+        foreach ($this->items as $item) {
+            if ($id == $item["id"]) {
+                $currency = new VirtualCurrencyCurrency();
+                $currency->bind($item);
+                return $currency;
+            }
+        }
+
+        return null;
+    }
+
+    public function rewind()
+    {
+        $this->position = 0;
+    }
+
+    public function current()
+    {
+        return (!isset($this->items[$this->position])) ? null : $this->items[$this->position];
+    }
+
+    public function key()
+    {
+        return $this->position;
+    }
+
+    public function next()
+    {
+        ++$this->position;
+    }
+
+    public function valid()
+    {
+        return isset($this->items[$this->position]);
+    }
+
+    public function count()
+    {
+        return (int)count($this->items);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    public function offsetExists($offset)
+    {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->items[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
 }

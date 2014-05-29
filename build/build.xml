@@ -12,10 +12,8 @@
 	
 	<!-- destination directories -->
 	<property name="cfg.adminDestDir" location="${cfg.pkgDir}/admin" />
-	<property name="cfg.adminLanguageDestDir" location="${cfg.pkgDir}/admin/language" />
 	<property name="cfg.mediaDestDir" location="${cfg.pkgDir}/media" />
 	<property name="cfg.siteDestDir" location="${cfg.pkgDir}/site" />
-	<property name="cfg.siteLanguageFilesDir" location="${cfg.pkgDir}/site/language" />
 	<property name="cfg.librariesDestDir" location="${cfg.pkgDir}/libraries" />
 	
 	<property name="cfg.pluginsDestDir" location="${cfg.pkgDir}/plugins" />
@@ -27,10 +25,6 @@
 	<property name="cfg.mediaSourceDir" location="${cfg.sourceDir}/media" />
 	<property name="cfg.librariesSourceDir" location="${cfg.sourceDir}/libraries" />
 
-	<!-- language source -->
-	<property name="cfg.adminLanguageSourceDir" location="${cfg.sourceDir}/administrator/language/en-GB" />
-	<property name="cfg.siteLanguageSourceDir" location="${cfg.sourceDir}/language/en-GB" />
-
 	<!-- plugins source -->
     <property name="cfg.pluginsSourceDir" location="${cfg.sourceDir}/plugins" />
 	
@@ -39,7 +33,7 @@
 	
 	<target name="build" depends="init, build_component, info" />
 
-	<target name="init" description="creates nessecary directory to build with">
+	<target name="init" description="creates necessary directory to build with">
 		<mkdir dir="${cfg.pkgDir}/admin" />
 		<mkdir dir="${cfg.pkgDir}/admin/language" />
 		<mkdir dir="${cfg.pkgDir}/media" />
@@ -52,14 +46,10 @@
 		
 		<!-- plugins -->
 		<mkdir dir="${cfg.pkgDir}/plugins/user/plg_user_virtualcurrencynewaccount" />
-		<mkdir dir="${cfg.pkgDir}/plugins/user/plg_user_virtualcurrencynewaccount/language" />
-		
 		<mkdir dir="${cfg.pkgDir}/plugins/virtualcurrencypayment/plg_virtualcurrencypayment_paypal" />
-		<mkdir dir="${cfg.pkgDir}/plugins/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language" />
 		
 		<!-- modules -->
 		<mkdir dir="${cfg.pkgDir}/modules/mod_virtualcurrencyaccounts" />
-		<mkdir dir="${cfg.pkgDir}/modules/mod_virtualcurrencyaccounts/language" />
 		
 	</target>
 
@@ -90,17 +80,6 @@
 		</fileset>
 	</copy>
 
-	<!-- copy admin language files of the componet -->
-	<copy file="${cfg.adminLanguageSourceDir}/en-GB.${cfg.comName}.ini" todir="${cfg.adminLanguageDestDir}/en-GB/" />
-	<copy file="${cfg.adminLanguageSourceDir}/en-GB.${cfg.comName}.sys.ini" todir="${cfg.adminLanguageDestDir}/en-GB/" />
-	<copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.adminLanguageDestDir}/" />
-	<copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.adminLanguageDestDir}/en-GB/" />
-
-	<!-- copy site language files of the componet -->
-	<copy file="${cfg.siteLanguageSourceDir}/en-GB.${cfg.comName}.ini" todir="${cfg.siteLanguageFilesDir}/en-GB/" />
-	<copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.siteLanguageFilesDir}/" />
-	<copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.siteLanguageFilesDir}/en-GB/" />
-
 	<!-- copy main files of the componet -->
     <copy file="${cfg.adminSourceDir}/${cfg.comName}/install.php" todir="${cfg.pkgDir}" />
     <copy file="${cfg.adminSourceDir}/${cfg.comName}/README.md" todir="${cfg.pkgDir}" />
@@ -125,12 +104,6 @@
         </fileset>
     </copy>
 	
-	<!-- copy plugin language files of user/virtualcurrencynewaccount -->
-    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_user_virtualcurrencynewaccount.ini" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB" />
-    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_user_virtualcurrencynewaccount.sys.ini" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB" />
-    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language" />
-    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/user/plg_user_virtualcurrencynewaccount/language/en-GB/" />
-	
 	<!-- VIRTUALCURRENCYPAYMENT/PAYPAL -->
 	
 	<!-- copy plugin files of virtualcurrencypayment/paypal -->
@@ -139,12 +112,6 @@
             <include name="**/*" />
         </fileset>
     </copy>
-    
-    <!-- copy plugin language files of virtualcurrencypayment/paypal -->
-    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_virtualcurrencypayment_paypal.ini" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB" />
-    <copy file="${cfg.adminLanguageSourceDir}/en-GB.plg_virtualcurrencypayment_paypal.sys.ini" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB" />
-    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language" />
-    <copy file="${cfg.adminLanguageSourceDir}/index.html" todir="${cfg.pluginsDestDir}/virtualcurrencypayment/plg_virtualcurrencypayment_paypal/language/en-GB/" />
 
 	<!-- END COPY PLUGINS -->
 	
@@ -159,12 +126,6 @@
             <include name="**/*" />
         </fileset>
     </copy>
-
-	<!-- copy module language files of mod_virtualcurrencyaccounts -->
-    <copy file="${cfg.siteLanguageSourceDir}/en-GB.mod_virtualcurrencyaccounts.ini" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB" />
-    <copy file="${cfg.siteLanguageSourceDir}/en-GB.mod_virtualcurrencyaccounts.sys.ini" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB" />
-    <copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language" />
-    <copy file="${cfg.siteLanguageSourceDir}/index.html" todir="${cfg.modulesDestDir}/mod_virtualcurrencyaccounts/language/en-GB/" />
 	
 	<!-- END COPY MODULES -->
 	
@@ -191,7 +152,7 @@
 	</target>
 
 	<target name="info" description="prints information">
-		<echo message="Project:                 ${cfg.name}" />
+		<echo message="Project: ${cfg.name}" />
 		<tstamp>
 			<format property="buildtime" pattern="yyyy-MM-dd'T'HH:mm:ss" />
 		</tstamp>

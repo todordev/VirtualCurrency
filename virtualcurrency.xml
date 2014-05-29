@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.1" method="upgrade">
-	<name>COM_VIRTUALCURRENCY</name>
-	<author>Todor Iliev</author>
-	<authorEmail>todor@itprism.com</authorEmail>
-	<authorUrl>http://itprism.com</authorUrl>
-	<copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com )</copyright>
-	<license>http://www.gnu.org/copyleft/gpl.html</license>
-	<version>1.1</version>
-	<creationDate>25 August, 2013</creationDate>
-	<description>COM_VIRTUALCURRENCY_DESCRIPTION</description>
+<extension type="component" version="3.2" method="upgrade">
+    <name>COM_VIRTUALCURRENCY</name>
+    <author>Todor Iliev</author>
+    <authorEmail>todor@itprism.com</authorEmail>
+    <authorUrl>http://itprism.com</authorUrl>
+    <copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html</license>
+    <version>1.2</version>
+    <creationDate>29 May, 2014</creationDate>
+    <description><![CDATA[
+    <p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank">Virtual Currency</a> is a Joomla! extension that provides ability to generate and manage virtual currencies on your websites.</p>
+    <p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
+    <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
+    <p>Please, <a href="http://extensions.joomla.org/extensions/e-commerce/credits-a-point-systems/24550" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
+	]]></description>
 
-	<install>
+    <install>
         <sql>
             <file driver="mysql" charset="utf8">sql/install.sql</file>
         </sql>
@@ -21,58 +26,53 @@
             <file driver="mysql" charset="utf8">sql/uninstall.sql</file>
         </sql>
     </uninstall>
-	
-	<update> 
-		<schemas>
-				<schemapath type="mysql">sql/updates</schemapath>
-		</schemas>
-	</update>
-	
-	<media destination="com_virtualcurrency" folder="media">
-		<filename>index.html</filename>
-		<folder>css</folder>	
-		<folder>images</folder>
-		<folder>js</folder>		
-	</media>
-	
-	<files folder="site">
-		<folder>controllers</folder>
-		<folder>helpers</folder>
-		<folder>models</folder>
-		<folder>views</folder>
-		<filename>controller.php</filename>
-		<filename>index.html</filename>
-		<filename>router.php</filename>
-		<filename>virtualcurrency.php</filename>
-	</files>
 
-	<languages folder="site">
-		<language tag="en-GB">language/en-GB/en-GB.com_virtualcurrency.ini</language>
-	</languages>
-	
-	<administration>
-		<menu link="option=com_virtualcurrency">COM_VIRTUALCURRENCY</menu>
-	
-		<files folder="admin">		    		
-			<folder>controllers</folder>
-			<folder>helpers</folder>
-			<folder>layouts</folder>
-			<folder>libraries</folder>
-			<folder>models</folder>
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates</schemapath>
+        </schemas>
+    </update>
+
+    <media destination="com_virtualcurrency" folder="media">
+        <filename>index.html</filename>
+        <folder>css</folder>
+        <folder>images</folder>
+        <folder>js</folder>
+    </media>
+
+    <files folder="site">
+        <folder>controllers</folder>
+        <folder>helpers</folder>
+        <folder>language</folder>
+        <folder>models</folder>
+        <folder>views</folder>
+
+        <filename>controller.php</filename>
+        <filename>index.html</filename>
+        <filename>router.php</filename>
+        <filename>virtualcurrency.php</filename>
+    </files>
+
+    <administration>
+        <menu link="option=com_virtualcurrency">COM_VIRTUALCURRENCY</menu>
+
+        <files folder="admin">
+            <folder>controllers</folder>
+            <folder>helpers</folder>
+            <folder>language</folder>
+            <folder>layouts</folder>
+            <folder>libraries</folder>
+            <folder>models</folder>
             <folder>sql</folder>
-			<folder>tables</folder>
-			<folder>views</folder>		
-			<filename>controller.php</filename>
-			<filename>index.html</filename>
-			<filename>config.xml</filename>
-			<filename>access.xml</filename>  
-			<filename>virtualcurrency.php</filename>
-		</files>
-		
-		<languages folder="admin">
-			<language tag="en-GB">language/en-GB/en-GB.com_virtualcurrency.ini</language>
-			<language tag="en-GB">language/en-GB/en-GB.com_virtualcurrency.sys.ini</language>
-		</languages>
-			
-	</administration>
+            <folder>tables</folder>
+            <folder>views</folder>
+
+            <filename>controller.php</filename>
+            <filename>index.html</filename>
+            <filename>config.xml</filename>
+            <filename>access.xml</filename>
+            <filename>virtualcurrency.php</filename>
+        </files>
+
+    </administration>
 </extension>

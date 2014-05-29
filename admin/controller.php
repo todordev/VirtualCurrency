@@ -1,47 +1,40 @@
 <?php
 /**
- * @package     Virtual Currency
+ * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2010 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * Virtual Currency is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-jimport( 'joomla.application.component.controller' );
+jimport('joomla.application.component.controller');
 
 /**
  * Default Controller
  *
- * @package		Virtual Currency
- * @subpackage	Virtual Currency
-  */
-class VirtualCurrencyController extends JControllerLegacy {
-    
-	public function display( ) {
+ * @package        VirtualCurrency
+ * @subpackage     Components
+ */
+class VirtualCurrencyController extends JControllerLegacy
+{
+    public function display($cachable = false, $urlparams = array())
+    {
+        $option = $this->input->getCmd("option");
 
-        $app = JFactory::getApplication();
-        /** @var $app JAdministrator **/
-        
-        $option   = $app->input->getCmd("option");
-        
         $document = JFactory::getDocument();
-		/** @var $document JDocumentHtml **/
-        
+        /** @var $document JDocumentHtml * */
+
         // Add component style
-        $document->addStyleSheet('../media/'.$option.'/css/admin/style.css');
-        
-        $viewName      = $app->input->getCmd('view', 'dashboard');
-        $app->input->set("view", $viewName);
+        $document->addStyleSheet('../media/' . $option . '/css/admin/style.css');
+
+        $viewName = $this->input->getCmd('view', 'dashboard');
+        $this->input->set("view", $viewName);
 
         parent::display();
-        return $this;
-	}
 
+        return $this;
+    }
 }

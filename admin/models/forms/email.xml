@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="email">
+
+        <field name="title" type="text" class="span12"
+               label="COM_VIRTUALCURRENCY_TITLE"
+               description="COM_VIRTUALCURRENCY_FIELD_EMAILS_TITLE_DESC"
+               filter="trim"
+               />
+
+        <field name="subject" type="text" class="span12"
+               label="COM_VIRTUALCURRENCY_SUBJECT"
+               description="COM_VIRTUALCURRENCY_SUBJECT_DESC"
+               filter="trim"
+                />
+
+        <field name="sender_name" type="text" class="span6"
+               label="COM_VIRTUALCURRENCY_SENDER_NAME"
+               description="COM_VIRTUALCURRENCY_SENDER_NAME_DESC"
+               filter="trim"
+                />
+
+        <field name="sender_email" type="email" class="span6"
+               label="COM_VIRTUALCURRENCY_SENDER_EMAIL"
+               description="COM_VIRTUALCURRENCY_SENDER_EMAIL_DESC"
+               filter="trim"
+               validate="email"
+                />
+
+        <field name="body" type="editor" class="span12"
+               label="COM_VIRTUALCURRENCY_BODY"
+               description="COM_VIRTUALCURRENCY_BODY_DESC"
+               filter="safehtml"
+               rows="10"
+               required="true"
+                />
+
+        <field name="id" type="text" class="readonly"
+               label="JGLOBAL_FIELD_ID_LABEL"
+               description="JGLOBAL_FIELD_ID_DESC"
+               default="0"
+               readonly="true"
+                />
+
+    </fieldset>
+</form>

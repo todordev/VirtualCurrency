@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset>
+
+        <field name="data" type="file"
+               label="COM_VIRTUALCURRENCY_FILE"
+               description="COM_VIRTUALCURRENCY_FILE_DESC"
+               required="true"/>
+
+        <field name="reset_id" type="checkbox"
+               label="COM_VIRTUALCURRENCY_RESET_ID"
+               description="COM_VIRTUALCURRENCY_RESET_ID_DESC"
+               filter="int"
+               value="1"
+                />
+
+        <field name="remove_old" type="checkbox"
+               label="COM_VIRTUALCURRENCY_REMOVE_OLD"
+               description="COM_VIRTUALCURRENCY_REMOVE_OLD_DESC"
+               filter="int"
+               value="1"
+                />
+
+        <field name="minimum_population" type="text"
+               label="COM_VIRTUALCURRENCY_MINIMUM_POPULATION"
+               description="COM_VIRTUALCURRENCY_MINIMUM_POPULATION_DESC"
+               filter="int"
+               default="0"
+                />
+
+    </fieldset>
+</form>

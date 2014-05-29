@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset addfieldpath="/administrator/components/com_virtualcurrency/models/fields">
+
+        <field name="title" type="text"
+               size="40"
+               label="COM_VIRTUALCURRENCY_TITLE"
+               description="COM_VIRTUALCURRENCY_CURRENCY_TITLE_DESC"
+               filter="trim"
+               required="true"/>
+
+        <field name="abbr" type="text"
+               label="COM_VIRTUALCURRENCY_ABBR"
+               description="COM_VIRTUALCURRENCY_ABBR_DESC"
+               filter="trim"
+               required="true"
+               />
+
+        <field name="symbol" type="text"
+               label="COM_VIRTUALCURRENCY_SYMBOL"
+               description="COM_VIRTUALCURRENCY_SYMBOL_DESC"
+                />
+
+        <field name="position" type="list"
+               label="COM_VIRTUALCURRENCY_SYMBOL_POSITION"
+               description="COM_VIRTUALCURRENCY_SYMBOL_POSITION_DESC"
+
+               filter="intval"
+               size="1"
+               default="0">
+            <option value="0">COM_VIRTUALCURRENCY_BEGINNING</option>
+            <option value="1">COM_VIRTUALCURRENCY_END</option>
+        </field>
+
+        <field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL"
+               readonly="true" class="readonly"
+               description="JGLOBAL_FIELD_ID_DESC"/>
+
+    </fieldset>
+</form>

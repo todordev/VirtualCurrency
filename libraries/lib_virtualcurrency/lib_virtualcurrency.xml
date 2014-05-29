@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="library" version="3.1" method="upgrade">
-	<name>Virtual Currency Library</name>
-	<libraryname>virtualcurrency</libraryname>
-	<author>Todor Iliev</author>
-	<authorEmail>todor@itprism.com</authorEmail>
+<extension type="library" version="3.2" method="upgrade">
+    <name>Virtual Currency Library</name>
+    <libraryname>virtualcurrency</libraryname>
+    <author>Todor Iliev</author>
+    <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-	<copyright>Copyright (C) 2010 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
-	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<packager>ITPrism</packager>
-	<packagerurl>http://itprism.com</packagerurl>
-	<version>1.1</version>
-	<creationDate>25 August, 2013</creationDate>
-	<description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
-	<files folder="files">
-		<file>account.php</file>
-		<file>accounts.php</file>
-		<file>currencies.php</file>
-		<file>currency.php</file>
-		<file>index.html</file>
-		<file>init.php</file>
-		<file>temporary.php</file>
-		<file>transaction.php</file>
-		<file>version.php</file>
-	</files>
+    <copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <packager>ITPrism</packager>
+    <packagerurl>http://itprism.com</packagerurl>
+    <version>1.2</version>
+    <creationDate>29 May, 2014</creationDate>
+    <description>This is the library of Virtual Currency that can be used from developers in their extensions.
+    </description>
+    <files>
+        <file>account.php</file>
+        <file>accounts.php</file>
+        <file>constants.php</file>
+        <file>currencies.php</file>
+        <file>currency.php</file>
+        <file>email.php</file>
+        <file>index.html</file>
+        <file>init.php</file>
+        <file>realcurrencies.php</file>
+        <file>realcurrency.php</file>
+        <file>transaction.php</file>
+        <file>version.php</file>
+
+        <folder>payment</folder>
+    </files>
 </extension>
