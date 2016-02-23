@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('itprism.controller.admin');
 
 /**
  * VirtualCurrency real currencies controller
@@ -18,12 +16,8 @@ jimport('itprism.controller.admin');
  * @package      VirtualCurrency
  * @subpackage   Components
  */
-class VirtualCurrencyControllerRealCurrencies extends ITPrismControllerAdmin
+class VirtualCurrencyControllerRealCurrencies extends Prism\Controller\Admin
 {
-    /**
-     * Proxy for getModel.
-     * @since   1.6
-     */
     public function getModel($name = 'RealCurrency', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);

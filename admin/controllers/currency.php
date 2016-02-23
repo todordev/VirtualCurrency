@@ -3,14 +3,12 @@
  * @package      Virtual Currency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
 defined('_JEXEC') or die;
-
-jimport('itprism.controller.form.backend');
 
 /**
  * VirtualCurrency Currency controller class.
@@ -19,42 +17,35 @@ jimport('itprism.controller.form.backend');
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend
+class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
 {
-    /**
-     * Proxy for getModel.
-     * @since   1.6
-     */
     public function getModel($name = 'Currency', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 
         return $model;
     }
-
-    /**
-     * Save an item
-     */
+    
     public function save($key = null, $urlVar = null)
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, "id");
+        $itemId = JArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
-            "task" => $this->getTask(),
-            "id"   => $itemId
+            'task' => $this->getTask(),
+            'id'   => $itemId
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelCurrency * */
+        /** @var $model VirtualCurrencyModelCurrency */
 
         $form = $model->getForm($data, false);
-        /** @var $form JForm * */
+        /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_("COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED"), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
         }
 
         // Validate the form
@@ -63,15 +54,29 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend
         // Check for errors.
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 
         try {
 
+            // Get files from form.
+            $files = $this->input->files->get('jform', array(), 'array');
+
+            // Upload image
+            $file = Joomla\Utilities\ArrayHelper::getValue($files, 'image');
+            if (!empty($file['name'])) {
+                $validData['image'] = $model->uploadImage($file, 'image');
+            }
+
+            // Upload icon
+            $file = Joomla\Utilities\ArrayHelper::getValue($files, 'icon');
+            if (!empty($file['name'])) {
+                $validData['image_icon'] = $model->uploadImage($file, 'icon');
+            }
+
             $itemId = $model->save($validData);
 
-            $redirectOptions["id"] = $itemId;
+            $redirectOptions['id'] = $itemId;
 
         } catch (Exception $e) {
 
@@ -81,6 +86,38 @@ class VirtualCurrencyControllerCurrency extends ITPrismControllerFormBackend
         }
 
         $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_CURRENCY_SAVED'), $redirectOptions);
+    }
 
+    /**
+     * Delete image
+     */
+    public function removeImage()
+    {
+        // Check for request forgeries.
+        JSession::checkToken('get') or jexit(JText::_('JINVALID_TOKEN'));
+
+        $itemId = $this->input->getInt('id', 0);
+        $type   = $this->input->getCmd('type');
+
+        $redirectOptions = array(
+            'view' => 'currency',
+            'id'   => $itemId
+        );
+
+        try {
+
+            $params = JComponentHelper::getParams('com_virtualcurrency');
+
+            $mediaFolder = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));
+
+            $model = $this->getModel();
+            $model->removeImage($itemId, $mediaFolder, $type);
+
+        } catch (Exception $e) {
+            JLog::add($e->getMessage());
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
+        }
+
+        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_IMAGE_DELETED'), $redirectOptions);
     }
 }

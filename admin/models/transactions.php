@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.modellist');
 
 class VirtualCurrencyModelTransactions extends JModelList
 {
@@ -27,10 +25,10 @@ class VirtualCurrencyModelTransactions extends JModelList
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = array(
                 'id', 'a.id',
+                'title', 'a.title',
                 'units', 'a.units',
                 'date', 'a.txn_date',
                 'amount', 'a.txn_amount',
-                'title', 'b.title',
                 'sender', 'c.name',
                 'receiver', 'd.name',
                 'txn_id', 'a.txn_id',
@@ -41,13 +39,6 @@ class VirtualCurrencyModelTransactions extends JModelList
         parent::__construct($config);
     }
 
-    /**
-     * Method to auto-populate the model state.
-     *
-     * Note. Calling getState in this method will result in recursion.
-     *
-     * @since   1.6
-     */
     protected function populateState($ordering = null, $direction = null)
     {
         // Load the component parameters.
@@ -63,7 +54,7 @@ class VirtualCurrencyModelTransactions extends JModelList
         $this->setState('filter.state', $value);
 
         // List state information.
-        parent::populateState('a.txn_date', 'asc');
+        parent::populateState('a.id', 'asc');
     }
 
     /**
@@ -96,7 +87,7 @@ class VirtualCurrencyModelTransactions extends JModelList
     protected function getListQuery()
     {
         $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
+        /** @var $db JDatabaseDriver */
 
         // Create a new query object.
         $query = $db->getQuery(true);
@@ -105,34 +96,32 @@ class VirtualCurrencyModelTransactions extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.units, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
-                'a.currency_id, a.sender_id, a.receiver_id, a.service_provider, ' .
-                'b.title AS title, ' .
+                'a.id, a.title, a.units, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
+                'a.item_id, a.item_type, a.sender_id, a.receiver_id, a.service_provider, ' .
                 'c.name AS sender, ' .
                 'd.name AS receiver'
             )
         );
         $query->from($db->quoteName('#__vc_transactions', 'a'));
-        $query->innerJoin($db->quoteName('#__vc_currencies', 'b') . ' ON a.currency_id = b.id');
-        $query->innerJoin($db->quoteName('#__users', 'c') . ' ON a.sender_id = c.id');
-        $query->innerJoin($db->quoteName('#__users', 'd') . ' ON a.receiver_id = d.id');
+        $query->leftJoin($db->quoteName('#__users', 'c') . ' ON a.sender_id = c.id');
+        $query->leftJoin($db->quoteName('#__users', 'd') . ' ON a.receiver_id = d.id');
 
         // Filter by state
-        $state = $this->getState('filter.state');
-        if (!empty($state)) {
+        $state = (string)$this->getState('filter.state');
+        if ($state !== '') {
             $query->where('a.txn_status = ' . $db->quote($state));
         }
 
         // Filter by search in title
-        $search = $this->getState('filter.search');
-        if (!empty($search)) {
+        $search = (string)$this->getState('filter.search');
+        if ($search !== '') {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } elseif (stripos($search, 'tid:') === 0) {
                 $query->where('a.txn_id = ' . $db->quote(substr($search, 3)));
             } else {
                 $escaped = $db->escape($search, true);
-                $quoted  = $db->quote("%" . $escaped . "%", false);
+                $quoted  = $db->quote('%' . $escaped . '%', false);
                 $query->where('(c.name LIKE ' . $quoted . ') OR ( d.name LIKE ' . $quoted . ')');
             }
         }

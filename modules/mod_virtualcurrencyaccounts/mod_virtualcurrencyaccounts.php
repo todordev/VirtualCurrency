@@ -4,30 +4,29 @@
  * @subpackage   Modules
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined("_JEXEC") or die;
 
-jimport("itprism.init");
-jimport("virtualcurrency.init");
+jimport('Prism.init');
+jimport('Virtualcurrency.init');
 
-$userId = JFactory::getUser()->get("id");
+$userId = JFactory::getUser()->get('id');
 
 $accounts = null;
 
-if (!empty($userId)) {
+if ($userId > 0) {
     
-    $accounts = new VirtualCurrencyAccounts(JFactory::getDbo());
-    $accounts->load($userId);
+    $accounts = new Virtualcurrency\Account\Accounts(JFactory::getDbo());
+    $accounts->load(array('user_id' => $userId, 'state' => Prism\Constants::PUBLISHED));
 
-    $options = array(
-        "state" => VirtualCurrencyConstants::PUBLISHED
-    );
-    
-    $currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
-    $currencies->load($options);
+    $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
+    $currencies->load(array('state' => Prism\Constants::PUBLISHED));
+
+    $componentParams = JComponentHelper::getParams('com_virtualcurrency');
+    $amount = new Virtualcurrency\Amount($componentParams);
+
+    require JModuleHelper::getLayoutPath('mod_virtualcurrencyaccounts', $params->get('layout', 'default'));
 }
-
-require JModuleHelper::getLayoutPath('mod_virtualcurrencyaccounts', $params->get('layout', 'default'));

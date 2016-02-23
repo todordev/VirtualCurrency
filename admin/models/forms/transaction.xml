@@ -2,21 +2,21 @@
 <form>
     <fieldset>
 
-        <field name="currency_id" type="vccurrencies"
-               label="COM_VIRTUALCURRENCY_CURRENCY"
+        <field name="title" type="text"
+               label="COM_VIRTUALCURRENCY_TITLE"
                required="true"
-                />
+               />
 
         <field name="units" type="text"
                label="COM_VIRTUALCURRENCY_UNITS"
                description="COM_VIRTUALCURRENCY_UNITS_DESC"
                filter="float"
-                />
+               />
 
         <field name="txn_id" type="text"
                label="COM_VIRTUALCURRENCY_TXN_ID"
                description="COM_VIRTUALCURRENCY_TXN_ID_DESC"
-                />
+               />
 
         <field name="txn_amount" type="text"
                label="COM_VIRTUALCURRENCY_TXN_AMOUNT"
@@ -35,6 +35,9 @@
                 >
             <option value="completed">COM_VIRTUALCURRENCY_COMPLETED</option>
             <option value="pending">COM_VIRTUALCURRENCY_PENDING</option>
+            <option value="canceled">COM_VIRTUALCURRENCY_CANCELED</option>
+            <option value="refunded">COM_VIRTUALCURRENCY_REFUNDED</option>
+            <option value="failed">COM_VIRTUALCURRENCY_FAILED</option>
         </field>
 
         <field name="txn_date" type="calendar"
@@ -56,6 +59,16 @@
                label="COM_VIRTUALCURRENCY_BENEFICIARY"
                description="COM_VIRTUALCURRENCY_BENEFICIARY_DESC"
                 />
+
+        <field name="item_id" type="text" readonly="true" class="readonly"
+               label="COM_VIRTUALCURRENCY_ITEM_ID"
+               description="COM_VIRTUALCURRENCY_TRANSACTION_ITEM_ID_DESC"
+        />
+
+        <field name="item_type" type="text" readonly="true" class="readonly"
+               label="COM_VIRTUALCURRENCY_ITEM_TYPE"
+               description="COM_VIRTUALCURRENCY_TRANSACTION_ITEM_TYPE_DESC"
+        />
 
         <field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL"
                readonly="true" class="readonly"

@@ -1,43 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <fieldset name="payments" label="COM_VIRTUALCURRENCY_PAYMENTS" description="COM_VIRTUALCURRENCY_PAYMENTS_PARAMS" addfieldpath="/administrator/components/com_content/models/fields">
-        <field name="payments_service_terms" type="radio" default="0" label="COM_VIRTUALCURRENCY_PAYMENTS_DISPLAY_TERMS"
-               description="COM_VIRTUALCURRENCY_PAYMENTS_DISPLAY_TERMS_DESC" class="btn-group">
+        <field name="payments_service_terms" type="radio" default="0" label="COM_VIRTUALCURRENCY_PAYMENTS_DISPLAY_TERMS" description="COM_VIRTUALCURRENCY_PAYMENTS_DISPLAY_TERMS_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
-        <field name="payments_service_terms_url" type="modal_article"
-               label="COM_VIRTUALCURRENCY_PAYMENTS_TERMS"
-               description="COM_VIRTUALCURRENCY_PAYMENTS_TERMS_DESC"/>
-
-        <field name="payments_bank_id" type="user" default="" label="COM_VIRTUALCURRENCY_PAYMENTS_BANK"
-               description="COM_VIRTUALCURRENCY_PAYMENTS_BANK_DESC"/>
+        <field name="payments_service_terms_url" type="modal_article" label="COM_VIRTUALCURRENCY_PAYMENTS_TERMS" description="COM_VIRTUALCURRENCY_PAYMENTS_TERMS_DESC"/>
     </fieldset>
 
     <fieldset name="payments" label="COM_VIRTUALCURRENCY_PAYMENTS" description="COM_VIRTUALCURRENCY_PAYMENTS_PARAMS" addfieldpath="/administrator/components/com_virtualcurrency/models/fields">
-        <field name="payments_currency_id" type="vcrealcurrency" label="COM_VIRTUALCURRENCY_CURRENCY"
-               description="COM_VIRTUALCURRENCY_PAYMENTS_CURRENCY_DESC"/>
+        <field name="payments_currency_id" type="vcrealcurrency" label="COM_VIRTUALCURRENCY_CURRENCY" description="COM_VIRTUALCURRENCY_PAYMENTS_CURRENCY_DESC"/>
     </fieldset>
 
     <fieldset name="debug" label="COM_VIRTUALCURRENCY_DEBUG" description="COM_VIRTUALCURRENCY_DEBUG_PARAMS">
-        <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED"
-               description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC" class="btn-group">
+        <field name="debug_payment_disabled" type="radio" default="0" label="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED" description="COM_VIRTUALCURRENCY_DEBUG_PAYMENT_DISABLED_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
 
-        <field name="debug_disabled_functionality_msg" type="text" default="" class="span6"
-               label="COM_VIRTUALCURRENCY_MESSAGE"
-               description="COM_VIRTUALCURRENCY_DEBUG_DISABLED_FUNCTIONALITY_MSG_DESC"/>
+        <field name="debug_disabled_functionality_msg" type="text" default="" class="span6" label="COM_VIRTUALCURRENCY_MESSAGE" description="COM_VIRTUALCURRENCY_DEBUG_DISABLED_FUNCTIONALITY_MSG_DESC"/>
     </fieldset>
 
     <fieldset name="advanced" label="COM_VIRTUALCURRENCY_ADVANCED" description="COM_VIRTUALCURRENCY_ADVANCED_PARAMS">
-        <field name="locale_intl" type="radio" default="0" label="COM_VIRTUALCURRENCY_USE_PHP_INTL"
-               description="COM_VIRTUALCURRENCY_USE_PHP_INTL_DESC" class="btn-group">
+        <field name="locale_intl" type="radio" default="0" label="COM_VIRTUALCURRENCY_USE_PHP_INTL" description="COM_VIRTUALCURRENCY_USE_PHP_INTL_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
-        <field name="amount_format" type="text" default="" label="COM_VIRTUALCURRENCY_AMOUNT_FORMAT"
-               description="COM_VIRTUALCURRENCY_AMOUNT_FORMAT_DESC"/>
+        <field name="fraction_digits" type="text" default="2" label="COM_VIRTUALCURRENCY_INTL_FRACTION_DIGITS" description="COM_VIRTUALCURRENCY_INTL_FRACTION_DIGITS_DESC" />
+        <field name="amount_format" type="text" default="2/,/." label="COM_VIRTUALCURRENCY_AMOUNT_FORMAT" description="COM_VIRTUALCURRENCY_AMOUNT_FORMAT_DESC"/>
+        <field name="media_folder" type="text" default="images/virtualcurrency" label="COM_VIRTUALCURRENCY_MEDIA_FOLDER" description="COM_VIRTUALCURRENCY_MEDIA_FOLDER_DESC" class="input-xxlarge" />
+        <field name="administrator_id" type="user" label="COM_VIRTUALCURRENCY_ADMINISTRATOR" description="COM_VIRTUALCURRENCY_FIELD_ADMINISTRATOR_DESC" />
     </fieldset>
 </config>

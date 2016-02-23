@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -20,7 +20,7 @@ class VirtualCurrencyViewAccount extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Registry\Registry
      */
     protected $state;
 
@@ -30,22 +30,14 @@ class VirtualCurrencyViewAccount extends JViewLegacy
     protected $option;
     protected $documentTitle;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        // Prepare actions, behaviors, scritps and document
         $this->addToolbar();
         $this->setDocument();
 
@@ -60,10 +52,9 @@ class VirtualCurrencyViewAccount extends JViewLegacy
     protected function addToolbar()
     {
         JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id == 0);
+        $isNew = ($this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_ACCOUNT')
-            : JText::_('COM_VIRTUALCURRENCY_EDIT_ACCOUNT');
+        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_ACCOUNT') : JText::_('COM_VIRTUALCURRENCY_EDIT_ACCOUNT');
 
         JToolBarHelper::title($this->documentTitle);
 

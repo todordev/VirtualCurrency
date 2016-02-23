@@ -9,9 +9,9 @@
                filter="trim"
                required="true"/>
 
-        <field name="abbr" type="text"
-               label="COM_VIRTUALCURRENCY_ABBR"
-               description="COM_VIRTUALCURRENCY_ABBR_DESC"
+        <field name="code" type="text"
+               label="COM_VIRTUALCURRENCY_CODE"
+               description="COM_VIRTUALCURRENCY_CODE_DESC"
                filter="trim"
                required="true"
                />

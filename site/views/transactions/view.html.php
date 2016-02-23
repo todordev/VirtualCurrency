@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -37,45 +37,22 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
     protected $saveOrder;
     protected $saveOrderingUrl;
 
-    protected $currencies;
-    protected $realCurrency;
-
-    protected $version;
-
     protected $pageclass_sfx;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
 
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+        
         $this->items      = $this->get('Items');
         $this->state      = $this->get('State');
-        $this->params     = $this->state->get('params');
         $this->pagination = $this->get('Pagination');
 
+        $this->params     = $this->state->get('params');
+
         // Prepare filters
-        $this->listOrder = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
-
-        // Load currencies
-        $options = array(
-            "state" => VirtualCurrencyConstants::PUBLISHED
-        );
-
-        jimport("virtualcurrency.currencies");
-        $this->currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
-        $this->currencies->load($options);
-
-        jimport("virtualcurrency.realcurrency");
-        $this->realCurrency = new VirtualCurrencyRealCurrency(JFactory::getDbo());
-        $this->realCurrency->load($this->params->get("payments_currency_id"));
-
-        $this->version = new VirtualCurrencyVersion();
+        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
+        $this->listDirn   = $this->escape($this->state->get('list.direction'));
+        $this->saveOrder  = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         $this->prepareDocument();
 
@@ -103,15 +80,15 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
 
         // Meta keywords
         if ($this->params->get('menu-meta_keywords')) {
-            $this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         }
 
         if ($this->params->get('robots')) {
-            $this->document->setMetadata('robots', $this->params->get('robots'));
+            $this->document->setMetaData('robots', $this->params->get('robots'));
         }
 
         // Head styles
-        $this->document->addStyleSheet('media/' . $this->option . '/css/site/style.css');
+        $this->document->addStyleSheet('media/' . $this->option . '/css/frontend.style.css');
 
         JHtml::_('behavior.tooltip');
     }
@@ -145,9 +122,9 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         // Add title before or after Site Name
         if (!$title) {
             $title = $app->get('sitename');
-        } elseif ($app->get('sitename_pagetitles', 0) == 1) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ($app->get('sitename_pagetitles', 0) == 2) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
             $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
         }
 

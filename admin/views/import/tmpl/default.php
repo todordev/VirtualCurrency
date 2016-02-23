@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
@@ -23,11 +23,11 @@ defined('_JEXEC') or die;
                     <div class="controls">
 
                         <div class="fileupload fileupload-new" data-provides="fileupload">
-                        <span class="btn btn-file">
-                            <span class="fileupload-new"><?php echo JText::_("COM_VIRTUALCURRENCY_SELECT_FILE"); ?></span>
-                            <span class="fileupload-exists"><?php echo JText::_("COM_VIRTUALCURRENCY_CHANGE"); ?></span>
-                            <?php echo $this->form->getInput('data'); ?>
-                        </span>
+                            <span class="btn btn-file">
+                                <span class="fileupload-new"><i class="icon-folder-open"></i> <?php echo JText::_("COM_VIRTUALCURRENCY_SELECT_FILE"); ?></span>
+                                <span class="fileupload-exists"><i class="icon-folder-open"></i> <?php echo JText::_("COM_VIRTUALCURRENCY_CHANGE"); ?></span>
+                                <?php echo $this->form->getInput('data'); ?>
+                            </span>
                             <span class="fileupload-preview"></span>
                             <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
                         </div>

@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewAccounts extends JViewLegacy
 {
@@ -20,7 +18,7 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Registry\Registry
      */
     protected $state;
 
@@ -36,21 +34,17 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     protected $sortFields;
 
     protected $sidebar;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
+    
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+
+        // Create accounts for users.
+        VirtualCurrencyHelper::createAccounts();
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
-
-        // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
 
         // Prepare sorting data
         $this->prepareSorting();
@@ -71,7 +65,7 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -79,8 +73,9 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         }
 
         $this->sortFields = array(
-            'b.name' => JText::_('COM_VIRTUALCURRENCY_NAME'),
-            'a.id'   => JText::_('JGRID_HEADING_ID')
+            'a.amount' => JText::_('COM_VIRTUALCURRENCY_AMOUNT'),
+            'b.name'   => JText::_('COM_VIRTUALCURRENCY_NAME'),
+            'a.id'     => JText::_('JGRID_HEADING_ID')
         );
     }
 
@@ -89,6 +84,9 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
      */
     protected function addSidebar()
     {
+        // Add submenu
+        VirtualCurrencyHelper::addSubmenu($this->getName());
+        
         $this->sidebar = JHtmlSidebar::render();
     }
 
@@ -99,13 +97,11 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_ACCOUNTS_MANAGER'));
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_ACCOUNT_MANAGER'));
         JToolBarHelper::addNew('account.add');
         JToolBarHelper::editList('account.edit');
         JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_("COM_VIRTUALCURRENCY_DELETE_ITEMS_QUESTION"), "accounts.delete");
-        JToolBarHelper::divider();
-        JToolBarHelper::custom('accounts.backToDashboard', "dashboard", "", JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), false);
+        JToolBarHelper::custom('accounts.backToDashboard', 'dashboard', '', JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), false);
     }
 
     /**
@@ -114,7 +110,7 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_ACCOUNTS_MANAGER'));
+        $this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_ACCOUNT_MANAGER'));
 
         // Scripts
         JHtml::_('behavior.multiselect');
@@ -122,6 +118,6 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('itprism.ui.joomla_list');
+        JHtml::_('prism.ui.joomlaList');
     }
 }

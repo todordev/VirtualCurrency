@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="module" version="3.2" client="site" method="upgrade">
+<extension type="module" version="3.5" client="site" method="upgrade">
     <name>MOD_VIRTUALCURRENCYACCOUNTS</name>
     <author>Todor Iliev</author>
-    <copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
-    <license>http://www.gnu.org/copyleft/gpl.html</license>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
+    <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>1.2</version>
-    <creationDate>29 May, 2014</creationDate>
+    <version>2.0</version>
+    <creationDate>29 February, 2016</creationDate>
     <description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" >Virtual Currency Accounts</a> is a module that displays currency state of accounts used for managing virtual currency.</p>
     <p><a href='http://itprism.com/help/111-virtual-currency-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>
-    <p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
     <p>Please, <a href="http://extensions.joomla.org/extensions/e-commerce/credits-a-point-systems/24550" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
     ]]></description>
@@ -20,8 +19,6 @@
 
     <files>
         <filename module="mod_virtualcurrencyaccounts">mod_virtualcurrencyaccounts.php</filename>
-        <filename>index.html</filename>
-
         <folder>language</folder>
         <folder>tmpl</folder>
     </files>

@@ -4,6 +4,7 @@
 
         <field name="user_id" type="user"
                label="COM_VIRTUALCURRENCY_USER"
+               description="COM_VIRTUALCURRENCY_USER_ACCOUNT_DESC"
                required="true"
                 />
 
@@ -15,11 +16,10 @@
                default="0"
                 />
 
-        <field name="currency_id" type="vccurrencies"
+        <field name="currency_id" type="vccurrency"
                label="COM_VIRTUALCURRENCY_CURRENCY"
-               description="COM_VIRTUALCURRENCY_CURRENCY_DESC"
+               description="COM_VIRTUALCURRENCY_CURRENCY_ACCOUNT_DESC"
                filter="int"
-               required="true"
                 />
 
         <field name="note" type="textarea"

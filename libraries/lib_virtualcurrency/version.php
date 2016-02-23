@@ -1,11 +1,13 @@
 <?php
 /**
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Version
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
+
+namespace Virtualcurrency;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -13,10 +15,10 @@ defined('JPATH_PLATFORM') or die;
  * This class contains data about the extension and methods,
  * which are used for generating information about the version of the extension.
  *
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Version
  */
-class VirtualCurrencyVersion
+class Version
 {
     /**
      * Extension name
@@ -30,21 +32,21 @@ class VirtualCurrencyVersion
      *
      * @var integer
      */
-    public $release = '1';
+    public $release = '2';
 
     /**
      * Sub Release Level
      *
      * @var integer
      */
-    public $devLevel = '2';
+    public $devLevel = '0';
 
     /**
      * Release Type
      *
      * @var integer
      */
-    public $releaseType = 'Lite';
+    public $releaseType = 'Pro';
 
     /**
      * Development Status
@@ -58,21 +60,21 @@ class VirtualCurrencyVersion
      *
      * @var string
      */
-    public $releaseDate = '29 May, 2014';
+    public $releaseDate = '29 February, 2016';
 
     /**
      * Link to license page.
      *
      * @var string
      */
-    public $license = '<a href="http://www.gnu.org/copyleft/gpl.html" target="_blank">GNU/GPL</a>';
+    public $license = '<a href="http://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU/GPLv3</a>';
 
     /**
      * Copyright Text
      *
      * @var string
      */
-    public $copyright = '&copy; 2014 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
 
     /**
      * URL to the extension page.
@@ -96,9 +98,16 @@ class VirtualCurrencyVersion
     public $developer = '<a href="http://itprism.com" target="_blank">ITPrism</a>';
 
     /**
+     * Minimum required version of Prism library.
+     *
+     * @var string
+     */
+    public $requiredPrismVersion = '1.9';
+
+    /**
      *  Build long format of the version text.
      *
-     * @return string Long format vpversion
+     * @return string Long format version
      */
     public function getLongVersion()
     {

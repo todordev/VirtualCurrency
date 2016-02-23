@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewPartners extends JViewLegacy
 {
@@ -20,7 +18,7 @@ class VirtualCurrencyViewPartners extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Registry\Registry
      */
     protected $state;
 
@@ -33,14 +31,9 @@ class VirtualCurrencyViewPartners extends JViewLegacy
 
     protected $option;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
 
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
@@ -49,11 +42,11 @@ class VirtualCurrencyViewPartners extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         // Add submenu
         VirtualCurrencyHelper::addSubmenu($this->getName());
-
+        
         // Prepare actions
         $this->addToolbar();
         $this->setDocument();
@@ -69,16 +62,16 @@ class VirtualCurrencyViewPartners extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_PARTNERS_MANAGER'), 'itp-partners');
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_PARTNERS_MANAGER'));
         JToolBarHelper::addNew('partner.add');
         JToolBarHelper::editList('partner.edit');
         JToolBarHelper::divider();
-        JToolBarHelper::publishList("partners.publish");
-        JToolBarHelper::unpublishList("partners.unpublish");
+        JToolBarHelper::publishList('partners.publish');
+        JToolBarHelper::unpublishList('partners.unpublish');
         JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_("COM_VIRTUALCURRENCY_DELETE_ITEMS_QUESTION"), "partners.delete");
+        JToolBarHelper::deleteList(JText::_('COM_VIRTUALCURRENCY_DELETE_ITEMS_QUESTION'), 'partners.delete');
         JToolBarHelper::divider();
-        JToolBarHelper::custom('partners.backToDashboard', "itp-dashboard-back", "", JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), false);
+        JToolBarHelper::custom('partners.backToDashboard', 'dashboard', '', JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), false);
     }
 
     /**

@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.modellist');
 
 class VirtualCurrencyModelAccounts extends JModelList
 {
@@ -27,20 +25,15 @@ class VirtualCurrencyModelAccounts extends JModelList
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = array(
                 'id', 'a.id',
-                'name', 'b.name'
+                'amount', 'a.amount',
+                'name', 'b.name',
+                'title', 'c.title'
             );
         }
 
         parent::__construct($config);
     }
-
-    /**
-     * Method to auto-populate the model state.
-     *
-     * Note. Calling getState in this method will result in recursion.
-     *
-     * @since   1.6
-     */
+    
     protected function populateState($ordering = null, $direction = null)
     {
         // Load the filter state.
@@ -84,7 +77,7 @@ class VirtualCurrencyModelAccounts extends JModelList
     protected function getListQuery()
     {
         $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
+        /** @var $db JDatabaseDriver */
 
         // Create a new query object.
         $query = $db->getQuery(true);
@@ -103,13 +96,13 @@ class VirtualCurrencyModelAccounts extends JModelList
         $query->innerJoin($db->quoteName('#__vc_currencies', 'c') . ' ON a.currency_id = c.id');
 
         // Filter by search in title
-        $search = $this->getState('filter.search');
-        if (!empty($search)) {
+        $search = (string)$this->getState('filter.search');
+        if ($search !== '') {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } else {
                 $escaped = $db->escape($search, true);
-                $quoted  = $db->quote("%" . $escaped . "%", false);
+                $quoted  = $db->quote('%' . $escaped . '%', false);
                 $query->where('b.name LIKE ' . $quoted);
             }
         }

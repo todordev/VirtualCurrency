@@ -3,14 +3,12 @@
  * @package      Virtual Currency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.controller');
 
 /**
  * @package        VirtualCurrency
@@ -19,6 +17,51 @@ jimport('joomla.application.component.controller');
  */
 class VirtualCurrencyControllerNotifier extends JControllerLegacy
 {
+    protected $log;
+
+    protected $paymentProcess;
+
+    protected $projectId;
+    protected $context;
+
+    /**
+     * @var Joomla\Registry\Registry
+     */
+    protected $params;
+
+    /**
+     * @var JApplicationSite
+     */
+    protected $app;
+    
+    public function __construct($config = array())
+    {
+        parent::__construct($config);
+
+        $this->app = JFactory::getApplication();
+
+        // Get project id.
+        $this->itemId = $this->input->getUint('item_id');
+
+        // Prepare log object
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_virtualcurrency.php');
+
+        $this->log = new Prism\Log\Log();
+        $this->log->addAdapter(new Prism\Log\Adapter\File($file));
+
+        // Create an object that contains a data used during the payment process.
+        $this->paymentProcess = $this->app->getUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT);
+
+        // Prepare context
+        $filter         = new JFilterInput();
+        $paymentService = JString::trim(JString::strtolower($this->input->getCmd('payment_service')));
+        $paymentService = $filter->clean($paymentService, 'ALNUM');
+        $this->context  = (JString::strlen($paymentService) > 0) ? 'com_virtualcurrency.notify.' . $paymentService : 'com_virtualcurrency.notify';
+
+        // Prepare params
+        $this->params = JComponentHelper::getParams('com_virtualcurrency');
+    }
+    
     /**
      * Method to get a model object, loading it if required.
      *
@@ -26,42 +69,35 @@ class VirtualCurrencyControllerNotifier extends JControllerLegacy
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    object    The model.
+     * @return   VirtualCurrencyModelNotifier    The model.
      * @since    1.5
      */
-    public function getModel($name = 'Notifier', $prefix = '', $config = array('ignore_request' => true))
+    public function getModel($name = 'Notifier', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
     /**
-     * Catch the response from PayPal and store data about transaction/
-     *
-     * @todo Move sending mail functionality to plugins.
+     * Catch the response from PayPal and store data about transaction.
      */
     public function notify()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite * */
-
-        $params = $app->getParams("com_virtualcurrency");
-
         // Check for disabled payment functionality
-        if ($params->get("debug_payment_disabled", 0)) {
-            $error = JText::_("COM_VIRTUALCURRENCY_ERROR_PAYMENT_HAS_BEEN_DISABLED");
-            $error .= "\n" . JText::sprintf("COM_VIRTUALCURRENCY_TRANSACTION_DATA", var_export($_POST, true));
-            JLog::add($error);
-
-            return null;
+        if ($this->params->get('debug_payment_disabled', 0)) {
+            $error = JText::_('COM_VIRTUALCURRENCY_ERROR_PAYMENT_HAS_BEEN_DISABLED');
+            $error .= '\n' . JText::sprintf('COM_VIRTUALCURRENCY_TRANSACTION_DATA', var_export($_REQUEST, true));
+            $this->log->add($error, 'CONTROLLER_NOTIFIER_ERROR');
+            return;
         }
 
-        // Clear the name of the payment gateway.
-        $filter         = new JFilterInput();
-        $paymentService = $filter->clean(JString::trim(JString::strtolower($this->input->getCmd("payment_service"))));
+        // Get model object.
+        $model = $this->getModel();
 
-        $context        = (!empty($paymentService)) ? 'com_virtualcurrency.notify.' . $paymentService : 'com_crowdfunding.notify';
+        $transaction        = null;
+        $item               = null;
+        $paymentSession     = null;
+        $responseToService  = null;
 
         // Save data
         try {
@@ -71,16 +107,15 @@ class VirtualCurrencyControllerNotifier extends JControllerLegacy
 
             // Event Notify
             JPluginHelper::importPlugin('virtualcurrencypayment');
-            $results = $dispatcher->trigger('onPaymenNotify', array($context, &$params));
+            $results = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params));
 
-            $transaction    = null;
-            $currency       = null;
-
-            if (!empty($results)) {
+            if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if (!empty($result) and isset($result["transaction"])) {
-                        $transaction    = JArrayHelper::getValue($result, "transaction");
-                        $currency       = JArrayHelper::getValue($result, "currency");
+                    if (is_array($result) and array_key_exists('transaction', $result)) {
+                        $transaction        = Joomla\Utilities\ArrayHelper::getValue($result, 'transaction');
+                        $item               = Joomla\Utilities\ArrayHelper::getValue($result, 'item');
+                        $paymentSession     = Joomla\Utilities\ArrayHelper::getValue($result, 'payment_session');
+                        $responseToService  = Joomla\Utilities\ArrayHelper::getValue($result, 'response');
                         break;
                     }
                 }
@@ -88,22 +123,36 @@ class VirtualCurrencyControllerNotifier extends JControllerLegacy
 
             // If there is no transaction data, the status might be pending or another one.
             // So, we have to stop the script execution.
-            if (empty($transaction)) {
+            // Remove the record of the payment session from database.
+            if ($transaction === null) {
+                $model->closePaymentSession($paymentSession);
                 return;
             }
 
             // Event After Payment
-            $dispatcher->trigger('onAfterPayment', array($context, &$transaction, &$params, &$currency));
+            $dispatcher->trigger('onAfterPayment', array($this->context, &$item, &$transaction, &$paymentSession, &$this->params));
 
         } catch (Exception $e) {
 
-            JLog::add($e->getMessage());
-            $input = "INPUT:" . var_export($app->input, true) . "\n";
-            JLog::add($input);
+            $error     = 'NOTIFIER ERROR: ' .$e->getMessage() .'\n';
+            $errorData = 'INPUT:' . var_export($this->app->input, true) . '\n';
+            $this->log->add($error, 'CONTROLLER_NOTIFIER_ERROR', $errorData);
 
             // Send notification about the error to the administrator.
             $model = $this->getModel();
             $model->sendMailToAdministrator();
         }
+
+        // Remove the record of the payment session from database.
+        $model = $this->getModel();
+        $model->closePaymentSession($paymentSession);
+
+        // Send a specific response to a payment service.
+        if (is_string($responseToService) and JString::strlen($responseToService) > 0) {
+            echo $responseToService;
+        }
+
+        // Stop the execution of the script.
+        $this->app->close();
     }
 }

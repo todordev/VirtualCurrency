@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
 defined('_JEXEC') or die;
-
-jimport('itprism.controller.form.backend');
 
 /**
  * VirtualCurrency real currency controller class.
@@ -19,31 +17,28 @@ jimport('itprism.controller.form.backend');
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerRealCurrency extends ITPrismControllerFormBackend
+class VirtualCurrencyControllerRealCurrency extends Prism\Controller\Form\Backend
 {
-    /**
-     * Save an item
-     */
     public function save($key = null, $urlVar = null)
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, "id");
+        $itemId = JArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
-            "task" => $this->getTask(),
-            "id"   => $itemId
+            'task' => $this->getTask(),
+            'id'   => $itemId
         );
 
         $model = $this->getModel();
         /** @var $model VirtualCurrencyModelRealCurrency */
 
         $form = $model->getForm($data, false);
-        /** @var $form JForm * */
+        /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_("COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED"), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -59,7 +54,7 @@ class VirtualCurrencyControllerRealCurrency extends ITPrismControllerFormBackend
         try {
 
             $itemId = $model->save($validData);
-            $redirectOptions["id"] = $itemId;
+            $redirectOptions['id'] = $itemId;
 
         } catch (Exception $e) {
             JLog::add($e->getMessage());

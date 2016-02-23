@@ -1,36 +1,33 @@
 <?php
 /**
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Constants
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
+
+namespace Virtualcurrency;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
- * VirtualCurrency component constants.
+ * Virtualcurrency constants.
  *
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Constants
  */
-class VirtualCurrencyConstants
+class Constants
 {
-    // States
-    const PUBLISHED   = 1;
-    const UNPUBLISHED = 2;
-    const TRASHED     = -2;
-
-    // Mail modes - html and plain text.
-    const MAIL_MODE_HTML       = true;
-    const MAIL_MODE_PLAIN_TEXT = false;
-
     // Logs
     const ENABLE_SYSTEM_LOG  = true;
     const DISABLE_SYSTEM_LOG = false;
 
     // Project states
-    const MULTIPLICATION     = "M";
-    const SUM = "S";
+    const MULTIPLICATION     = 'M';
+    const SUM = 'S';
+
+    const PAYMENT_SESSION_CONTEXT = 'vcpaymentsession';
+
+    const BANK_ID = 0;
 }

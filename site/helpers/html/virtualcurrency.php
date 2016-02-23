@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -13,8 +13,8 @@ defined('_JEXEC') or die;
 /**
  * VirtualCurrency Html Helper
  *
- * @package        ITPrism Components
- * @subpackage     VirtualCurrency
+ * @package        VirtualCurrency
+ * @subpackage     Components
  * @since          1.6
  */
 abstract class JHtmlVirtualCurrency
@@ -22,52 +22,40 @@ abstract class JHtmlVirtualCurrency
     /**
      * Display an input field for amount
      *
-     * @param float $value
-     * @param array $currency
+     * @param Virtualcurrency\Currency\Currency $currency
      * @param array $options
      *
      * @return string
      */
-    public static function inputAmount($value, $currency, $options)
+    public static function inputAmount($currency, $options)
     {
-        $class = "";
-        if (!empty($currency["symbol"])) {
-            $class = "input-prepend ";
+        $class = '';
+
+        $html = '<div class="input-group">';
+
+        if ($currency->getSymbol()) {
+            $html .= '<span class="input-group-addon">' . $currency->getSymbol() . '</span>';
         }
 
-        $class .= "input-append";
-
-        $html = '<div class="' . $class . '">';
-
-        if (!empty($currency["symbol"])) {
-            $html .= '<span class="add-on">' . $currency["symbol"] . '</span>';
+        $id = '';
+        if (Joomla\Utilities\ArrayHelper::getValue($options, 'id')) {
+            $id = 'id="' . Joomla\Utilities\ArrayHelper::getValue($options, 'id') . '"';
         }
 
-        $name = JArrayHelper::getValue($options, "name");
-
-        $id = "";
-        if (JArrayHelper::getValue($options, "id")) {
-            $id = 'id="' . JArrayHelper::getValue($options, "id") . '"';
+        if (Joomla\Utilities\ArrayHelper::getValue($options, 'class')) {
+            $class = 'class="' . Joomla\Utilities\ArrayHelper::getValue($options, 'class') . '"';
         }
 
-        if (!$value or !is_numeric($value)) {
-            $value = 0;
-        }
+        $name = Joomla\Utilities\ArrayHelper::getValue($options, 'name');
+        $html .= '<input type="text" name="' . $name . '" value="' . $currency->getParam('minimum') . '" ' . $id . ' ' . $class . ' />';
 
-        if (JArrayHelper::getValue($options, "class")) {
-            $class = 'class="' . JArrayHelper::getValue($options, "class") . '"';
-        }
-
-        $html .= '<input type="text" name="' . $name . '" value="' . $value . '" ' . $id . ' ' . $class . ' />';
-
-        if (!empty($currency["code"])) {
-            $html .= '<span class="add-on">' . $currency["code"] . '</span>';
+        if ($currency->getCode()) {
+            $html .= '<span class="input-group-addon">' . $currency->getCode() . '</span>';
         }
 
         $html .= '</div>';
 
         return $html;
-
     }
 
     /**
@@ -81,10 +69,70 @@ abstract class JHtmlVirtualCurrency
     public static function total($units, $value)
     {
         $amount = 0;
-        if (!empty($value)) {
+        if ($value > 0) {
             $amount = $units * $value;
         }
 
         return $amount;
+    }
+
+    /**
+     * Displays price per units.
+     *
+     * @param stdClass $item
+     * @param Virtualcurrency\Amount $amountFormatter
+     * @param Virtualcurrency\Currency\Real\Currency $realCurrency
+     * @param Virtualcurrency\Currency\Currencies $virtualCurrencies
+     *
+     * @return string
+     */
+    public static function currencyPrice($item, $amountFormatter, $realCurrency, $virtualCurrencies)
+    {
+        $params = new \Joomla\Registry\Registry($item->params);
+
+        $output = array();
+
+        if ($params->get('price')) {
+            $amountFormatter->setCurrency($realCurrency);
+            $output[] = $amountFormatter->setValue($params->get('price'))->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $params->get('minimum')) . ' )';
+        }
+
+        if ($params->get('price_virtual') and (int)$params->get('currency_id') > 0) {
+            $virtualCurrency = $virtualCurrencies->getCurrency($params->get('currency_id'));
+
+            $amountFormatter->setCurrency($virtualCurrency);
+            $output[] = $amountFormatter->setValue($params->get('price_virtual'))->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $params->get('minimum')) . ' )';
+        }
+
+        return implode('<br />', $output);
+    }
+
+    /**
+     * Displays price per units.
+     *
+     * @param stdClass $item
+     * @param Virtualcurrency\Amount $amount
+     * @param Virtualcurrency\Currency\Real\Currency $realCurrency
+     * @param Virtualcurrency\Currency\Currencies $virtualCurrencies
+     *
+     * @return string
+     */
+    public static function virtualGoodsPrice($item, $amount, $realCurrency, $virtualCurrencies)
+    {
+        $output = array();
+
+        if ($item->price) {
+            $amount->setCurrency($realCurrency);
+            $output[] = $amount->setValue($item->price)->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->minimum) . ' )';
+        }
+
+        if ($item->price_virtual and (int)$item->currency_id > 0) {
+            $virtualCurrency = $virtualCurrencies->getCurrency($item->currency_id);
+
+            $amount->setCurrency($virtualCurrency);
+            $output[] = $amount->setValue($item->price_virtual)->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->minimum) . ' )';
+        }
+
+        return implode('<br />', $output);
     }
 }

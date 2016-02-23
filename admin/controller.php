@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.controller');
 
 /**
  * Default Controller
@@ -22,16 +20,16 @@ class VirtualCurrencyController extends JControllerLegacy
 {
     public function display($cachable = false, $urlparams = array())
     {
-        $option = $this->input->getCmd("option");
+        $option = $this->input->getCmd('option');
 
         $document = JFactory::getDocument();
-        /** @var $document JDocumentHtml * */
+        /** @var $document JDocumentHtml */
 
         // Add component style
-        $document->addStyleSheet('../media/' . $option . '/css/admin/style.css');
+        $document->addStyleSheet('../media/' . $option . '/css/backed.style.css');
 
         $viewName = $this->input->getCmd('view', 'dashboard');
-        $this->input->set("view", $viewName);
+        $this->input->set('view', $viewName);
 
         parent::display();
 

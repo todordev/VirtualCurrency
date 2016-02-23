@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('itprism.controller.form.backend');
 
 /**
  * VirtualCurrency import controller.
@@ -18,12 +16,8 @@ jimport('itprism.controller.form.backend');
  * @package      VirtualCurrency
  * @subpackage   Components
  */
-class VirtualCurrencyControllerImport extends ITPrismControllerFormBackend
+class VirtualCurrencyControllerImport extends Prism\Controller\Form\Backend
 {
-    /**
-     * Proxy for getModel.
-     * @since   1.6
-     */
     public function getModel($name = 'Import', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => false))
     {
         $model = parent::getModel($name, $prefix, $config);
@@ -35,25 +29,22 @@ class VirtualCurrencyControllerImport extends ITPrismControllerFormBackend
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationAdministrator */
-
         $data = $this->input->post->get('jform', array(), 'array');
         $file = $this->input->files->get('jform', array(), 'array');
         $data = array_merge($data, $file);
 
         $redirectOptions = array(
-            "view" => "realcurrencies",
+            'view' => 'realcurrencies',
         );
 
         $model = $this->getModel();
         /** @var $model VirtualCurrencyModelImport */
 
         $form = $model->getForm($data, false);
-        /** @var $form JForm * */
+        /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_("COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED"), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
         }
 
         // Validate the form
@@ -62,74 +53,25 @@ class VirtualCurrencyControllerImport extends ITPrismControllerFormBackend
         // Check for errors.
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 
-        $fileData = JArrayHelper::getValue($data, "data");
-        if (empty($fileData) or empty($fileData["name"])) {
+        $fileData = Joomla\Utilities\ArrayHelper::getValue($data, 'data');
+        if (!$fileData or empty($fileData['name'])) {
             $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_FILE_CANT_BE_UPLOADED'), $redirectOptions);
-
             return;
         }
 
         try {
 
-            jimport('joomla.filesystem.archive');
-            jimport('itprism.file');
-            jimport('itprism.file.uploader.local');
-            jimport('itprism.file.validator.size');
+            $filePath  = $model->uploadFile($fileData, 'currencies');
 
-            $destination = JPath::clean($app->get("tmp_path")) . DIRECTORY_SEPARATOR . JFile::makeSafe($fileData['name']);
-
-            $file = new ITPrismFile();
-
-            // Prepare size validator.
-            $KB       = 1024 * 1024;
-            $fileSize = (int)$this->input->server->get('CONTENT_LENGTH');
-
-            $mediaParams   = JComponentHelper::getParams("com_media");
-            /** @var $mediaParams Joomla\Registry\Registry */
-
-            $uploadMaxSize = $mediaParams->get("upload_maxsize") * $KB;
-
-            $sizeValidator = new ITPrismFileValidatorSize($fileSize, $uploadMaxSize);
-
-            $file->addValidator($sizeValidator);
-
-            // Validate the file
-            $file->validate();
-
-            // Prepare uploader object.
-            $uploader = new ITPrismFileUploaderLocal($fileData);
-            $uploader->setDestination($destination);
-
-            // Upload the file
-            $file->setUploader($uploader);
-            $file->upload();
-
-            $fileName = basename($destination);
-
-            // Extract file if it is archive
-            $ext = JString::strtolower(JFile::getExt($fileName));
-            if (strcmp($ext, "zip") == 0) {
-
-                $destFolder = JPath::clean($app->get("tmp_path")) . DIRECTORY_SEPARATOR . "currencies";
-                if (is_dir($destFolder)) {
-                    JFolder::delete($destFolder);
-                }
-
-                $filePath = $model->extractFile($destination, $destFolder);
-
-            } else {
-                $filePath = $destination;
+            $resetId   = Joomla\Utilities\ArrayHelper::getValue($data, 'reset_id', false, 'bool');
+            $removeOld = Joomla\Utilities\ArrayHelper::getValue($data, 'remove_old', false, 'bool');
+            if ($removeOld) {
+                $model->removeAll();
             }
 
-            $resetId   = JArrayHelper::getValue($data, "reset_id", false, "bool");
-            $removeOld = JArrayHelper::getValue($data, "remove_old", false, "bool");
-            if (!empty($removeOld)) {
-                $model->removeAll("currencies");
-            }
             $model->importCurrencies($filePath, $resetId);
 
         } catch (Exception $e) {
@@ -138,6 +80,5 @@ class VirtualCurrencyControllerImport extends ITPrismControllerFormBackend
         }
 
         $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_REAL_CURRENCIES_IMPORTED'), $redirectOptions);
-
     }
 }

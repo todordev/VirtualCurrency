@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.modeladmin');
 
 class VirtualCurrencyModelAccount extends JModelAdmin
 {
@@ -75,47 +73,26 @@ class VirtualCurrencyModelAccount extends JModelAdmin
      */
     public function save($data)
     {
-        $id         = JArrayHelper::getValue($data, "id");
-        $amount     = JArrayHelper::getValue($data, "amount");
-        $currencyId = JArrayHelper::getValue($data, "currency_id");
-        $userId     = JArrayHelper::getValue($data, "user_id");
-        $note       = JArrayHelper::getValue($data, "note");
+        $id         = JArrayHelper::getValue($data, 'id');
+        $amount     = JArrayHelper::getValue($data, 'amount');
+        $currencyId = JArrayHelper::getValue($data, 'currency_id');
+        $userId     = JArrayHelper::getValue($data, 'user_id');
+        $note       = JArrayHelper::getValue($data, 'note');
 
         // Load a record from the database
         $row = $this->getTable();
         $row->load($id);
 
-        $row->set("amount", $amount);
-        $row->set("currency_id", $currencyId);
-        $row->set("user_id", $userId);
-        $row->set("note", $note);
+        if (!$row->get('id')) {
+            $row->set('currency_id', $currencyId);
+        }
+
+        $row->set('amount', $amount);
+        $row->set('user_id', $userId);
+        $row->set('note', $note);
 
         $row->store();
 
-        return $row->get("id");
-    }
-
-    /**
-     * This method checks for available account.
-     *
-     * @param integer $userId
-     * @param integer $currencyId
-     *
-     * @return boolean
-     */
-    public function isExist($userId, $currencyId)
-    {
-        $db    = $this->getDbo();
-        $query = $db->getQuery(true);
-        $query
-            ->select("COUNT(*) AS number")
-            ->from($db->quoteName("#__vc_accounts", "a"))
-            ->where("a.user_id = " . (int)$userId)
-            ->where("a.currency_id = " . (int)$currencyId);
-
-        $db->setQuery($query, 0, 1);
-        $result = $db->loadResult();
-
-        return (!$result) ? false : true;
+        return $row->get('id');
     }
 }

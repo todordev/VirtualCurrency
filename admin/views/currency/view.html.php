@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewCurrency extends JViewLegacy
 {
@@ -20,32 +18,35 @@ class VirtualCurrencyViewCurrency extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Registry\Registry
      */
     protected $state;
+
+    /**
+     * @var Joomla\Registry\Registry
+     */
+    protected $params;
 
     protected $item;
     protected $form;
 
     protected $option;
     protected $documentTitle;
+    protected $mediaFolder;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        // Prepare actions, behaviors, scritps and document
+        $this->params = $this->state->get('params');
+
+        $this->mediaFolder = JUri::root() . $this->params->get('media_folder', 'images/virtualcurrency');
+
+        // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
         $this->setDocument();
 
@@ -60,10 +61,9 @@ class VirtualCurrencyViewCurrency extends JViewLegacy
     protected function addToolbar()
     {
         JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id == 0);
+        $isNew = ($this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_CURRENCY')
-            : JText::_('COM_VIRTUALCURRENCY_EDIT_CURRENCY');
+        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_CURRENCY') : JText::_('COM_VIRTUALCURRENCY_EDIT_CURRENCY');
 
         JToolBarHelper::title($this->documentTitle);
 
@@ -92,6 +92,8 @@ class VirtualCurrencyViewCurrency extends JViewLegacy
         JHtml::_('behavior.formvalidation');
 
         JHtml::_('formbehavior.chosen', 'select');
+
+        JText::script('COM_VIRTUALCURRENCY_QUESTION_REMOVE_IMAGES');
 
         // Add scripts
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');

@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 defined('JPATH_PLATFORM') or die;
@@ -12,6 +12,8 @@ defined('JPATH_PLATFORM') or die;
 jimport('joomla.html.html');
 jimport('joomla.form.formfield');
 jimport('joomla.form.helper');
+jimport('Prism.init');
+jimport('Virtualcurrency.init');
 JFormHelper::loadFieldClass('list');
 
 /**
@@ -21,7 +23,7 @@ JFormHelper::loadFieldClass('list');
  * @subpackage   Components
  * @since        1.6
  */
-class JFormFieldVcRealCurrency extends JFormFieldList
+class JFormFieldVcrealcurrency extends JFormFieldList
 {
     /**
      * The form field type.
@@ -39,18 +41,11 @@ class JFormFieldVcRealCurrency extends JFormFieldList
      */
     protected function getOptions()
     {
-
-        $db    = JFactory::getDbo();
-        $query = $db->getQuery(true);
-
-        $query
-            ->select('a.id AS value, ' . $query->concatenate(array("a.abbr", "a.title"), " - ") . ' AS text')
-            ->from($db->quoteName('#__vc_realcurrencies', 'a'))
-            ->order("a.abbr ASC");
+        $currencies = new Virtualcurrency\Currency\Real\Currencies(JFactory::getDbo());
+        $currencies->load();
 
         // Get the options.
-        $db->setQuery($query);
-        $options = $db->loadObjectList();
+        $options = $currencies->toOptions('id', 'title', 'code');
 
         // Merge any additional options in the XML definition.
         $options = array_merge(parent::getOptions(), $options);

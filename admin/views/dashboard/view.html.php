@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -22,31 +22,28 @@ class VirtualCurrencyViewDashboard extends JViewLegacy
     protected $option;
 
     protected $version;
-    protected $itprismVersion;
+    protected $prismVersion;
+    protected $prismVersionLowerMessage;
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
-        $this->version = new VirtualCurrencyVersion();
+        $this->option = JFactory::getApplication()->input->get('option');
 
-        // Load ITPrism library version
-        jimport("itprism.version");
-        if (!class_exists("ITPrismVersion")) {
-            $this->itprismVersion = JText::_("COM_VIRTUALCURRENCY_ITPRISM_LIBRARY_DOWNLOAD");
+        $this->version = new Virtualcurrency\Version();
+
+        // Load Prism library version
+        if (!class_exists('Prism\\Version')) {
+            $this->prismVersion = JText::_('COM_VIRTUALCURRENCY_PRISM_LIBRARY_DOWNLOAD');
         } else {
-            $itprismVersion       = new ITPrismVersion();
-            $this->itprismVersion = $itprismVersion->getShortVersion();
-        }
+            $prismVersion       = new Prism\Version();
+            $this->prismVersion = $prismVersion->getShortVersion();
 
-        // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+            if (version_compare($this->prismVersion, $this->version->requiredPrismVersion, '<')) {
+                $this->prismVersionLowerMessage = JText::_('COM_VIRTUALCURRENCY_PRISM_LIBRARY_LOWER_VERSION');
+            }
+        }
 
         $this->addToolbar();
         $this->addSidebar();
@@ -60,6 +57,9 @@ class VirtualCurrencyViewDashboard extends JViewLegacy
      */
     protected function addSidebar()
     {
+        // Add submenu
+        VirtualCurrencyHelper::addSubmenu($this->getName());
+        
         $this->sidebar = JHtmlSidebar::render();
     }
 
@@ -70,7 +70,7 @@ class VirtualCurrencyViewDashboard extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JToolBarHelper::title(JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), 'itp-dashboard');
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), 'itp-dashboard');
 
         JToolBarHelper::preferences('com_virtualcurrency');
         JToolBarHelper::divider();

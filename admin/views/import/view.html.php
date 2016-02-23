@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewImport extends JViewLegacy
 {
@@ -29,23 +27,16 @@ class VirtualCurrencyViewImport extends JViewLegacy
     protected $legend;
 
     protected $option;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
+    
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->form  = $this->get('Form');
 
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu("realcurrencies");
+        VirtualCurrencyHelper::addSubmenu('realcurrencies');
 
         // Prepare actions
         $this->addToolbar();
@@ -65,7 +56,7 @@ class VirtualCurrencyViewImport extends JViewLegacy
         JToolbarHelper::title(JText::_('COM_VIRTUALCURRENCY_IMPORT_MANAGER'));
 
         // Upload
-        JToolbarHelper::custom("import.realCurrencies", "upload", "", JText::_("COM_VIRTUALCURRENCY_UPLOAD"), false);
+        JToolbarHelper::custom('import.realCurrencies', 'upload', '', JText::_('COM_VIRTUALCURRENCY_UPLOAD'), false);
 
         JToolbarHelper::divider();
         JToolbarHelper::cancel('import.cancel', 'JTOOLBAR_CANCEL');
@@ -80,13 +71,13 @@ class VirtualCurrencyViewImport extends JViewLegacy
     {
         $this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_IMPORT_MANAGER'));
 
-        $this->legend     = JText::_("COM_VIRTUALCURRENCY_IMPORT_REAL_CURRENCY_DATA");
+        $this->legend     = JText::_('COM_VIRTUALCURRENCY_IMPORT_REAL_CURRENCY_DATA');
 
         // Scripts
         JHtml::_('behavior.formvalidation');
 
         JHtml::_('bootstrap.tooltip');
-        JHtml::_('itprism.ui.bootstrap_fileuploadstyle');
+        JHtml::_('prism.ui.bootstrap2FileInput');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
     }

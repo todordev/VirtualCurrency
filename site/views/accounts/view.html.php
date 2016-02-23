@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -33,33 +33,27 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
 
     protected $option;
 
-    protected $version;
-
     protected $pageclass_sfx;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
+    protected $amountFormatter;
 
     public function display($tpl = null)
     {
-        // Initialise variables
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->items  = $this->get('Items');
         $this->state  = $this->get('State');
+
         $this->params = $this->state->get('params');
 
         // Load currencies
         $options = array(
-            "state" => VirtualCurrencyConstants::PUBLISHED
+            'state' => Prism\Constants::PUBLISHED
         );
 
-        jimport("virtualcurrency.currencies");
-        $this->currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
+        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
         $this->currencies->load($options);
 
-        $this->version = new VirtualCurrencyVersion();
+        $this->amountFormatter = new Virtualcurrency\Amount($this->params);
 
         $this->prepareDocument();
 
@@ -87,11 +81,11 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
 
         // Meta keywords
         if ($this->params->get('menu-meta_keywords')) {
-            $this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         }
 
         if ($this->params->get('robots')) {
-            $this->document->setMetadata('robots', $this->params->get('robots'));
+            $this->document->setMetaData('robots', $this->params->get('robots'));
         }
 
         // Head styles
@@ -131,9 +125,9 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         // Add title before or after Site Name
         if (!$title) {
             $title = $app->get('sitename');
-        } elseif ($app->get('sitename_pagetitles', 0) == 1) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ($app->get('sitename_pagetitles', 0) == 2) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
             $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
         }
 

@@ -2,25 +2,36 @@
 <form>
     <fieldset>
 
-        <field name="title" type="text"
+        <field name="title" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_TITLE"
                description="COM_VIRTUALCURRENCY_POINTS_TITLE_DESC"
                size="40"
                filter="trim"
                required="true"/>
 
-        <field name="code" type="text"
+        <field name="code" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_CURRENCY_CODE"
                description="COM_VIRTUALCURRENCY_CURRENCY_CODE_DESC"
                filter="trim"
                required="true"
                 />
 
-        <field name="symbol" type="text"
+        <field name="symbol" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_CURRENCY_SYMBOL"
                description="COM_VIRTUALCURRENCY_CURRENCY_SYMBOL_DESC"
                filter="trim"
                 />
+
+        <field name="position" type="list"
+               label="COM_VIRTUALCURRENCY_SYMBOL_POSITION"
+               description="COM_VIRTUALCURRENCY_SYMBOL_POSITION_DESC"
+
+               filter="intval"
+               size="1"
+               default="0">
+            <option value="0">COM_VIRTUALCURRENCY_BEGINNING</option>
+            <option value="1">COM_VIRTUALCURRENCY_END</option>
+        </field>
 
         <field name="published" type="radio" class="btn-group"
                label="JSTATUS"
@@ -31,6 +42,27 @@
             <option value="0">JUNPUBLISHED</option>
             <option value="1">JPUBLISHED</option>
         </field>
+
+        <field name="description" type="textarea" class="input-xxlarge"
+               label="COM_VIRTUALCURRENCY_DESCRIPTION"
+               description="COM_VIRTUALCURRENCY_CURRENCY_DESCRIPTION_DESC"
+               filter="trim"
+               rows="5"
+        />
+
+        <field
+                name="image"
+                type="file"
+                label="COM_VIRTUALCURRENCY_IMAGE"
+                description="COM_VIRTUALCURRENCY_FIELD_IMAGE_DESC"
+        />
+
+        <field
+                name="icon"
+                type="file"
+                label="COM_VIRTUALCURRENCY_ICON"
+                description="COM_VIRTUALCURRENCY_FIELD_ICON_DESC"
+        />
 
         <field name="id" type="text" class="readonly"
                label="JGLOBAL_FIELD_ID_LABEL"
@@ -43,19 +75,32 @@
 
     <fields name="params" label="JGLOBAL_FIELDSET_DISPLAY_OPTIONS">
 
-        <fieldset name="basic">
-
-            <field name="amount" type="vcrealamount"
-                   label="COM_VIRTUALCURRENCY_PRICE"
-                   description="COM_VIRTUALCURRENCY_CURRENCY_PRICE_DESC"
+            <field name="price" type="vcrealamountb2"
+                   label="COM_VIRTUALCURRENCY_PRICE_REAL"
+                   description="COM_VIRTUALCURRENCY_REAL_CURRENCY_PRICE_DESC"
                    filter="trim"
-                   />
+            />
+
+            <field name="price_virtual" type="text"
+                   label="COM_VIRTUALCURRENCY_PRICE_VIRTUAL"
+                   description="COM_VIRTUALCURRENCY_PRICE_VIRTUAL_DESC"
+                   filter="trim"
+            />
+
+            <field name="currency_id" type="vccurrency"
+                   label="COM_VIRTUALCURRENCY_VIRTUAL_CURRENCY"
+                   description="COM_VIRTUALCURRENCY_VIRTUAL_CURRENCY_DESC"
+                   filter="trim"
+                   column_value="id"
+                   column_text="code"
+            />
 
             <field name="minimum" type="text"
                    label="COM_VIRTUALCURRENCY_MINIMUM_UNITS"
                    description="COM_VIRTUALCURRENCY_MINIMUM_UNITS_DESC"
-                   />
-        </fieldset>
+                   filter="int"
+                   default="0"
+            />
 
     </fields>
 </form>

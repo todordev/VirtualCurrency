@@ -3,12 +3,16 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
+
+if ($this->item->id !== null and $this->item->id > 0) {
+    $field = $this->form->setFieldAttribute('currency_id', 'disabled', '1');
+}
 ?>
 <div class="row-fluid">
     <div class="span6 form-horizontal">

@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewPartner extends JViewLegacy
 {
@@ -20,7 +18,7 @@ class VirtualCurrencyViewPartner extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Restiry\Registry
      */
     protected $state;
 
@@ -32,22 +30,18 @@ class VirtualCurrencyViewPartner extends JViewLegacy
 
     protected $imagesFolder;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     /**
      * Display the view
      */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        // Prepare actions, behaviors, scritps and document
+        // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
         $this->setDocument();
 
@@ -62,10 +56,9 @@ class VirtualCurrencyViewPartner extends JViewLegacy
     protected function addToolbar()
     {
         JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id == 0);
+        $isNew = ($this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_PARTNER')
-            : JText::_('COM_VIRTUALCURRENCY_EDIT_PARTNER');
+        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_PARTNER') : JText::_('COM_VIRTUALCURRENCY_EDIT_PARTNER');
 
         JToolBarHelper::apply('partner.apply');
         JToolBarHelper::save2new('partner.save2new');

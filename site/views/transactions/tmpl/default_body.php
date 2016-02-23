@@ -1,43 +1,41 @@
 <?php
 /**
  * @package      VirtualCurrency
- * @subpackage   Virtual Currency
+ * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<?php foreach ($this->items as $item) {
-    $currency = $this->currencies->getCurrency($item->currency_id);
-    ?>
+<?php foreach ($this->items as $item) {?>
     <tr>
         <td>
             <?php echo $this->escape($item->title); ?>
         </td>
-        <td class="center">
-            <?php echo $currency->getAmountString($item->units); ?>
+        <td>
+            <?php echo $item->units . ' ' . $this->escape($item->txn_amount); ?>
         </td>
-        <td class="center">
-            <?php echo $this->realCurrency->getAmountString($item->txn_amount); ?>
+        <td>
+            <?php echo $this->escape($item->txn_amount); ?>
         </td>
 
-        <td class="center"><?php echo $this->escape($item->sender); ?></td>
-        <td class="center"><?php echo $this->escape($item->receiver); ?></td>
+        <td><?php echo (!$item->sender) ? JText::_('COM_VIRTUALCURRENCY_BANK') : $this->escape($item->sender); ?></td>
+        <td><?php echo $this->escape($item->receiver); ?></td>
 
-        <td class="center">
+        <td>
             <?php echo JHtml::_('date', $item->txn_date, JText::_('DATE_FORMAT_LC3')); ?>
         </td>
         <td>
-            <?php echo $item->txn_id; ?>
+            <?php echo $this->escape($item->txn_id); ?>
         </td>
-        <td class="center">
+        <td>
             <?php echo $this->escape($item->txn_status); ?>
         </td>
         <td class="center">
-            <?php echo $item->id; ?>
+            <?php echo (int)$item->id; ?>
         </td>
     </tr>
 <?php } ?>

@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewTransaction extends JViewLegacy
 {
@@ -20,7 +18,7 @@ class VirtualCurrencyViewTransaction extends JViewLegacy
     public $document;
 
     /**
-     * @var JRegistry
+     * @var Joomla\Registry\Registry
      */
     protected $state;
 
@@ -30,22 +28,15 @@ class VirtualCurrencyViewTransaction extends JViewLegacy
     protected $option;
     protected $documentTitle;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        // Prepare actions, behaviors, scritps and document
+        // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
         $this->setDocument();
 

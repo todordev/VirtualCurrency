@@ -3,14 +3,12 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
 
 class VirtualCurrencyViewTransactions extends JViewLegacy
 {
@@ -46,14 +44,10 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
 
     protected $currencies;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -64,17 +58,12 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         $this->params = $params;
 
         // Load all currencies
-        jimport("virtualcurrency.currencies");
-        $this->currencies = new VirtualCurrencyCurrencies(JFactory::getDbo());
+        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
         $this->currencies->load();
 
-        // Get real currenices
-        jimport("virtualcurrency.realcurrency");
-        $this->realCurrency = new VirtualCurrencyRealCurrency(JFactory::getDbo());
-        $this->realCurrency->load($this->params->get("payments_currency_id"));
-
-        // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        // Get real currencies
+        $this->realCurrency = new Virtualcurrency\Currency\Real\Currency(JFactory::getDbo());
+        $this->realCurrency->load($this->params->get('payments_currency_id'));
 
         // Prepare sorting data
         $this->prepareSorting();
@@ -95,7 +84,7 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -115,11 +104,17 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
      */
     protected function addSidebar()
     {
+        // Add submenu
+        VirtualCurrencyHelper::addSubmenu($this->getName());
+        
         JHtmlSidebar::setAction('index.php?option=' . $this->option . '&view=' . $this->getName());
 
         $states = array(
-            "completed" => JText::_('COM_VIRTUALCURRENCY_COMPLETED'),
-            "pending"   => JText::_('COM_VIRTUALCURRENCY_PENDING')
+            'completed' => JText::_('COM_VIRTUALCURRENCY_COMPLETED'),
+            'pending'   => JText::_('COM_VIRTUALCURRENCY_PENDING'),
+            'canceled'  => JText::_('COM_VIRTUALCURRENCY_CANCELED'),
+            'refunded'  => JText::_('COM_VIRTUALCURRENCY_REFUNDED'),
+            'failed'    => JText::_('COM_VIRTUALCURRENCY_FAILED')
         );
 
         JHtmlSidebar::addFilter(
@@ -139,10 +134,10 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_MANAGER'));
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_TRANSACTION_MANAGER'));
         JToolBarHelper::editList('transaction.edit');
         JToolBarHelper::divider();
-        JToolBarHelper::custom('transactions.backToDashboard', "dashboard", "", JText::_("COM_VIRTUALCURRENCY_DASHBOARD"), false);
+        JToolBarHelper::custom('transactions.backToDashboard', 'dashboard', '', JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), false);
     }
 
     /**
@@ -152,7 +147,7 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_TRANSACTIONS_MANAGER'));
+        $this->document->setTitle(JText::_('COM_VIRTUALCURRENCY_TRANSACTION_MANAGER'));
 
         // Scripts
         JHtml::_('behavior.multiselect');
@@ -160,6 +155,6 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('itprism.ui.joomla_list');
+        JHtml::_('prism.ui.joomlaList');
     }
 }

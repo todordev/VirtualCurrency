@@ -3,69 +3,34 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<div class="row-fluid">
-    <div class="span6 form-horizontal">
-        <form action="<?php echo JRoute::_('index.php?option=com_virtualcurrency'); ?>" method="post" name="adminForm"
-              id="adminForm" class="form-validate">
-            <fieldset class="adminform">
 
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('currency_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('currency_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('units'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('units'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_amount'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_amount'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_currency'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_currency'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_status'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_status'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_date'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_date'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('service_provider'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('service_provider'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('sender_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('sender_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('receiver_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('receiver_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('id'); ?></div>
-                </div>
+<form action="<?php echo JRoute::_('index.php?option=com_virtualcurrency'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate">
+    <div class="row-fluid">
+        <div class="span12 form-horizontal">
 
-            </fieldset>
+            <?php echo $this->form->renderField('title'); ?>
+            <?php echo $this->form->renderField('units'); ?>
+            <?php echo $this->form->renderField('txn_id'); ?>
+            <?php echo $this->form->renderField('txn_amount'); ?>
+            <?php echo $this->form->renderField('txn_currency'); ?>
+            <?php echo $this->form->renderField('txn_status'); ?>
+            <?php echo $this->form->renderField('txn_date'); ?>
+            <?php echo $this->form->renderField('service_provider'); ?>
+            <?php echo $this->form->renderField('sender_id'); ?>
+            <?php echo $this->form->renderField('receiver_id'); ?>
+            <?php echo $this->form->renderField('item_id'); ?>
+            <?php echo $this->form->renderField('item_type'); ?>
+            <?php echo $this->form->renderField('id'); ?>
 
-            <input type="hidden" name="task" value=""/>
+            <input type="hidden" name="task" value="" />
             <?php echo JHtml::_('form.token'); ?>
-
-        </form>
+        </div>
     </div>
-</div>
+</form>

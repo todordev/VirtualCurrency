@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="package" version="3.2" method="upgrade">
+<extension type="package" version="3.5" method="upgrade">
     <name>Virtual Currency Package</name>
     <packagename>virtualcurrency</packagename>
     <author>Todor Iliev</author>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
-    <license>http://www.gnu.org/copyleft/gpl.html</license>
-    <version>1.2</version>
-    <creationDate>29 May, 2014</creationDate>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
+    <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
+    <version>2.0</version>
+    <creationDate>29 February, 2016</creationDate>
     <url>http://itprism.com</url>
     <packager>Todor Iliev</packager>
     <packagerurl>http://itprism.com</packagerurl>
     <description><![CDATA[
 	<p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank">Virtual Currency</a> is a Joomla! extension that provides ability to generate and manage virtual currencies on your websites.</p>
-	<p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
 	<p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
-	<p>Please, <a href="http://extensions.joomla.org/extensions/e-commerce/credits-a-point-systems/24550" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
+	<p>Please, <a href="http://extensions.joomla.org/extensions/extension/e-commerce/credits-a-point-systems/virtual-currency" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
 	]]></description>
 
     <files folder="packages">
         <file type="component" id="com_virtualcurrency">com_virtualcurrency.zip</file>
         <file type="library" id="lib_virtualcurrency">lib_virtualcurrency.zip</file>
         <file type="plugin" id="paypal" group="virtualcurrencypayment">plg_virtualcurrencypayment_paypal.zip</file>
-        <file type="plugin" id="virtualcurrencynewaccount" group="user">plg_user_virtualcurrencynewaccount.zip</file>
+        <file type="plugin" id="paymentgateway" group="virtualcurrencypayment">plg_virtualcurrencypayment_paymentgateway.zip</file>
+        <file type="plugin" id="virtualcurrencyaccount" group="user">plg_user_virtualcurrencyaccount.zip</file>
         <file type="module" id="mod_virtualcurrencyaccounts" client="site">mod_virtualcurrencyaccounts.zip</file>
     </files>
 

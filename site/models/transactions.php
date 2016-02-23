@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -30,10 +30,10 @@ class VirtualCurrencyModelTransactions extends JModelList
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = array(
                 'id', 'a.id',
+                'title', 'a.title',
                 'units', 'a.units',
                 'date', 'a.txn_date',
                 'amount', 'a.txn_amount',
-                'title', 'b.title',
                 'sender', 'c.name',
                 'receiver', 'd.name',
                 'txn_id', 'a.txn_id',
@@ -43,20 +43,13 @@ class VirtualCurrencyModelTransactions extends JModelList
 
         parent::__construct($config);
     }
-
-    /**
-     * Method to auto-populate the model state.
-     *
-     * Note. Calling getState in this method will result in recursion.
-     *
-     * @since   1.6
-     */
+    
     protected function populateState($ordering = null, $direction = null)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $value = JFactory::getUser()->get("id");
+        $value = JFactory::getUser()->get('id');
         $this->setState('filter.receiver_id', $value);
 
         // Load the component parameters.
@@ -107,21 +100,19 @@ class VirtualCurrencyModelTransactions extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.units, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
-                'a.currency_id, a.sender_id, a.receiver_id, a.service_provider, ' .
-                'b.title AS title, ' .
+                'a.id, a.title, a.units, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
+                'a.item_id, a.item_type, a.sender_id, a.receiver_id, a.service_provider, ' .
                 'c.name AS sender, ' .
                 'd.name AS receiver'
             )
         );
         $query->from($db->quoteName('#__vc_transactions', 'a'));
-        $query->innerJoin($db->quoteName('#__vc_currencies', 'b') . ' ON a.currency_id = b.id');
-        $query->innerJoin($db->quoteName('#__users', 'c') . ' ON a.sender_id = c.id');
-        $query->innerJoin($db->quoteName('#__users', 'd') . ' ON a.receiver_id = d.id');
+        $query->leftJoin($db->quoteName('#__users', 'c') . ' ON a.sender_id = c.id');
+        $query->leftJoin($db->quoteName('#__users', 'd') . ' ON a.receiver_id = d.id');
 
         // Filter by receiver
         $userId = $this->getState('filter.receiver_id');
-        $query->where('a.sender_id   =' . (int)$userId, "OR");
+        $query->where('a.sender_id   =' . (int)$userId, 'OR');
         $query->where('a.receiver_id =' . (int)$userId);
 
         // Add the list ordering clause.

@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -18,7 +18,7 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_TITLE', 'a.title', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap center">
-        <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_ABBR', 'a.abbr', $this->listDirn, $this->listOrder); ?>
+        <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_CODE', 'a.code', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap center hidden-phone">
         <?php echo JText::_('COM_VIRTUALCURRENCY_SYMBOL'); ?>

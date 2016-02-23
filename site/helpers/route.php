@@ -3,19 +3,15 @@
  * @package      Virtual Currency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.helper');
-
-// Load router
-if (!class_exists("VirtualCurrencyHelperRoute")) {
-    JLoader::register("VirtualCurrencyHelperRoute", JPATH_SITE . DIRECTORY_SEPARATOR . "components" . DIRECTORY_SEPARATOR . "com_virtualcurrency" . DIRECTORY_SEPARATOR . "helpers" . DIRECTORY_SEPARATOR . "route.php");
-}
+jimport('Prism.init');
+jimport('Virtualcurrency.init');
 
 /**
  * Component Route Helper that help to find a menu item.
@@ -34,8 +30,12 @@ abstract class VirtualCurrencyHelperRoute
 
     /**
      * This method routes ordering.
+     *
+     * @param string $layout
+     *
+     * @return string
      */
-    public static function getOrderingRoute()
+    public static function getCartRoute($layout = '')
     {
         /**
          *
@@ -49,11 +49,15 @@ abstract class VirtualCurrencyHelperRoute
          * The view "categories" won't contain category ID so it has to contain 0 for ID key.
          */
         $needles = array(
-            'ordering' => array(0),
+            'cart' => array(0),
         );
 
         //Create the link
-        $link = 'index.php?option=com_virtualcurrency&view=ordering';
+        $link = 'index.php?option=com_virtualcurrency&view=cart';
+
+        if ($layout) {
+            $link .= '&layout='.$layout;
+        }
 
         // Looking for menu item (Itemid)
         if ($item = self::findItem($needles)) {
@@ -70,7 +74,7 @@ abstract class VirtualCurrencyHelperRoute
      *
      * @return string
      */
-    public static function getPaymentRoute($layout = "default")
+    public static function getPaymentRoute($layout = 'default')
     {
         $needles = array(
             'payment' => array(0)
@@ -178,5 +182,4 @@ abstract class VirtualCurrencyHelperRoute
 
         return null;
     }
-
 }

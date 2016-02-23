@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -49,7 +49,7 @@ class VirtualCurrencyModelAccounts extends JModelList
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $value = JFactory::getUser()->get("id");
+        $value = JFactory::getUser()->get('id');
         $this->setState('filter.user_id', $value);
 
         // Load the component parameters.
@@ -90,7 +90,7 @@ class VirtualCurrencyModelAccounts extends JModelList
     {
         // Create a new query object.
         $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
+        /** @var $db JDatabaseDriver */
         $query = $db->getQuery(true);
 
         // Select the required fields from the table.
@@ -105,8 +105,8 @@ class VirtualCurrencyModelAccounts extends JModelList
         $query->innerJoin($db->quoteName('#__vc_currencies', 'b') .' ON a.currency_id = b.id');
 
         // Filter by receiver
-        $userId = $this->getState('filter.user_id');
-        $query->where('a.user_id=' . (int)$userId);
+        $query->where('a.user_id=' . (int)$this->getState('filter.user_id'));
+        $query->where('b.published = ' . (int)Prism\Constants::PUBLISHED);
 
         // Add the list ordering clause.
         $orderString = $this->getOrderString();

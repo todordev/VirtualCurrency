@@ -3,18 +3,16 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.controller');
-
 class VirtualCurrencyController extends JControllerLegacy
 {
-    protected $cacheableViews = array("payment");
+    protected $cacheableViews = array('cart');
 
     /**
      * Method to display a view.
@@ -33,10 +31,11 @@ class VirtualCurrencyController extends JControllerLegacy
         $viewName = $this->input->getCmd('view', 'payment');
         $this->input->set('view', $viewName);
 
-        JHtml::stylesheet("com_virtualcurrency/frontend.style.css", false, true, false);
+        JHtml::stylesheet('com_virtualcurrency/frontend.style.css', false, true, false);
+        JHtml::_('Prism.ui.styles');
 
         // Cache some views.
-        if (in_array($viewName, $this->cacheableViews)) {
+        if (in_array($viewName, $this->cacheableViews, true)) {
             $cachable   = true;
         }
 

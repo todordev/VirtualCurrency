@@ -3,8 +3,8 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -15,30 +15,30 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.checkall'); ?>
     </th>
     <th class="title">
-        <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_CURRENCY', 'b.title', $this->listDirn, $this->listOrder); ?>
+        <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_TITLE', 'a.title', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_UNITS', 'a.units', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center">
+    <th width="%10" class="nowrap">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_AMOUNT', 'a.txn_amount', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_SENDER', 'c.name', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_BENEFICIARY', 'd.name', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_DATE', 'a.txn_date', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_SERVICE', 'a.service_provider', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_TXN_ID', 'a.txn_id', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="%10" class="nowrap center hidden-phone">
+    <th width="%10" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_VIRTUALCURRENCY_STATUS', 'a.txn_status', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="%1" class="nowrap center hidden-phone">

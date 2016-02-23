@@ -3,18 +3,15 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.modeladmin');
-
 class VirtualCurrencyModelTransaction extends JModelAdmin
 {
-
     /**
      * Returns a reference to the a Table object, always creating it.
      *
@@ -76,38 +73,36 @@ class VirtualCurrencyModelTransaction extends JModelAdmin
      */
     public function save($data)
     {
-        $id          = JArrayHelper::getValue($data, "id");
-        $units       = JArrayHelper::getValue($data, "units");
-        $currencyId  = JArrayHelper::getValue($data, "currency_id");
-        $txnId       = JArrayHelper::getValue($data, "txn_id");
-        $txnAmount   = JArrayHelper::getValue($data, "txn_amount");
-        $txnCurrency = JArrayHelper::getValue($data, "txn_currency");
-        $txnStatus   = JArrayHelper::getValue($data, "txn_status");
-        $txnDate     = JArrayHelper::getValue($data, "txn_date");
-        $senderId    = JArrayHelper::getValue($data, "sender_id");
-        $receiverId  = JArrayHelper::getValue($data, "receiver_id");
+        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
+        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
+        $units       = Joomla\Utilities\ArrayHelper::getValue($data, 'units', 0.00, 'float');
+        $txnId       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id');
+        $txnAmount   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount');
+        $txnCurrency = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency');
+        $txnStatus   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
+        $txnDate     = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
+        $senderId    = Joomla\Utilities\ArrayHelper::getValue($data, 'sender_id', 0, 'int');
+        $receiverId  = Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id', 0, 'int');
 
-        $serviceProvider = JArrayHelper::getValue($data, "service_provider");
-
+        $serviceProvider = Joomla\Utilities\ArrayHelper::getValue($data, 'service_provider');
 
         // Load a record from the database
         $row = $this->getTable();
         $row->load($id);
 
-        $row->set("currency_id", $currencyId);
-        $row->set("units", $units);
-        $row->set("txn_id", $txnId);
-        $row->set("txn_amount", $txnAmount);
-        $row->set("txn_currency", $txnCurrency);
-        $row->set("txn_status", $txnStatus);
-        $row->set("txn_date", $txnDate);
-        $row->set("txn_date", $txnDate);
-        $row->set("sender_id", $senderId);
-        $row->set("receiver_id", $receiverId);
-        $row->set("service_provider", $serviceProvider);
+        $row->set('title', $title);
+        $row->set('units', $units);
+        $row->set('txn_id', $txnId);
+        $row->set('txn_amount', $txnAmount);
+        $row->set('txn_currency', $txnCurrency);
+        $row->set('txn_status', $txnStatus);
+        $row->set('txn_date', $txnDate);
+        $row->set('sender_id', $senderId);
+        $row->set('receiver_id', $receiverId);
+        $row->set('service_provider', $serviceProvider);
 
         $row->store();
 
-        return $row->get("id");
+        return $row->get('id');
     }
 }

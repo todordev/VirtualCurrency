@@ -1,11 +1,15 @@
 <?php
 /**
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Payments
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
+
+namespace Virtualcurrency\Payment;
+
+use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -14,59 +18,22 @@ defined('JPATH_PLATFORM') or die;
  * In the temporary table are saved data,
  * which will be used during the process of making transactions.
  *
- * @package      VirtualCurrency
- * @subpackage   Library
+ * @package      Virtualcurrency
+ * @subpackage   Payments
  */
-class VirtualCurrencyPaymentSession
+class Session extends Database\Table
 {
     protected $id;
     protected $user_id;
-    protected $currency_id;
-    protected $amount;
+    protected $item_id;
+    protected $item_type;
+    protected $items_number;
+    protected $unique_key;
+    protected $gateway;
+    protected $gateway_data;
+    protected $session_id;
 
     protected $record_date;
-
-    /**
-     * @var JDatabaseDriver
-     */
-    protected $db;
-
-    /**
-     * Initialize the object.
-     *
-     * <code>
-     * $id = 1;
-     *
-     * $paymentSession   = new VirtualCurrencyPaymentSession(JFactory::getDbo());
-     * $paymentSession->load($id);
-     * </code>
-     *
-     * @param JDatabaseDriver $db
-     *
-     */
-    public function __construct(JDatabaseDriver $db = null)
-    {
-        $this->db = $db;
-    }
-
-    /**
-     * Set a database object.
-     *
-     * <code>
-     * $paymentSession    = new VirtualCurrencyPaymentSession();
-     * $paymentSession->setDb(JFactory::getDbo());
-     * </code>
-     *
-     * @param JDatabaseDriver $db
-     *
-     * @return self
-     */
-    public function setDb(JDatabaseDriver $db)
-    {
-        $this->db = $db;
-
-        return $this;
-    }
 
     /**
      * Load account data from database.
@@ -74,54 +41,38 @@ class VirtualCurrencyPaymentSession
      * <code>
      * $id = 1;
      *
-     * $paymentSession   = new VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = new Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->load($id);
      * </code>
      *
-     * @param int $id
+     * @param array|int $keys
+     * @param array $options
      */
-    public function load($id)
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query
-            ->select("a.id, a.user_id, a.currency_id, a.amount, a.record_date")
-            ->from($this->db->quoteName("#__vc_paymentsessions", "a"))
-            ->where("a.id = " . (int)$id);
+            ->select(
+                'a.id, a.user_id, a.item_id, a.items_number, a.item_type, a.unique_key, ' .
+                'a.gateway, a.gateway_data, a.session_id, a.record_date'
+            )
+            ->from($this->db->quoteName('#__vc_paymentsessions', 'a'));
 
-        $this->db->setQuery($query);
-        $result = $this->db->loadAssoc();
-
-        if (!$result) {
-            $result = array();
-        }
-
-        $this->bind($result);
-    }
-
-    /**
-     * Set data to object properties.
-     *
-     * <code>
-     * $data = (
-     *  "user_id"    => 1,
-     *  "currency_id"  => 2,
-     *  "amount"  => 10,
-     * );
-     *
-     * $paymentSession   = new VirtualCurrencyPaymentSession(JFactory::getDbo());
-     * $paymentSession->bind($data);
-     * </code>
-     *
-     * @param array $data
-     * @param array $ignored This is a name of an index, that will be ignored and will not be set as object parameter.
-     */
-    public function bind($data, $ignored = array())
-    {
-        foreach ($data as $key => $value) {
-            if (!in_array($key, $ignored)) {
-                $this->$key = $value;
+        if (!is_array($keys)) {
+            $query->where('a.id = ' . (int)$keys);
+        } else {
+            foreach ($keys as $key => $value) {
+                $query->where($this->db->quoteName('a.'.$key) . '=' . $this->db->quote($value));
             }
         }
+
+        $this->db->setQuery($query);
+        $result = (array)$this->db->loadAssoc();
+
+        // Decode gateway data.
+        $this->gateway_data = (!empty($result['gateway_data'])) ? (array)json_decode($result['gateway_data'], true) : array();
+
+        $this->bind($result, array('gateway_data'));
     }
 
     /**
@@ -134,7 +85,7 @@ class VirtualCurrencyPaymentSession
      *  "amount"  => 10,
      * );
      *
-     * $paymentSession   = new VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = new Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->bind($data);
      * $paymentSession->store();
      * </code>
@@ -151,12 +102,23 @@ class VirtualCurrencyPaymentSession
 
     protected function insertObject()
     {
+        $recordDate   = (!$this->record_date) ? 'NULL' : $this->db->quote($this->record_date);
+
+        // Encode the gateway data to JSON format.
+        $gatewayData = $this->encodeDataToJson();
+
         $query = $this->db->getQuery(true);
         $query
-            ->insert($this->db->quoteName("#__vc_paymentsessions"))
-            ->set($this->db->quoteName("user_id") . "=" . (int)$this->user_id)
-            ->set($this->db->quoteName("currency_id") . "=" . (int)$this->currency_id)
-            ->set($this->db->quoteName("amount") . "=" . $this->db->quote($this->amount));
+            ->insert($this->db->quoteName('#__vc_paymentsessions'))
+            ->set($this->db->quoteName('user_id') . '=' . $this->db->quote($this->user_id))
+            ->set($this->db->quoteName('item_id') . '=' . $this->db->quote($this->item_id))
+            ->set($this->db->quoteName('item_type') . '=' . $this->db->quote($this->item_type))
+            ->set($this->db->quoteName('items_number') . '=' . $this->db->quote($this->items_number))
+            ->set($this->db->quoteName('record_date') . '=' . $recordDate)
+            ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
+            ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
+            ->set($this->db->quoteName('session_id') . '=' . $this->db->quote($this->session_id));
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -166,13 +128,22 @@ class VirtualCurrencyPaymentSession
 
     protected function updateObject()
     {
+        // Encode the gateway data to JSON format.
+        $gatewayData = $this->encodeDataToJson();
+
         $query = $this->db->getQuery(true);
         $query
-            ->update($this->db->quoteName("#__vc_paymentsessions"))
-            ->set($this->db->quoteName("user_id") . "=" . (int)$this->user_id)
-            ->set($this->db->quoteName("currency_id") . "=" . (int)$this->currency_id)
-            ->set($this->db->quoteName("amount") . "=" . $this->db->quote($this->amount))
-            ->where($this->db->quoteName("id") . "=" . (int)$this->id);
+            ->update($this->db->quoteName('#__vc_paymentsessions'))
+            ->set($this->db->quoteName('user_id') . '=' . $this->db->quote($this->user_id))
+            ->set($this->db->quoteName('item_id') . '=' . $this->db->quote($this->item_id))
+            ->set($this->db->quoteName('item_type') . '=' . $this->db->quote($this->item_type))
+            ->set($this->db->quoteName('items_number') . '=' . $this->db->quote($this->items_number))
+            ->set($this->db->quoteName('record_date') . '=' . $this->db->quote($this->record_date))
+            ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
+            ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
+            ->set($this->db->quoteName('session_id') . '=' . $this->db->quote($this->session_id))
+            ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -182,7 +153,7 @@ class VirtualCurrencyPaymentSession
      * Remove old records.
      *
      * <code>
-     * $paymentSession   = new VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = new Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->cleanOld();
      * </code>
      */
@@ -190,8 +161,8 @@ class VirtualCurrencyPaymentSession
     {
         $query = $this->db->getQuery(true);
         $query
-            ->delete($this->db->quoteName("#__vc_paymentsessions"))
-            ->where($this->db->quoteName("record_date") ." < ( NOW() - INTERVAL 2 DAY )");
+            ->delete($this->db->quoteName('#__vc_paymentsessions'))
+            ->where($this->db->quoteName('record_date') .' < ( NOW() - INTERVAL 2 DAY )');
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -201,10 +172,10 @@ class VirtualCurrencyPaymentSession
      * Remove payment session.
      *
      * <code>
-     * $id = 1;
+     * $sessionId = 1;
      *
-     * $paymentSession   = VirtualCurrencyPaymentSession(JFactory::getDbo());
-     * $paymentSession->load($id);
+     * $paymentSession   = Virtualcurrency\Payment\Session(JFactory::getDbo());
+     * $paymentSession->setId($sessionId);
      *
      * $paymentSession->delete();
      * </code>
@@ -213,30 +184,41 @@ class VirtualCurrencyPaymentSession
     {
         $query = $this->db->getQuery(true);
         $query
-            ->delete($this->db->quoteName("#__vc_paymentsessions"))
-            ->where($this->db->quoteName("id") ." = " . $this->id);
+            ->delete($this->db->quoteName('#__vc_paymentsessions'))
+            ->where($this->db->quoteName('id') .' = ' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
 
         $this->reset();
-
     }
 
-    protected function reset()
+    /**
+     * Set ID session.
+     *
+     * <code>
+     * $sessionId = 1;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session();
+     * $paymentSession->setId($sessionId);
+     * </code>
+     *
+     * @param int $id
+     *
+     * @return self
+     */
+    public function setId($id)
     {
-        $this->id = 0;
-        $this->user_id = 0;
-        $this->currency_id = 0;
-        $this->amount = 0;
-        $this->record_date = null;
+        $this->id = (int)$id;
+
+        return $this;
     }
 
     /**
      * Return the ID of the payment session.
      *
      * <code>
-     * $paymentSession   = new VirtualCurrencyPaymentSession();
+     * $paymentSession   = new Virtualcurrency\Payment\Session();
      * $paymentSession->getId();
      * </code>
      *
@@ -248,22 +230,69 @@ class VirtualCurrencyPaymentSession
     }
 
     /**
+     * Set number of virtual goods or currency.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     * 
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setItemsNumber("100.00");
+     * </code>
+     *
+     * @param float $number
+     *
+     * @return self
+     */
+    public function setItemsNumber($number)
+    {
+        $this->items_number = $number;
+
+        return $this;
+    }
+    
+    /**
      * Return the number of units, that will be bought.
      *
      * <code>
      * $id = 1;
      *
-     * $paymentSession   = VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->load($id);
      *
-     * $amount = $paymentSession->getAmount();
+     * echo $paymentSession->getItemsNumber();
      * </code>
      *
      * @return float
      */
-    public function getAmount()
+    public function getItemsNumber()
     {
-        return $this->amount;
+        return $this->items_number;
+    }
+
+    /**
+     * Set user ID to the object.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     * $userId = 2;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setUserId($userId);
+     * </code>
+     *
+     * @param int $userId
+     *
+     * @return self
+     */
+    public function setUserId($userId)
+    {
+        $this->user_id = (int)$userId;
+
+        return $this;
     }
 
     /**
@@ -272,7 +301,7 @@ class VirtualCurrencyPaymentSession
      * <code>
      * $id = 1;
      *
-     * $paymentSession   = VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->load($id);
      *
      * $userId = $paymentSession->getUserId();
@@ -286,48 +315,389 @@ class VirtualCurrencyPaymentSession
     }
 
     /**
-     * Return the ID of the currency that is going to bought by a user.
+     * Set item ID.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     * $itemId = 2;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setItemId($itemId);
+     * </code>
+     *
+     * @param int $itemId
+     *
+     * @return self
+     */
+    public function setItemId($itemId)
+    {
+        $this->item_id = (int)$itemId;
+
+        return $this;
+    }
+
+    /**
+     * Return the ID of the item that is going to ge bought by a user.
      *
      * <code>
      * $id = 1;
      *
-     * $paymentSession   = VirtualCurrencyPaymentSession(JFactory::getDbo());
+     * $paymentSession   = Virtualcurrency\Payment\Session(JFactory::getDbo());
      * $paymentSession->load($id);
      *
-     * $currencyId = $paymentSession->getCurrencyId();
+     * $itemId = $paymentSession->getItemId();
      * </code>
      *
      * @return int
      */
-    public function getCurrencyId()
+    public function getItemId()
     {
-        return (int)$this->currency_id;
+        return (int)$this->item_id;
+    }
+
+    protected function encodeDataToJson()
+    {
+        if ($this->gateway_data === null or !is_array($this->gateway_data)) {
+            $this->gateway_data = array();
+        }
+        return json_encode($this->gateway_data);
     }
 
     /**
-     * Returns an associative array of object properties.
+     * Return gateway data.
      *
      * <code>
-     * $id = 1;
+     * $paymentSessionId  = 1;
      *
-     * $paymentSession    = new VirtualCurrencyPaymentSession(JFactory::getDbo());
-     * $paymentSession->load($id);
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
      *
-     * $properties = $paymentSession->getProperties();
+     * $gatewayData = $paymentSession->getGatewayData();
      * </code>
      *
-     * @return  array
+     * @return string
      */
-    public function getProperties()
+    public function getGatewayData()
     {
-        $vars = get_object_vars($this);
+        return $this->gateway_data;
+    }
 
-        foreach ($vars as $key => $value) {
-            if (strcmp("db", $key) == 0) {
-                unset($vars[$key]);
-            }
-        }
+    /**
+     * Set a gateway data.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $data        = array(
+     *    "token" => "TOKEN1234"
+     * );
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setGatewayData($data);
+     * </code>
+     *
+     * @param array $data
+     *
+     * @return self
+     */
+    public function setGatewayData(array $data)
+    {
+        $this->gateway_data = $data;
 
-        return $vars;
+        return $this;
+    }
+
+    /**
+     * Return a value of a gateway data.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $gateway = $paymentSession->getData("token");
+     * </code>
+     *
+     * @param string $key
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getData($key, $default = null)
+    {
+        return (!array_key_exists($key, $this->gateway_data)) ? $default : $this->gateway_data[$key];
+    }
+
+    /**
+     * Set a gateway data value.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $token        = "TOKEN1234";
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setData("token", $token);
+     * </code>
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return self
+     */
+    public function setData($key, $value)
+    {
+        $this->gateway_data[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Return a unique key that comes from a payment gateway.
+     * That can be transaction ID, token,...
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $uniqueKey = $intention->getUniqueKey();
+     * </code>
+     *
+     * @return string
+     */
+    public function getUniqueKey()
+    {
+        return $this->unique_key;
+    }
+
+    /**
+     * Set unique key that comes from a payment gateway.
+     * That can be transaction ID, token,...
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $token        = "TOKEN1234";
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setUniqueKey($token);
+     * </code>
+     *
+     * @param string $key
+     * @return self
+     */
+    public function setUniqueKey($key)
+    {
+        $this->unique_key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Set unique key that comes from a payment gateway.
+     * That can be transaction ID, token,...
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $token        = "TOKEN1234";
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setUniqueKey($token);
+     * $paymentSession->storeUniqueKey();
+     * </code>
+     *
+     * @return self
+     */
+    public function storeUniqueKey()
+    {
+        $query = $this->db->getQuery(true);
+
+        $query
+            ->update($this->db->quoteName('#__vc_paymentsessions'))
+            ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+
+        return $this;
+    }
+
+    /**
+     * Set the name of the payment gateway.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     * $name = "PayPal";
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setGateway($name);
+     * </code>
+     *
+     * @param string $gateway
+     *
+     * @return self
+     */
+    public function setGateway($gateway)
+    {
+        $this->gateway = $gateway;
+
+        return $this;
+    }
+
+    /**
+     * Return the name of payment service.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $name = $paymentSession->getGateway();
+     * </code>
+     *
+     * @return string
+     */
+    public function getGateway()
+    {
+        return $this->gateway;
+    }
+
+    /**
+     * Return session ID.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($intentionId);
+     *
+     * $sessionId = $paymentSession->getSessionId();
+     * </code>
+     *
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->session_id;
+    }
+
+    /**
+     * Set session ID.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     * $sessionId        = "SESSION_ID_1234";
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setSessionId($sessionId);
+     * </code>
+     *
+     * @param string $sessionId
+     * @return self
+     */
+    public function setSessionId($sessionId)
+    {
+        $this->session_id = $sessionId;
+
+        return $this;
+    }
+
+    /**
+     * Return the type of the item.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($intentionId);
+     *
+     * echo $paymentSession->getItemType();
+     * </code>
+     *
+     * @return string
+     */
+    public function getItemType()
+    {
+        return $this->item_type;
+    }
+
+    /**
+     * Set the type of the item.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setItemType('currency');
+     * </code>
+     *
+     * @param string $type
+     * @return self
+     */
+    public function setItemType($type)
+    {
+        $this->item_type = in_array($type, array('currency', 'commodity'), true) ? $type : null;
+
+        return $this;
+    }
+    
+    /**
+     * Check if the item is virtual currency.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * if (!$paymentSession->isCurrency()) {
+     * ...
+     * }
+     * </code>
+     *
+     * @return bool
+     */
+    public function isCurrency()
+    {
+        return (bool)(strcmp('currency', $this->item_type) === 0);
+    }
+
+    /**
+     * Check if the item is virtual commodity.
+     *
+     * <code>
+     * $paymentSessionId = 1;
+     *
+     * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * if (!$paymentSession->isCommodity()) {
+     * ...
+     * }
+     * </code>
+     *
+     * @return bool
+     */
+    public function isCommodity()
+    {
+        return (bool)(strcmp('commodity', $this->item_type) === 0);
     }
 }

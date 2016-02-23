@@ -3,8 +3,8 @@
  * @package      Virtual Currency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
@@ -25,16 +25,16 @@ defined('_JEXEC') or die;
                     <label for="filter_search"
                            class="element-invisible"><?php echo JText::_('JSEARCH_FILTER_LABEL'); ?></label>
                     <input type="text" name="filter_search" id="filter_search" class="hasTooltip"
-                           placeholder="<?php echo JText::_('COM_VIRTUALCURRENCY_SEARCH_IN_TITLE'); ?>"
+                           placeholder="<?php echo JText::_('COM_VIRTUALCURRENCY_SEARCH_IN_NAME'); ?>"
                            value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-                           title="<?php echo JText::_('COM_VIRTUALCURRENCY_SEARCH_IN_TITLE_TOOLTIP'); ?>"/>
+                           title="<?php echo JText::_('COM_VIRTUALCURRENCY_SEARCH_IN_NAME_TOOLTIP'); ?>"/>
                 </div>
                 <div class="btn-group pull-left">
                     <button class="btn hasTooltip" type="submit"
                             title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i>
                     </button>
                     <button class="btn hasTooltip" type="button" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
-                            onclick="document.id('filter_search').value='';this.form.submit();"><i
+                            onclick="document.getElementById('filter_search').value='';this.form.submit();"><i
                             class="icon-remove"></i></button>
                 </div>
                 <div class="btn-group pull-right hidden-phone">
@@ -49,9 +49,9 @@ defined('_JEXEC') or die;
                             onchange="Joomla.orderTable()">
                         <option value=""><?php echo JText::_('JFIELD_ORDERING_DESC'); ?></option>
                         <option
-                            value="asc" <?php if ($this->listDirn == 'asc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_ASCENDING'); ?></option>
+                            value="asc" <?php if ($this->listDirn === 'asc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_ASCENDING'); ?></option>
                         <option
-                            value="desc" <?php if ($this->listDirn == 'desc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_DESCENDING'); ?></option>
+                            value="desc" <?php if ($this->listDirn === 'desc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_DESCENDING'); ?></option>
                     </select>
                 </div>
                 <div class="btn-group pull-right hidden-phone">

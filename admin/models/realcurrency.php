@@ -3,31 +3,15 @@
  * @package      VirtualCurrency
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
- * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.modeladmin');
-
 class VirtualCurrencyModelRealCurrency extends JModelAdmin
 {
-
-    /**
-     * Constructor.
-     *
-     * @param   array $config An optional associative array of configuration settings.
-     *
-     * @see     JController
-     * @since   1.6
-     */
-    public function __construct($config = array())
-    {
-        parent::__construct($config);
-    }
-
     /**
      * Returns a reference to the a Table object, always creating it.
      *
@@ -35,7 +19,7 @@ class VirtualCurrencyModelRealCurrency extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  VirtualCurrencyTableRealCurrency  A database object
      * @since   1.6
      */
     public function getTable($type = 'RealCurrency', $prefix = 'VirtualCurrencyTable', $config = array())
@@ -90,23 +74,23 @@ class VirtualCurrencyModelRealCurrency extends JModelAdmin
      */
     public function save($data)
     {
-        $id       = JArrayHelper::getValue($data, "id");
-        $title    = JArrayHelper::getValue($data, "title");
-        $abbr     = JArrayHelper::getValue($data, "abbr");
-        $symbol   = JArrayHelper::getValue($data, "symbol");
-        $position = JArrayHelper::getValue($data, "position");
+        $id       = JArrayHelper::getValue($data, 'id');
+        $title    = JArrayHelper::getValue($data, 'title');
+        $code     = JArrayHelper::getValue($data, 'code');
+        $symbol   = JArrayHelper::getValue($data, 'symbol');
+        $position = JArrayHelper::getValue($data, 'position');
 
         // Load a record from the database
         $row = $this->getTable();
         $row->load($id);
 
-        $row->set("title", $title);
-        $row->set("abbr", $abbr);
-        $row->set("symbol", $symbol);
-        $row->set("position", $position);
+        $row->set('title', $title);
+        $row->set('code', $code);
+        $row->set('symbol', $symbol);
+        $row->set('position', $position);
 
         $row->store();
 
-        return $row->get("id");
+        return $row->get('id');
     }
 }
