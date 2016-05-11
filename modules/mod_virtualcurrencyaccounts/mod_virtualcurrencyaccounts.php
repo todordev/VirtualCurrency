@@ -18,15 +18,14 @@ $userId = JFactory::getUser()->get('id');
 $accounts = null;
 
 if ($userId > 0) {
-    
     $accounts = new Virtualcurrency\Account\Accounts(JFactory::getDbo());
     $accounts->load(array('user_id' => $userId, 'state' => Prism\Constants::PUBLISHED));
 
     $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-    $currencies->load(array('state' => Prism\Constants::PUBLISHED));
+    $currencies->load();
 
-    $componentParams = JComponentHelper::getParams('com_virtualcurrency');
-    $amount = new Virtualcurrency\Amount($componentParams);
+    $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+    $money           = new Prism\Money\Money($moneyFormatter);
 
     require JModuleHelper::getLayoutPath('mod_virtualcurrencyaccounts', $params->get('layout', 'default'));
 }

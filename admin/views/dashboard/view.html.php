@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewDashboard extends JViewLegacy
+class VirtualcurrencyViewDashboard extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -58,7 +58,7 @@ class VirtualCurrencyViewDashboard extends JViewLegacy
     protected function addSidebar()
     {
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        VirtualcurrencyHelper::addSubmenu($this->getName());
         
         $this->sidebar = JHtmlSidebar::render();
     }
@@ -70,7 +70,7 @@ class VirtualCurrencyViewDashboard extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), 'itp-dashboard');
+        JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), 'dashboard');
 
         JToolBarHelper::preferences('com_virtualcurrency');
         JToolBarHelper::divider();

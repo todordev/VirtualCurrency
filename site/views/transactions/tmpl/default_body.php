@@ -16,10 +16,10 @@ defined('_JEXEC') or die;
             <?php echo $this->escape($item->title); ?>
         </td>
         <td>
-            <?php echo $item->units . ' ' . $this->escape($item->txn_amount); ?>
+            <?php echo $item->units; ?>
         </td>
         <td>
-            <?php echo $this->escape($item->txn_amount); ?>
+            <?php echo $item->txn_amount; ?>
         </td>
 
         <td><?php echo (!$item->sender) ? JText::_('COM_VIRTUALCURRENCY_BANK') : $this->escape($item->sender); ?></td>
@@ -39,4 +39,3 @@ defined('_JEXEC') or die;
         </td>
     </tr>
 <?php } ?>
-	  

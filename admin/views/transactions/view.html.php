@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewTransactions extends JViewLegacy
+class VirtualcurrencyViewTransactions extends JViewLegacy
 {
     /**
      * @var Joomla\Registry\Registry
@@ -44,6 +44,9 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
 
     protected $currencies;
 
+    public $activeFilters;
+    public $filterForm;
+
     public function display($tpl = null)
     {
         $this->option = JFactory::getApplication()->input->get('option');
@@ -62,7 +65,7 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         $this->currencies->load();
 
         // Get real currencies
-        $this->realCurrency = new Virtualcurrency\Currency\Real\Currency(JFactory::getDbo());
+        $this->realCurrency = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
         $this->realCurrency->load($this->params->get('payments_currency_id'));
 
         // Prepare sorting data
@@ -86,17 +89,8 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
-        if ($this->saveOrder) {
-            $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
-            JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
-        }
-
-        $this->sortFields = array(
-            'a.title'     => JText::_('COM_VIRTUALCURRENCY_CURRENCY'),
-            'a.published' => JText::_('JSTATUS'),
-            'a.code'      => JText::_('COM_VIRTUALCURRENCY_CURRENCY_CODE'),
-            'a.id'        => JText::_('JGRID_HEADING_ID')
-        );
+        $this->filterForm    = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
     }
 
     /**
@@ -105,7 +99,7 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
     protected function addSidebar()
     {
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        VirtualcurrencyHelper::addSubmenu($this->getName());
         
         JHtmlSidebar::setAction('index.php?option=' . $this->option . '&view=' . $this->getName());
 

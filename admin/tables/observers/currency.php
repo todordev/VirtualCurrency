@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Component
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -15,7 +15,7 @@ defined('JPATH_PLATFORM') or die;
  * The classes extending this class should not be instanciated directly, as they
  * are automatically instanciated by the JObserverMapper
  *
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Component
  * @link         http://docs.joomla.org/JTableObserver
  * @since        3.1.2
@@ -66,7 +66,6 @@ class VirtualcurrencyObserverCurrency extends JTableObserver
         $mediaFolder    = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));
 
         if ($this->table->get('id') > 0) {
-
             // Delete image.
             if ($this->table->get('image')) {
                 $file = JPath::clean($mediaFolder .'/'. $this->table->get('image'));

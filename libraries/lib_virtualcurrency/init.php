@@ -31,10 +31,23 @@ JLoader::register('VirtualcurrencyHelperRoute', VIRTUALCURRENCY_PATH_COMPONENT_S
 
 // Register Observers
 JLoader::register('VirtualcurrencyObserverCurrency', VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/currency.php');
-JObserverMapper::addObserverClassToClass('VirtualcurrencyObserverCurrency', 'VirtualCurrencyTableCurrency', array('typeAlias' => 'com_virtualcurrency.currency'));
+JObserverMapper::addObserverClassToClass('VirtualcurrencyObserverCurrency', 'VirtualcurrencyTableCurrency', array('typeAlias' => 'com_virtualcurrency.currency'));
 
 JLoader::register('VirtualcurrencyObserverCommodity', VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/commodity.php');
-JObserverMapper::addObserverClassToClass('VirtualcurrencyObserverCommodity', 'VirtualCurrencyTableCommodity', array('typeAlias' => 'com_virtualcurrency.commodity'));
+JObserverMapper::addObserverClassToClass('VirtualcurrencyObserverCommodity', 'VirtualcurrencyTableCommodity', array('typeAlias' => 'com_virtualcurrency.commodity'));
 
 // Include HTML helpers path
 JHtml::addIncludePath(VIRTUALCURRENCY_PATH_COMPONENT_SITE . '/helpers/html');
+
+JLog::addLogger(
+    array(
+        // Sets file name
+        'text_file' => 'com_virtualcurrency.php'
+    ),
+    // Sets messages of all log levels to be sent to the file
+    JLog::CRITICAL + JLog::EMERGENCY + JLog::ERROR + JLog::DEBUG,
+    // The log category/categories which should be recorded in this file
+    // In this case, it's just the one category from our extension, still
+    // we need to put it inside an array
+    array('com_virtualcurrency')
+);

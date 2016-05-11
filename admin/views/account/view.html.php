@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
-class VirtualCurrencyViewAccount extends JViewLegacy
+class VirtualcurrencyViewAccount extends JViewLegacy
 {
     /**
      * @var JDocumentHtml

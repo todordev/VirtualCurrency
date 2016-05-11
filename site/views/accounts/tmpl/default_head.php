@@ -14,8 +14,7 @@ defined('_JEXEC') or die;
     <th>
         <?php echo JText::_('COM_VIRTUALCURRENCY_UNITS'); ?>
     </th>
-    <th>
+    <th width="20%">
         <?php echo JText::_('COM_VIRTUALCURRENCY_AMOUNT'); ?>
     </th>
 </tr>
-	  

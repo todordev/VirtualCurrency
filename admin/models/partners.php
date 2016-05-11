@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelPartners extends JModelList
+class VirtualcurrencyModelPartners extends JModelList
 {
     /**
      * Constructor.
@@ -111,8 +111,8 @@ class VirtualCurrencyModelPartners extends JModelList
         }
 
         // Filter by search in title
-        $search = $this->getState('filter.search');
-        if (!empty($search)) {
+        $search = (string)$this->getState('filter.search');
+        if ($search !== '') {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } else {

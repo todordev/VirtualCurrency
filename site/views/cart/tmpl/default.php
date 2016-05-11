@@ -9,10 +9,8 @@
 
 // no direct access
 defined('_JEXEC') or die;
-
 ?>
-
-<div class="vccart<?php echo $this->params->get("pageclass_sfx"); ?>">
+<div class="vccart<?php echo $this->params->get('pageclass_sfx'); ?>">
     <?php if ($this->params->get('show_page_heading', 1)) : ?>
         <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
     <?php endif; ?>
@@ -31,24 +29,20 @@ defined('_JEXEC') or die;
         $currency = new Virtualcurrency\Currency\Currency();
         $currency->bind($item);
 
-        if (!$currency->getParam('price') and !$currency->getParam('price_virtual')) {
+        if (!$currency->getParam('price_real') and !$currency->getParam('price_virtual')) {
             continue;
         }
-        
-        $icon = '';
-        if ($currency->getIcon()) {
-            $icon = '<img src="'.$this->imageFolder .'/'. $currency->getIcon() .'" /> ';
-        }
+        $id = 'vc-currency-id-'.$currency->getId();
         ?>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><?php echo $icon . $this->escape($currency->getTitle()); ?></h3>
+                <h3 class="panel-title"><?php echo JHtml::_('virtualcurrency.displayTitle', $currency, $this->params, $this->imageFolder); ?></h3>
             </div>
             <div class="panel-body">
                 <form action="<?php echo JRoute::_('index.php'); ?>" method="post" >
                     <div class="form-group">
-                        <label><?php echo JText::sprintf('COM_VIRTUALCURRENCY_NUMBER_OF_S', $this->escape($currency->getTitle())); ?></label>
-                        <?php echo JHtml::_('virtualcurrency.inputAmount', $currency, array('name' => 'amount', 'class' => 'form-control')); ?>
+                        <label for="<?php echo $id; ?>"><?php echo JText::sprintf('COM_VIRTUALCURRENCY_NUMBER_OF_S', $this->escape($currency->getTitle())); ?></label>
+                        <?php echo JHtml::_('virtualcurrency.inputAmount', $currency, array('name' => 'amount', 'class' => 'form-control', 'id' => $id)); ?>
 
                         <?php if ((int)$currency->getParam('minimum') > 0) {?>
                         <span class="help-block">
@@ -85,25 +79,33 @@ defined('_JEXEC') or die;
     foreach ($this->commodities as $item) {
         $commodity = new Virtualcurrency\Commodity\Commodity();
         $commodity->bind($item);
-        if (!$commodity->getPrice() or !$commodity->getPriceVirtual()) {
-            continue;
-        }
 
-        $icon = '';
-        if ($commodity->getIcon()){
-            $icon = '<img src="'.$this->imageFolder .'/'. $commodity->getIcon() .'" /> ';
+        if ((!$commodity->getParam('price_real') and !$commodity->getParam('price_virtual')) or !$commodity->hasUnits()) {
+            continue;
         }
         $id = 'vc-commodity-id-'.$commodity->getId();
         ?>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><?php echo $icon . $this->escape($commodity->getTitle()); ?></h3>
+                <h3 class="panel-title"><?php echo JHtml::_('virtualcurrency.displayTitle', $commodity, $this->params, $this->imageFolder); ?></h3>
             </div>
             <div class="panel-body">
                 <form action="<?php echo JRoute::_('index.php'); ?>" method="post" >
                     <div class="form-group">
                         <label for="<?php echo $id; ?>"><?php echo JText::sprintf('COM_VIRTUALCURRENCY_NUMBER_OF_S', $this->escape($commodity->getTitle())); ?></label>
                         <input type="text" value="<?php echo $commodity->getMinimum();?>" name="amount" class="form-control" id="<?php echo $id; ?>" />
+
+                        <?php if ($commodity->getInStock() !== null and (int)$commodity->getInStock() > 0) {?>
+                        <span class="help-block">
+                            <?php
+                            if ((int)$commodity->getInStock() === 1) {
+                                echo JText::sprintf('COM_VIRTUALCURRENCY_HELP_IN_STOCK_1', $commodity->getInStock(), $this->escape($commodity->getTitle()));
+                            } else {
+                                echo JText::sprintf('COM_VIRTUALCURRENCY_HELP_IN_STOCK_MORE', $commodity->getInStock(), $this->escape($commodity->getTitle()));
+                            }
+                            ?>
+                        </span>
+                        <?php } ?>
 
                         <?php if ((int)$commodity->getMinimum() > 0) {?>
                         <span class="help-block">

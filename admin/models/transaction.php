@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelTransaction extends JModelAdmin
+class VirtualcurrencyModelTransaction extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -22,7 +22,7 @@ class VirtualCurrencyModelTransaction extends JModelAdmin
      * @return  JTable  A database object
      * @since   1.6
      */
-    public function getTable($type = 'Transaction', $prefix = 'VirtualCurrencyTable', $config = array())
+    public function getTable($type = 'Transaction', $prefix = 'VirtualcurrencyTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }

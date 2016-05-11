@@ -9,13 +9,14 @@
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <packager>ITPrism</packager>
     <packagerurl>http://itprism.com</packagerurl>
-    <version>2.0</version>
-    <creationDate>29 February, 2016</creationDate>
+    <version>2.1</version>
+    <creationDate>11 May, 2016</creationDate>
     <description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
     <files>
         <folder>Account</folder>
         <folder>Commodity</folder>
         <folder>Currency</folder>
+        <folder>Helper</folder>
         <folder>Payment</folder>
         <folder>Transaction</folder>
         <folder>User</folder>

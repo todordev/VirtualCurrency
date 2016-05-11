@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
  * @subpackage     Components
  * @since          2.5
  */
-class VirtualCurrencyControllerNotifier extends JControllerLegacy
+class VirtualcurrencyControllerNotifier extends JControllerLegacy
 {
     protected $log;
 
@@ -72,7 +72,7 @@ class VirtualCurrencyControllerNotifier extends JControllerLegacy
      * @return   VirtualCurrencyModelNotifier    The model.
      * @since    1.5
      */
-    public function getModel($name = 'Notifier', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Notifier', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;

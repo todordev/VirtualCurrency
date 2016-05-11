@@ -11,18 +11,17 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency Currency controller class.
+ * Virtualcurrency Currency controller class.
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerCurrency extends Prism\Controller\Form\Backend
 {
-    public function getModel($name = 'Currency', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Currency', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
     
@@ -31,7 +30,7 @@ class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
             'task' => $this->getTask(),
@@ -39,13 +38,13 @@ class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelCurrency */
+        /** @var $model VirtualcurrencyModelCurrency */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -58,7 +57,6 @@ class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
         }
 
         try {
-
             // Get files from form.
             $files = $this->input->files->get('jform', array(), 'array');
 
@@ -79,8 +77,7 @@ class VirtualCurrencyControllerCurrency extends Prism\Controller\Form\Backend
             $redirectOptions['id'] = $itemId;
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
 
         }

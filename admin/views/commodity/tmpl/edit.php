@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,14 +11,12 @@
 defined('_JEXEC') or die;
 ?>
 <div class="row-fluid">
-
     <div class="span12 form-horizontal">
         <form action="<?php echo JRoute::_('index.php?option=com_virtualcurrency'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate" enctype="multipart/form-data">
 
-            <?php echo JHtml::_('bootstrap.startTabSet', 'commodityTab', array('active' => 'details')); ?>
+            <?php echo JHtml::_('bootstrap.startTabSet', 'detailsTab', array('active' => 'details')); ?>
 
-            <?php echo JHtml::_('bootstrap.addTab', 'commodityTab', 'details', JText::_('COM_VIRTUALCURRENCY_DETAILS')); ?>
-
+            <?php echo JHtml::_('bootstrap.addTab', 'detailsTab', 'details', JText::_('COM_VIRTUALCURRENCY_DETAILS')); ?>
             <div class="span8">
                 <?php echo $this->form->renderField('title'); ?>
                 <?php echo $this->form->renderField('icon'); ?>
@@ -72,27 +70,24 @@ defined('_JEXEC') or die;
                     </table>
                 <?php }?>
             </div>
-
             <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-            <?php echo JHtml::_('bootstrap.addTab', 'commodityTab', 'options', JText::_('COM_VIRTUALCURRENCY_COMMERCIAL_OPTIONS')); ?>
-
-            <?php echo $this->form->renderField('price'); ?>
-
+            <?php echo JHtml::_('bootstrap.addTab', 'detailsTab', 'commercial', JText::_('COM_VIRTUALCURRENCY_COMMERCIAL_OPTIONS')); ?>
+            <?php echo $this->form->renderField('price_real', 'params'); ?>
             <div class="control-group">
-                <div class="control-label"><?php echo $this->form->getLabel('price_virtual'); ?></div>
+                <div class="control-label"><?php echo $this->form->getLabel('price_virtual', 'params'); ?></div>
                 <div class="controls">
-                    <?php echo $this->form->getInput('price_virtual'); ?>
-                    <?php echo $this->form->getInput('currency_id'); ?>
+                    <?php echo $this->form->getInput('price_virtual', 'params'); ?>
+                    <?php echo $this->form->getInput('currency_id', 'params'); ?>
                 </div>
             </div>
 
-            <?php echo $this->form->renderField('number'); ?>
-            <?php echo $this->form->renderField('minimum'); ?>
-
+            <?php echo $this->form->renderField('in_stock'); ?>
+            <?php echo $this->form->renderField('minimum', 'params'); ?>
             <?php echo JHtml::_('bootstrap.endTab'); ?>
 
             <?php echo JHtml::_('bootstrap.endTabSet'); ?>
+
             <input type="hidden" name="task" value=""/>
             <?php echo JHtml::_('form.token'); ?>
         </form>

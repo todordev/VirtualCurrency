@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -55,6 +55,7 @@ defined('_JEXEC') or die;
             <p class="alert alert-warning upgrade-info"><i class="icon-warning"></i> <?php echo $this->prismVersionLowerMessage; ?></p>
         <?php } ?>
         <p class="alert alert-info cf-upgrade-info"><i class="icon-info"></i> <?php echo JText::_('COM_VIRTUALCURRENCY_HOW_TO_UPGRADE'); ?></p>
+        <div class="alert alert-info"><i class="icon-comment"></i> <?php echo JText::_('COM_VIRTUALCURRENCY_FEEDBACK_INFO'); ?></div>
     </div>
 
 </div>

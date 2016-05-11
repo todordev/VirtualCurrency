@@ -32,9 +32,6 @@ class JFormFieldVccurrency extends JFormFieldList
      */
     protected $type = 'vccurrency';
 
-    protected $column_value;
-    protected $column_text;
-
     /**
      * Method to get the field options.
      *
@@ -46,11 +43,11 @@ class JFormFieldVccurrency extends JFormFieldList
         $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
         $currencies->load();
 
-        $this->column_value = (isset($this->element['column_value']) and $this->element['column_value']) ? (string)$this->element['column_value'] : 'id';
-        $this->column_text = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
+        $columnValue = (isset($this->element['column_value']) and $this->element['column_value']) ? (string)$this->element['column_value'] : 'id';
+        $columnText = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
 
         // Get the options.
-        $options = $currencies->toOptions($this->column_value, $this->column_text);
+        $options = $currencies->toOptions($columnValue, $columnText);
 
         // Merge any additional options in the XML definition.
         $options = array_merge(parent::getOptions(), $options);

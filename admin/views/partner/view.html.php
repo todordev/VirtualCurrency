@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewPartner extends JViewLegacy
+class VirtualcurrencyViewPartner extends JViewLegacy
 {
     /**
      * @var JDocumentHtml

@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewTransactions extends JViewLegacy
+class VirtualcurrencyViewTransactions extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -36,6 +36,9 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
     protected $listDirn;
     protected $saveOrder;
     protected $saveOrderingUrl;
+    protected $realCurrencies;
+    protected $currencies;
+    protected $money;
 
     protected $pageclass_sfx;
 
@@ -48,6 +51,20 @@ class VirtualCurrencyViewTransactions extends JViewLegacy
         $this->pagination = $this->get('Pagination');
 
         $this->params     = $this->state->get('params');
+
+        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
+        $this->currencies->load();
+
+        $this->realCurrencies = new Virtualcurrency\Currency\RealCurrencies(JFactory::getDbo());
+        $this->realCurrencies->load();
+
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $this->money     = new Prism\Money\Money($moneyFormatter);
+
+        $helperBus       = new Prism\Helper\HelperBus($this->items);
+        $command         = new Virtualcurrency\Helper\PrepareTransactionsHelper($this->money, $this->currencies, $this->realCurrencies);
+        $helperBus->addCommand($command);
+        $helperBus->handle();
 
         // Prepare filters
         $this->listOrder  = $this->escape($this->state->get('list.ordering'));

@@ -21,7 +21,7 @@ class VirtualcurrencyModelPayments extends JModelLegacy
      */
     public function prepareItem($cartSession, $params)
     {
-        $item = VirtualCurrencyHelper::prepareItem($cartSession, $params);
+        $item = VirtualcurrencyHelper::prepareItem($cartSession, $params);
 
         if ($item === null or !$item->id) {
             throw new UnexpectedValueException(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'));

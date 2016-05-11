@@ -10,21 +10,13 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<?php foreach ($this->items as $item) {
-    $currency = $this->currencies->getCurrency($item->currency_id);
-    if ($currency === null) {
-        continue;
-    }
-
-    $this->amountFormatter->setCurrency($currency);
-    ?>
+<?php foreach ($this->items as $item) {?>
     <tr>
         <td>
             <?php echo $this->escape($item->title); ?>
         </td>
         <td>
-            <?php echo $this->amountFormatter->setValue($item->amount)->formatCurrency(); ?>
+            <?php echo $item->amount; ?>
         </td>
     </tr>
 <?php } ?>
-	  

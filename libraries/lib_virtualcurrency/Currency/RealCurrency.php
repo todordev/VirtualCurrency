@@ -1,61 +1,32 @@
 <?php
 /**
- * @package      Virtualcurrency\Real
+ * @package      Virtualcurrency
  * @subpackage   Currencies
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Virtualcurrency\Currency\Real;
+namespace Virtualcurrency\Currency;
 
 use Prism\Database;
-use Virtualcurrency\Currency\CurrencyInterface;
+use Prism\Money\CurrencyInterface;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
  * This class contains methods that are used for managing currency.
  *
- * @package      Virtualcurrency\Real
+ * @package      Virtualcurrency
  * @subpackage   Currencies
  */
-class Currency extends Database\TableImmutable implements CurrencyInterface
+class RealCurrency extends Database\TableImmutable implements CurrencyInterface
 {
     protected $id;
     protected $title;
     protected $code;
     protected $symbol;
     protected $position;
-
-    protected static $instances = array();
-
-    /**
-     * Create an object or return existing one.
-     *
-     * <code>
-     * $currencyId = 1;
-     *
-     * $currency   = Virtualcurrency\Currency\Real\Currency::getInstance(\JFactory::getDbo(), $currencyId);
-     * </code>
-     *
-     * @param \JDatabaseDriver $db
-     * @param int             $id
-     * @param array           $options
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, $id, array $options = array())
-    {
-        if (!array_key_exists($id, self::$instances)) {
-            $item = new Currency($db);
-            $item->load($id, $options);
-
-            self::$instances[$id] = $item;
-        }
-
-        return self::$instances[$id];
-    }
 
     /**
      * Load currency data from database by ID.
@@ -66,7 +37,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      *     "code" => "EUR"
      * );
      *
-     * $currency   = new Virtualcurrency\Currency\Real\Currency(\JFactory::getDbo());
+     * $currency   = new Virtualcurrency\Currency\RealCurrency(\JFactory::getDbo());
      * $currency->load($keys);
      * </code>
      *
@@ -100,7 +71,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      * <code>
      * $currencyId  = 1;
      *
-     * $currency    = new Virtualcurrency\Currency\Real\Currency(\JFactory::getDbo());
+     * $currency    = new Virtualcurrency\Currency\RealCurrency(\JFactory::getDbo());
      * $currency->load($currencyId);
      *
      * if (!$currency->getId()) {
@@ -121,7 +92,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      * <code>
      * $currencyId = 1;
      *
-     * $currency    = new Virtualcurrency\Currency\Real\Currency(JFactory::getDbo());
+     * $currency    = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
      * $currency->load($currencyId);
      *
      * $title = $currency->getTitle();
@@ -140,7 +111,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      * <code>
      * $currencyId  = 1;
      *
-     * $currency    = new Virtualcurrency\Currency\Real\Currency(\JFactory::getDbo());
+     * $currency    = new Virtualcurrency\Currency\RealCurrency(\JFactory::getDbo());
      * $currency->load($currencyId);
      *
      * // Return GBP
@@ -160,7 +131,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      * <code>
      * $currencyId  = 1;
      *
-     * $currency    = new Virtualcurrency\Currency\Real\Currency(\JFactory::getDbo());
+     * $currency    = new Virtualcurrency\Currency\RealCurrency(\JFactory::getDbo());
      * $currency->load($currencyId);
      *
      * // Return £
@@ -180,7 +151,7 @@ class Currency extends Database\TableImmutable implements CurrencyInterface
      * <code>
      * $currencyId  = 1;
      *
-     * $currency    = new Virtualcurrency\Currency\Real\Currency(\JFactory::getDbo());
+     * $currency    = new Virtualcurrency\Currency\RealCurrency(\JFactory::getDbo());
      * $currency->load($currencyId);
      *
      * // Return 0 = beginning; 1 = end;

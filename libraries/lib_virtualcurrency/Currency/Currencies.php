@@ -10,7 +10,7 @@
 namespace Virtualcurrency\Currency;
 
 use Prism\Constants;
-use Prism\Database;
+use Prism\Database\Collection;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -21,32 +21,30 @@ defined('JPATH_PLATFORM') or die;
  * @package      Virtualcurrency
  * @subpackage   Currencies
  */
-class Currencies extends Database\Collection
+class Currencies extends Collection
 {
     /**
      * Load currencies data.
      *
      * <code>
-     *  // The state could be 1 = published, 0 = unpublished, null = all
-     *  $options = array(
-     *      "state" => Prism\Constants::PUBLISHED
-     *  );
+     * $currencyId = 1;
      *
-     *  $currencies = new Virtualcurrency\Currency\Currencies();
-     *  $currencies->setDb(JFactory::getDbo());
-     *  $currencies->load($options);
+     * $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
+     * $currencies->load();
      * </code>
      *
      * @param array $options
+     *
      */
     public function load(array $options = array())
     {
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.title, a.code, a.symbol, a.params, a.published, a.image, a.image_icon')
+            ->select('a.id, a.title, a.description, a.published, a.code, a.symbol, a.params, a.image, a.image_icon')
             ->from($this->db->quoteName('#__vc_currencies', 'a'));
 
+        // Filter by state.
         $state = ArrayHelper::getValue($options, 'state');
         if ($state !== null) {
             $state = (!$state) ? Constants::UNPUBLISHED : Constants::PUBLISHED;
@@ -75,10 +73,6 @@ class Currencies extends Database\Collection
      */
     public function getCurrency($id)
     {
-        if (!$id) {
-            throw new \InvalidArgumentException('Invalid currency ID');
-        }
-
         $currency = null;
 
         if (is_numeric($id)) {
@@ -90,9 +84,7 @@ class Currencies extends Database\Collection
                     break;
                 }
             }
-
         } else {
-
             foreach ($this->items as $item) {
                 if (strcmp($id, $item['code']) === 0) {
                     $currency = new Currency($this->db);
@@ -128,8 +120,9 @@ class Currencies extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $results[$i] = new Currency($this->db);
-            $results[$i]->bind($item);
+            $currency = new Currency($this->db);
+            $currency->bind($item);
+            $results[$i] = $currency;
             $i++;
         }
 

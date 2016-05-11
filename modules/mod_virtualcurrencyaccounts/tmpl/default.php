@@ -14,11 +14,10 @@ foreach ($accounts as $account) {
     $currency = $currencies->getCurrency($account['currency_id']);
 
     if ($currency !== null) {
-        $amount->setCurrency($currency);
+        $money->setCurrency($currency);
         ?>
         <p class="vcm-account-amount">
-            <?php echo htmlentities($account['title'], ENT_QUOTES, 'UTF-8'); ?>
-            : <?php echo $amount->setValue($account['amount'])->format(); ?>
+            <?php echo htmlentities($account['title'], ENT_QUOTES, 'UTF-8'); ?>: <?php echo $money->setAmount($account['amount'])->formatCurrency(); ?>
         </p>
         <?php
     }

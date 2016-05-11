@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -78,13 +78,13 @@ class pkg_virtualcurrencyInstallerScript
         jimport('Virtualcurrency.init');
 
         // Register Component helpers
-        JLoader::register('VirtualCurrencyInstallHelper', COM_VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'install.php');
+        JLoader::register('VirtualcurrencyInstallHelper', COM_VIRTUALCURRENCY_PATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'install.php');
 
         // Start table with the information
-        VirtualCurrencyInstallHelper::startTable();
+        VirtualcurrencyInstallHelper::startTable();
 
         // Requirements
-        VirtualCurrencyInstallHelper::addRowHeading(JText::_('COM_VIRTUALCURRENCY_MINIMUM_REQUIREMENTS'));
+        VirtualcurrencyInstallHelper::addRowHeading(JText::_('COM_VIRTUALCURRENCY_MINIMUM_REQUIREMENTS'));
 
         // Display result about verification for GD library
         $title = JText::_('COM_VIRTUALCURRENCY_GD_LIBRARY');
@@ -94,18 +94,7 @@ class pkg_virtualcurrencyInstallerScript
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
-
-        // Display result about verification for cURL library
-        $title = JText::_('COM_VIRTUALCURRENCY_CURL_LIBRARY');
-        $info  = '';
-        if (!extension_loaded('curl')) {
-            $info   = JText::_('COM_VIRTUALCURRENCY_CURL_INFO');
-            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
-        } else {
-            $result = array('type' => 'success', 'text' => JText::_('JON'));
-        }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification Magic Quotes
         $title = JText::_('COM_VIRTUALCURRENCY_MAGIC_QUOTES');
@@ -116,7 +105,7 @@ class pkg_virtualcurrencyInstallerScript
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JOFF'));
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification FileInfo
         $title = JText::_('COM_VIRTUALCURRENCY_FILEINFO');
@@ -127,39 +116,86 @@ class pkg_virtualcurrencyInstallerScript
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
+
+        // Display result about verification PHP Intl
+        $title = JText::_('COM_VIRTUALCURRENCY_PHPINTL');
+        $info  = '';
+        if (!extension_loaded('intl')) {
+            $info   = JText::_('COM_VIRTUALCURRENCY_PHPINTL_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JNO'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JYES'));
+        }
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
+
+        // Display result about verification for cURL library
+        $title = JText::_('COM_VIRTUALCURRENCY_CURL_LIBRARY');
+        $info  = '';
+        if (!extension_loaded('curl')) {
+            $info   = JText::_('COM_VIRTUALCURRENCY_PHP_CURL_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JNO'));
+        } else {
+            $currentVersion = VirtualcurrencyInstallHelper::getCurlVersion();
+            $text           = JText::sprintf('COM_VIRTUALCURRENCY_CURRENT_V_S', $currentVersion);
+
+            if (version_compare($currentVersion, '7.34.0', '<')) {
+                $info   = JText::sprintf('COM_VIRTUALCURRENCY_REQUIRES_V_S', '7.34.0+');
+                $result = array('type' => 'warning', 'text' => $text);
+            } else {
+                $result = array('type' => 'success', 'text' => $text);
+            }
+        }
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
+
+        // Display result about verification Open SSL
+        $title = JText::_('COM_VIRTUALCURRENCY_OPEN_SSL');
+        $info  = '';
+        if (!function_exists('curl_init')) {
+            $result = array('type' => 'important', 'text' => JText::_('JNO'));
+        } else {
+            $currentVersion = VirtualcurrencyInstallHelper::getOpenSslVersion();
+            $text           = JText::sprintf('COM_VIRTUALCURRENCY_CURRENT_V_S', $currentVersion);
+
+            if (version_compare($currentVersion, '1.0.1.3', '<')) {
+                $info   = JText::sprintf('COM_VIRTUALCURRENCY_REQUIRES_V_S', '1.0.1.3+');
+                $result = array('type' => 'warning', 'text' => $text);
+            } else {
+                $result = array('type' => 'success', 'text' => $text);
+            }
+        }
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Display result about PHP version
         $title = JText::_('COM_VIRTUALCURRENCY_PHP_VERSION');
         $info  = '';
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+        if (version_compare(PHP_VERSION, '5.5.19') < 0) {
             $result = array('type' => 'important', 'text' => JText::_('COM_VIRTUALCURRENCY_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Display result about MySQL Version.
-        $title = JText::_('COM_VIRTUALCURRENCY_MYSQL_VERSION');
-        $info  = '';
+        $title     = JText::_('COM_VIRTUALCURRENCY_MYSQL_VERSION');
+        $info      = '';
         $dbVersion = JFactory::getDbo()->getVersion();
         if (version_compare($dbVersion, '5.5.3', '<')) {
             $result = array('type' => 'important', 'text' => JText::_('COM_VIRTUALCURRENCY_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification of installed ITPrism Library
-        $info  = '';
+        $info = '';
         if (!class_exists('Prism\\Version')) {
             $title  = JText::_('COM_VIRTUALCURRENCY_PRISM_LIBRARY');
             $info   = JText::_('COM_VIRTUALCURRENCY_PRISM_LIBRARY_DOWNLOAD');
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
-
-            $prismVersion   = new Prism\Version();
-            $text           = JText::sprintf('COM_VIRTUALCURRENCY_CURRENT_V_S', $prismVersion->getShortVersion());
+            $prismVersion = new Prism\Version();
+            $text         = JText::sprintf('COM_VIRTUALCURRENCY_CURRENT_V_S', $prismVersion->getShortVersion());
 
             if (class_exists('Virtualcurrency\\Version')) {
                 $componentVersion = new Virtualcurrency\Version();
@@ -175,47 +211,72 @@ class pkg_virtualcurrencyInstallerScript
                 $result = array('type' => 'success', 'text' => $text);
             }
         }
-        VirtualCurrencyInstallHelper::addRow($title, $result, $info);
+        VirtualcurrencyInstallHelper::addRow($title, $result, $info);
 
         // Installed extensions
-
-        VirtualCurrencyInstallHelper::addRowHeading(JText::_('COM_VIRTUALCURRENCY_INSTALLED_EXTENSIONS'));
+        VirtualcurrencyInstallHelper::addRowHeading(JText::_('COM_VIRTUALCURRENCY_INSTALLED_EXTENSIONS'));
 
         // Virtual Currency Library
         $result = array('type' => 'success', 'text' => JText::_('COM_VIRTUALCURRENCY_INSTALLED'));
-        VirtualCurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCY_LIBRARY'), $result, JText::_('COM_VIRTUALCURRENCY_LIBRARY'));
+        VirtualcurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCY_LIBRARY'), $result, JText::_('COM_VIRTUALCURRENCY_LIBRARY'));
 
         // Virtual Currency Accounts
         $result = array('type' => 'success', 'text' => JText::_('COM_VIRTUALCURRENCY_INSTALLED'));
-        VirtualCurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_MOD_VIRTUALCURRENCYACCOUNTS'), $result, JText::_('COM_VIRTUALCURRENCY_MODULE'));
+        VirtualcurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_MOD_VIRTUALCURRENCYACCOUNTS'), $result, JText::_('COM_VIRTUALCURRENCY_MODULE'));
 
-        // VirtualCurrencyPayment - PayPal
+        // VirtualcurrencyPayment - PayPal
         $result = array('type' => 'success', 'text' => JText::_('COM_VIRTUALCURRENCY_INSTALLED'));
-        VirtualCurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCYPAYMENT_PAYPAL'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
+        VirtualcurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCYPAYMENT_PAYPAL'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
 
-        // VirtualCurrencyPayment - Payment Gateway
+        // VirtualcurrencyPayment - Payment Gateway
         $result = array('type' => 'success', 'text' => JText::_('COM_VIRTUALCURRENCY_INSTALLED'));
-        VirtualCurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCYPAYMENT_PAYMENTGATEWAY'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
+        VirtualcurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_VIRTUALCURRENCYPAYMENT_PAYMENTGATEWAY'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
 
         // User - Virtual Currency Account
         $result = array('type' => 'success', 'text' => JText::_('COM_VIRTUALCURRENCY_INSTALLED'));
-        VirtualCurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_USER_VIRTUALCURRENCYACCOUNT'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
+        VirtualcurrencyInstallHelper::addRow(JText::_('COM_VIRTUALCURRENCY_USER_VIRTUALCURRENCYACCOUNT'), $result, JText::_('COM_VIRTUALCURRENCY_PLUGIN'));
 
         // End table
-        VirtualCurrencyInstallHelper::endTable();
+        VirtualcurrencyInstallHelper::endTable();
 
         echo JText::sprintf('COM_VIRTUALCURRENCY_MESSAGE_REVIEW_SAVE_SETTINGS', JRoute::_('index.php?option=com_virtualcurrency'));
 
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_VIRTUALCURRENCY_MESSAGE_INSTALL_PRISM_LIBRARY');
         } else {
-
             if (class_exists('Virtualcurrency\\Version')) {
                 $prismVersion     = new Prism\Version();
                 $componentVersion = new Virtualcurrency\Version();
                 if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, '<')) {
                     echo JText::_('COM_VIRTUALCURRENCY_MESSAGE_INSTALL_PRISM_LIBRARY');
                 }
+            }
+        }
+
+        // Remove the files that the system does not use anymore.
+//        $this->removeUnusedFiles();
+    }
+
+    private function removeUnusedFiles()
+    {
+        $files = array(
+            '/administrator/components/com_virtualcurrency/tables/...',
+            '/administrator/components/com_virtualcurrency/models/...',
+            '/administrator/components/com_virtualcurrency/models/fields/...',
+            '/administrator/components/com_virtualcurrency/models/forms/...',
+            '/administrator/components/com_virtualcurrency/controllers/...',
+        );
+
+        $folders = array(
+            '/administrator/components/com_virtualcurrency/views/realcurrency',
+            '/administrator/components/com_virtualcurrency/views/realcurrencies'
+        );
+
+        foreach ($files as $file) {
+            $file = JPath::clean(JPATH_ROOT . $file);
+
+            if (JFile::exists($file)) {
+                JFile::delete($file);
             }
         }
     }

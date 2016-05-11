@@ -13,6 +13,6 @@ defined('_JEXEC') or die;
 jimport('Prism.init');
 jimport('Virtualcurrency.init');
 
-$controller = JControllerLegacy::getInstance('VirtualCurrency');
+$controller = JControllerLegacy::getInstance('Virtualcurrency');
 $controller->execute(JFactory::getApplication()->input->getCmd('task'));
 $controller->redirect();

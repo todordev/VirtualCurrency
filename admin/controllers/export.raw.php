@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,14 +11,14 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency export controller
+ * Virtualcurrency export controller
  *
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  */
-class VirtualCurrencyControllerExport extends JControllerLegacy
+class VirtualcurrencyControllerExport extends JControllerLegacy
 {
-    public function getModel($name = 'Export', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Export', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 
@@ -30,42 +30,10 @@ class VirtualCurrencyControllerExport extends JControllerLegacy
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
-        $type  = $this->input->get->getCmd('type');
         $model = $this->getModel();
 
-        try {
-
-            switch ($type) {
-                case 'locations':
-                    $output   = $model->getLocations();
-                    $fileName = 'locations.xml';
-                    break;
-
-                case 'currencies':
-                    $output   = $model->getCurrencies();
-                    $fileName = 'currencies.xml';
-                    break;
-
-                case 'countries':
-                    $output   = $model->getCountries();
-                    $fileName = 'countries.xml';
-                    break;
-
-                case 'states':
-                    $output   = $model->getStates();
-                    $fileName = 'states.xml';
-                    break;
-
-                default: // Error
-                    $output   = '';
-                    $fileName = 'error.xml';
-                    break;
-            }
-
-        } catch (Exception $e) {
-            JLog::add($e->getMessage());
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
-        }
+        $output   = $model->getCurrencies();
+        $fileName = 'currencies.xml';
 
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
@@ -79,7 +47,7 @@ class VirtualCurrencyControllerExport extends JControllerLegacy
 
         $archiveName = JFile::stripExt(basename($fileName)) . '_' . $date;
         $archiveFile = $archiveName . '.zip';
-        $destination = $tmpFolder . DIRECTORY_SEPARATOR . $archiveFile;
+        $destination = JPath::clean($tmpFolder .DIRECTORY_SEPARATOR. $archiveFile);
 
         // compression type
         $zipAdapter   = JArchive::getAdapter('zip');
@@ -92,20 +60,20 @@ class VirtualCurrencyControllerExport extends JControllerLegacy
 
         $filesize = filesize($destination);
 
-        JResponse::setHeader('Content-Type', 'application/octet-stream', true);
-        JResponse::setHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0', true);
-        JResponse::setHeader('Content-Transfer-Encoding', 'binary', true);
-        JResponse::setHeader('Pragma', 'no-cache', true);
-        JResponse::setHeader('Expires', '0', true);
-        JResponse::setHeader('Content-Disposition', 'attachment; filename=' . $archiveFile, true);
-        JResponse::setHeader('Content-Length', $filesize, true);
+        $app->setHeader('Content-Type', 'application/octet-stream', true);
+        $app->setHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0', true);
+        $app->setHeader('Content-Transfer-Encoding', 'binary', true);
+        $app->setHeader('Pragma', 'no-cache', true);
+        $app->setHeader('Expires', '0', true);
+        $app->setHeader('Content-Disposition', 'attachment; filename=' . $archiveFile, true);
+        $app->setHeader('Content-Length', $filesize, true);
 
         $doc = JFactory::getDocument();
         $doc->setMimeEncoding('application/octet-stream');
 
-        JResponse::sendHeaders();
+        $app->sendHeaders();
 
         echo file_get_contents($destination);
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

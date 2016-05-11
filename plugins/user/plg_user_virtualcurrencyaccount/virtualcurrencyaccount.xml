@@ -6,8 +6,8 @@
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.0</version>
-    <creationDate>29 February, 2016</creationDate>
+    <version>2.1</version>
+    <creationDate>11 May, 2016</creationDate>
     <description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank">Virtual Currency Account</a> is an extension that creates accounts used for storing and managing virtual currency.</p>
     <p><a href='http://itprism.com/help/111-virtual-currency-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>
@@ -27,12 +27,14 @@
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
-                <field name="give_units_unit" type="vccurrencies" label="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT_DESC" />
-                <field name="give_units_number" type="text" label="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER_DESC" />
-                <field name="give_units_integrate" type="list" default="" label="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE" description="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE_DESC">
+                <field name="unit" type="vccurrency" label="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT_DESC" />
+                <field name="number" type="text" label="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER_DESC" />
+                <field name="integration" type="list" default="" label="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE" description="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE_DESC">
                     <option value="">PLG_USER_VIRTUALCURRENCYACCOUNT_NONE</option>
-                    <option value="gamification">PLG_USER_VIRTUALCURRENCYACCOUNT_GAMIFICATION_PLATFORM</option>
-                    <option value="socialcommunity">PLG_USER_VIRTUALCURRENCYACCOUNT_SOCIAL_COMMUNITY</option>
+                    <option value="Gamification">PLG_USER_VIRTUALCURRENCYACCOUNT_GAMIFICATION_PLATFORM</option>
+                    <option value="Socialcommunity">PLG_USER_VIRTUALCURRENCYACCOUNT_SOCIAL_COMMUNITY</option>
+                    <option value="JomSocial">PLG_USER_VIRTUALCURRENCYACCOUNT_JOMSOCIAL</option>
+                    <option value="EasySocial">PLG_USER_VIRTUALCURRENCYACCOUNT_EASY_SOCIAL</option>
                 </field>
             </fieldset>
         </fields>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -28,18 +28,14 @@ defined('_JEXEC') or die;
             <img src="<?php echo $this->mediaFolderUrl . '/' . $item->image_icon; ?>" />
             <?php } ?>
         </td>
-        <td class="center hidden-phone">
-            <strong><?php echo $this->escape($item->code); ?></strong>
+        <td class="hidden-phone">
+            <?php echo JHtml::_('virtualcurrency.price', $item, $this->money, $this->realCurrency, $this->virtualCurrencies); ?>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('virtualcurrency.currencyPrice', $item, $this->amountFormatter, $this->realCurrency, $this->virtualCurrencies); ?>
-        </td>
-        <td class="center hidden-phone">
-            <?php echo $this->escape($item->symbol); ?>
+            <?php echo JHtml::_('virtualcurrency.currencyDetails', $item); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>
         </td>
     </tr>
 <?php } ?>
-	  

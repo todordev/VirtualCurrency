@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 /**
  * It is Virtual Currency helper class
  */
-class VirtualCurrencyHelper
+class VirtualcurrencyHelper
 {
     protected static $extension = 'com_virtualcurrency';
 
@@ -39,6 +39,12 @@ class VirtualCurrencyHelper
         );
 
         JHtmlSidebar::addEntry(
+            JText::_('COM_VIRTUALCURRENCY_VIRTUAL_GOODS'),
+            'index.php?option=' . self::$extension . '&view=commodities',
+            $vName === 'commodities'
+        );
+
+        JHtmlSidebar::addEntry(
             JText::_('COM_VIRTUALCURRENCY_ACCOUNTS'),
             'index.php?option=' . self::$extension . '&view=accounts',
             $vName === 'accounts'
@@ -57,15 +63,15 @@ class VirtualCurrencyHelper
         );
 
         JHtmlSidebar::addEntry(
-            JText::_('COM_VIRTUALCURRENCY_VIRTUAL_GOODS'),
-            'index.php?option=' . self::$extension . '&view=commodities',
-            $vName === 'commodities'
-        );
-
-        JHtmlSidebar::addEntry(
             JText::_('COM_VIRTUALCURRENCY_REAL_CURRENCIES'),
             'index.php?option=' . self::$extension . '&view=realcurrencies',
             $vName === 'realcurrencies'
+        );
+
+        JHtmlSidebar::addEntry(
+            JText::_('COM_VIRTUALCURRENCY_TOOLS'),
+            'index.php?option=' . self::$extension . '&view=tools',
+            $vName === 'tools'
         );
 
         JHtmlSidebar::addEntry(
@@ -76,27 +82,45 @@ class VirtualCurrencyHelper
     }
 
     /**
-     * This method returns account ID using user id and currency id.
+     * Create and return money formatter/parser.
      *
-     * @param  integer $userId
-     * @param  integer $currencyId
-     *
-     * @return boolean
+     * @return NumberFormatter
      */
-    public static function getAccountId($userId, $currencyId)
+    public static function getMoneyFormatter()
     {
-        $db = JFactory::getDbo();
+        $params          = JComponentHelper::getParams(self::$extension);
+        $fractionDigits  = (int)$params->get('fraction_digits');
 
-        $query = $db->getQuery(true);
-        $query
-            ->select('a.id')
-            ->from($db->quoteName('#__vc_accounts', 'a'))
-            ->where('a.user_id = ' . (int)$userId)
-            ->where('a.currency_id = ' . (int)$currencyId);
+        $pattern         = '#,##0';
+        if ($fractionDigits > 0) {
+            $pattern .= '.' .str_repeat('0', $params->get('fraction_digits'));
+        }
 
-        $db->setQuery($query, 0, 1);
+        $language        = JFactory::getLanguage();
+        $moneyFormatter  = new NumberFormatter($language->getTag(), NumberFormatter::PATTERN_DECIMAL, $pattern);
 
-        return (bool)$db->loadResult();
+        return $moneyFormatter;
+    }
+
+    /**
+     * Create and return number formatter/parser.
+     *
+     * @return NumberFormatter
+     */
+    public static function getNumberFormatter()
+    {
+        $params          = JComponentHelper::getParams(self::$extension);
+        $fractionDigits  = (int)$params->get('fraction_digits');
+
+        $pattern         = '#0';
+        if ($fractionDigits > 0) {
+            $pattern .= '.' .str_repeat('0', $params->get('fraction_digits'));
+        }
+
+        $language        = JFactory::getLanguage();
+        $moneyFormatter  = new NumberFormatter($language->getTag(), NumberFormatter::PATTERN_DECIMAL, $pattern);
+
+        return $moneyFormatter;
     }
 
     /**
@@ -193,10 +217,10 @@ class VirtualCurrencyHelper
      */
     public static function prepareItem($cartSession, $params)
     {
-        $amountFormatter     = new Virtualcurrency\Amount($params);
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $money           = new Prism\Money\Money($moneyFormatter);
 
         if (strcmp('currency', $cartSession->item_type) === 0) {
-
             $unit       = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
             $unit->load($cartSession->item_id);
 
@@ -204,15 +228,13 @@ class VirtualCurrencyHelper
                 return null;
             }
 
-            $itemPrice        = (float)$unit->getParam('price');
+            $itemPrice        = (float)$unit->getParam('price_real');
             $itemPriceVirtual = (float)$unit->getParam('price_virtual');
             $currencyId       = (int)$unit->getParam('currency_id');
 
-            $amountFormatter->setCurrency($unit);
-            $itemsNumberFormatted = $amountFormatter->setValue($cartSession->items_number)->formatCurrency();
-
+            $money->setCurrency($unit);
+            $amountFormatted = $money->setAmount($cartSession->items_number)->formatCurrency();
         } else {
-
             $unit = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
             $unit->load($cartSession->item_id);
 
@@ -220,14 +242,14 @@ class VirtualCurrencyHelper
                 return null;
             }
 
-            $itemPrice        = (float)$unit->getPrice();
-            $itemPriceVirtual = (float)$unit->getPriceVirtual();
-            $currencyId       = (int)$unit->getCurrencyId();
+            $itemPrice        = (float)$unit->getParam('price_real');
+            $itemPriceVirtual = (float)$unit->getParam('price_virtual');
+            $currencyId       = (int)$unit->getParam('currency_id');
 
-            $itemsNumberFormatted = $cartSession->items_number . ' ('.$unit->getTitle().')';
+            $amountFormatted  = $cartSession->items_number . ' ('.$unit->getTitle().')';
         }
 
-        $itemCurrency               = null;
+        $realCurrency               = null;
         $totalCostFormatted         = '';
         $totalCostVirtualFormatted  = '';
         $currencyType               = '';
@@ -253,8 +275,8 @@ class VirtualCurrencyHelper
 
         // Get real currency
         if ($itemPrice) {
-            $itemCurrency = new Virtualcurrency\Currency\Real\Currency(JFactory::getDbo());
-            $itemCurrency->load($params->get('payments_currency_id'));
+            $realCurrency = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
+            $realCurrency->load($params->get('currency_id'));
 
             // Calculate total amount that should be paid.
             $totalCost = (string)Prism\Utilities\MathHelper::calculateTotal(array(
@@ -264,18 +286,18 @@ class VirtualCurrencyHelper
 
             $order['real']['item_price']    = $itemPrice;
             $order['real']['total_cost']    = $totalCost;
-            $order['real']['currency_code'] = $itemCurrency->getCode();
+            $order['real']['currency_code'] = $realCurrency->getCode();
 
-            $amountFormatter->setCurrency($itemCurrency);
-            $totalCostFormatted = $amountFormatter->setValue($totalCost)->formatCurrency();
+            $money->setCurrency($realCurrency);
+            $totalCostFormatted = $money->setAmount($totalCost)->formatCurrency();
 
             $currencyType = 'real';
         }
 
         // Get virtual currency
         if ($itemPriceVirtual) {
-            $itemCurrency = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
-            $itemCurrency->load($currencyId);
+            $realCurrency = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
+            $realCurrency->load($currencyId);
 
             // Calculate total amount that should be paid.
             $totalCostVirtual = (string)Prism\Utilities\MathHelper::calculateTotal(array(
@@ -285,16 +307,16 @@ class VirtualCurrencyHelper
 
             $order['virtual']['item_price']    = $itemPriceVirtual;
             $order['virtual']['total_cost']    = $totalCostVirtual;
-            $order['virtual']['currency_id']   = $itemCurrency->getId();
-            $order['virtual']['currency_code'] = $itemCurrency->getCode();
+            $order['virtual']['currency_id']   = $realCurrency->getId();
+            $order['virtual']['currency_code'] = $realCurrency->getCode();
 
-            $amountFormatter->setCurrency($itemCurrency);
-            $totalCostVirtualFormatted = $amountFormatter->setValue($totalCostVirtual)->formatCurrency();
+            $money->setCurrency($realCurrency);
+            $totalCostVirtualFormatted = $money->setAmount($totalCostVirtual)->formatCurrency();
 
             $currencyType = 'virtual';
         }
 
-        $order['items_number_formatted'] = $itemsNumberFormatted;
+        $order['items_number_formatted'] = $amountFormatted;
         $order['real']['items_cost_formatted'] = $totalCostFormatted ;
         $order['virtual']['items_cost_formatted'] = $totalCostVirtualFormatted ;
 

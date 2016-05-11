@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelCommodity extends JModelAdmin
+class VirtualcurrencyModelCommodity extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -19,10 +19,10 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  VirtualCurrencyTableCommodity  A database object
+     * @return  VirtualcurrencyTableCommodity  A database object
      * @since   1.6
      */
-    public function getTable($type = 'Commodity', $prefix = 'VirtualCurrencyTable', $config = array())
+    public function getTable($type = 'Commodity', $prefix = 'VirtualcurrencyTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -30,7 +30,7 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
     /**
      * Method to get the record form.
      *
-     * @param   array   $data     An optional array of data for the form to interogate.
+     * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
      * @return  JForm   A JForm object on success, false on failure
@@ -57,8 +57,18 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
     {
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.commodity.data', array());
-        if (empty($data)) {
-            $data = $this->getItem();
+        if (!$data) {
+            $data            = $this->getItem();
+
+            $moneyFormatter = VirtualcurrencyHelper::getMoneyFormatter();
+
+            if (array_key_exists('price_real', $data->params) and $data->params['price_real'] !== '') {
+                $data->params['price_real'] = $moneyFormatter->format($data->params['price_real']);
+            }
+
+            if (array_key_exists('price_virtual', $data->params) and $data->params['price_virtual'] !== '') {
+                $data->params['price_virtual'] = $moneyFormatter->format($data->params['price_virtual']);
+            }
         }
 
         return $data;
@@ -75,30 +85,34 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
     {
         $id             = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
         $title          = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $number         = Joomla\Utilities\ArrayHelper::getValue($data, 'number', 0, 'int');
         $description    = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
         $published      = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $price          = Joomla\Utilities\ArrayHelper::getValue($data, 'price', 0.00, 'float');
-        $priceVirtual   = Joomla\Utilities\ArrayHelper::getValue($data, 'price_virtual', 0.00, 'float');
-        $currencyId     = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id', 0, 'int');
-        $minimum        = Joomla\Utilities\ArrayHelper::getValue($data, 'minimum', 1, 'int');
+        $inStock        = Joomla\Utilities\ArrayHelper::getValue($data, 'in_stock');
+        $params         = Joomla\Utilities\ArrayHelper::getValue($data, 'params', array(), 'array');
 
         if (!$description) {
             $description = null;
         }
+
+        if (!is_numeric($inStock)) {
+            $inStock = null;
+        }
+
+        $moneyParser     = VirtualcurrencyHelper::getMoneyFormatter();
+        $numberFormatter = VirtualcurrencyHelper::getNumberFormatter();
+
+        $params['price_real']    = ($params['price_real'] !== '') ? $numberFormatter->format($moneyParser->parse($params['price_real'])) : '';
+        $params['price_virtual'] = ($params['price_virtual'] !== '') ? $numberFormatter->format($moneyParser->parse($params['price_virtual'])) : '';
 
         // Load a record from the database
         $row = $this->getTable();
         $row->load($id);
 
         $row->set('title', $title);
-        $row->set('number', $number);
         $row->set('description', $description);
-        $row->set('price', $price);
-        $row->set('price_virtual', $priceVirtual);
-        $row->set('currency_id', $currencyId);
-        $row->set('minimum', $minimum);
+        $row->set('in_stock', $inStock);
         $row->set('published', $published);
+        $row->set('params', json_encode($params));
 
         $this->prepareImages($row, $data);
 
@@ -110,7 +124,7 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
     /**
      * Prepare and sanitise the table prior to saving.
      *
-     * @param VirtualCurrencyTableCommodity $table
+     * @param VirtualcurrencyTableCommodity $table
      * @param array                       $data
      *
      * @since    1.6
@@ -123,7 +137,6 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
         $mediaFolder     = JPath::clean(JPATH_ROOT . '/' . $params->get('media_folder', 'images/virtualcurrency'));
 
         if (!empty($data['image'])) {
-
             // Delete old image.
             if ($table->get('image')) {
                 $file = JPath::clean($mediaFolder . '/' . $table->get('image'));
@@ -136,7 +149,6 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
         }
 
         if (!empty($data['image_icon'])) {
-
             // Delete old icon.
             if ($table->get('image_icon')) {
                 $file = JPath::clean($mediaFolder . '/' . $table->get('image_icon'));
@@ -241,7 +253,6 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
         $row->load($id);
 
         if (strcmp('image', $type) === 0 and $row->get('image')) {
-
             $file = JPath::clean($mediaFolder . '/' . $row->get('image'));
             if (JFile::exists($file)) {
                 JFile::delete($file);
@@ -251,7 +262,6 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
         }
 
         if (strcmp('icon', $type) === 0 and $row->get('image_icon')) {
-
             $file = JPath::clean($mediaFolder . '/' . $row->get('image_icon'));
             if (JFile::exists($file)) {
                 JFile::delete($file);
@@ -278,14 +288,13 @@ class VirtualCurrencyModelCommodity extends JModelAdmin
         );
 
         foreach ($ids as $key => $id) {
-
             $db     = $this->getDbo();
             $query1 = $db->getQuery(true);
 
             $query1
                 ->select('COUNT(*) AS number_of_results')
                 ->from($db->quoteName('#__vc_transactions'))
-                ->where($db->quoteName('commodity_id') . '=' . (int)$id);
+                ->where($db->quoteName('item_id') . '=' . (int)$id);
 
             $query2 = $db->getQuery(true);
             $query2

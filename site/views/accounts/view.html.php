@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewAccounts extends JViewLegacy
+class VirtualcurrencyViewAccounts extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -28,13 +28,8 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     protected $params;
 
     protected $items;
-
-    protected $currencies;
-
     protected $option;
-
     protected $pageclass_sfx;
-    protected $amountFormatter;
 
     public function display($tpl = null)
     {
@@ -45,15 +40,15 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
 
         $this->params = $this->state->get('params');
 
-        // Load currencies
-        $options = array(
-            'state' => Prism\Constants::PUBLISHED
-        );
+        $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
+        $currencies->load();
 
-        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->currencies->load($options);
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $money           = new Prism\Money\Money($moneyFormatter);
 
-        $this->amountFormatter = new Virtualcurrency\Amount($this->params);
+        $helperBus       = new Prism\Helper\HelperBus($this->items);
+        $helperBus->addCommand(new Virtualcurrency\Helper\PrepareAccountsHelper($money, $currencies));
+        $helperBus->handle();
 
         $this->prepareDocument();
 
@@ -96,7 +91,6 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
 
     private function preparePageHeading()
     {
-
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
@@ -111,7 +105,6 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         } else {
             $this->params->def('page_heading', JText::_('COM_VIRTUALCURRENCY_ACCOUNTS_DEFAULT_PAGE_TITLE'));
         }
-
     }
 
     private function preparePageTitle()

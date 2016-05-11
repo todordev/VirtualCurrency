@@ -10,7 +10,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyController extends JControllerLegacy
+class VirtualcurrencyController extends JControllerLegacy
 {
     protected $cacheableViews = array('cart');
 

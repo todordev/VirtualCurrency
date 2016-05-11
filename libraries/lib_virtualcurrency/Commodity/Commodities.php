@@ -45,12 +45,10 @@ class Commodities extends Collection
         $query = $this->db->getQuery(true);
 
         $query
-            ->select(
-                'a.id, a.title, a.number, a.price, a.price_virtual, ' .
-                'a.currency_id, a.minimum, a.published, a.image, a.image_icon'
-            )
+            ->select('a.id, a.title, a.description, a.published, a.in_stock, a.params, a.image, a.image_icon')
             ->from($this->db->quoteName('#__vc_commodities', 'a'));
 
+        // Filter by state.
         $state = ArrayHelper::getValue($options, 'state');
         if ($state !== null) {
             $state = (!$state) ? Constants::UNPUBLISHED : Constants::PUBLISHED;
@@ -114,8 +112,9 @@ class Commodities extends Collection
 
         $i = 1;
         foreach ($this->items as $item) {
-            $results[$i] = new Commodity($this->db);
-            $results[$i]->bind($item);
+            $commodity = new Commodity($this->db);
+            $commodity->bind($item);
+            $results[$i] = $commodity;
             $i++;
         }
 

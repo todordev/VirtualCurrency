@@ -6,8 +6,8 @@
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.0</version>
-    <creationDate>29 February, 2016</creationDate>
+    <version>2.1</version>
+    <creationDate>11 May, 2016</creationDate>
     <description><![CDATA[
     <p>VirtualCurrency Payment - Payment Gateway is a plugin that enables payments via user accounts that contains virtual currency.</p>
     <p><a href='http://itprism.com/help/111-virtual-currency-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>

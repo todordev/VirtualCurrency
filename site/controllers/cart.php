@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  * @package     VirtualCurrency
  * @subpackage  Components
  */
-class VirtualCurrencyControllerCart extends Prism\Controller\Form\Frontend
+class VirtualcurrencyControllerCart extends Prism\Controller\Form\Frontend
 {
     /**
      * Method to get a model object, loading it if required.
@@ -28,7 +28,7 @@ class VirtualCurrencyControllerCart extends Prism\Controller\Form\Frontend
      * @return   VirtualCurrencyModelCart    The model.
      * @since    1.5
      */
-    public function getModel($name = 'Cart', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Cart', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;
@@ -63,37 +63,37 @@ class VirtualCurrencyControllerCart extends Prism\Controller\Form\Frontend
         /** @var $params Joomla\Registry\Registry */
 
         if ($params->get('debug_payment_disabled', 0)) {
-            $msg = JString::trim($params->get('debug_disabled_functionality_msg'));
+            $msg = trim($params->get('debug_disabled_functionality_msg'));
             if (!$msg) {
                 $msg = JText::_('COM_VIRTUALCURRENCY_DEBUG_MODE_DEFAULT_MSG');
             }
 
-            $this->displayNotice($msg, $redirectOptions);
+            $this->displayWarning($msg, $redirectOptions);
             return;
         }
 
         // Check terms and use
         if ($params->get('payments_service_terms', 0) and !$this->input->post->getInt('terms', 0)) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_TERMS_NOT_ACCEPTED'), $redirectOptions);
+            $this->displayWarning(JText::_('COM_VIRTUALCURRENCY_ERROR_TERMS_NOT_ACCEPTED'), $redirectOptions);
             return;
         }
 
         // Check for valid number of units.
         $numberOfItems = (int)abs($app->input->post->get('amount', 0, 'int'));
         if (!$numberOfItems) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_UNITS_NUMBER'), $redirectOptions);
+            $this->displayWarning(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_UNITS_NUMBER'), $redirectOptions);
             return;
         }
 
         $itemType = $this->input->post->getCmd('type');
         if (!$itemType or !in_array($itemType, array('currency', 'commodity'), true)) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM_TYPE'), $redirectOptions);
+            $this->displayError(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM_TYPE'), $redirectOptions);
             return;
         }
 
         $itemId = $this->input->post->getInt('id', 0);
         if (!$itemId) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), $redirectOptions);
+            $this->displayError(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), $redirectOptions);
             return;
         }
 
@@ -107,19 +107,27 @@ class VirtualCurrencyControllerCart extends Prism\Controller\Form\Frontend
         }
 
         if (!$item->getId()) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), $redirectOptions);
+            $this->displayError(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), $redirectOptions);
             return;
         }
 
         // Check for valid allowed items for buying
+        $minimum = (int)$item->getParam('minimum');
         if (strcmp('currency', $itemType) === 0) {
-            if ($numberOfItems < $item->getParam('minimum')) {
-                $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectOptions);
+            if ((int)$numberOfItems < $minimum) {
+                $this->displayWarning(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_LESS_THAN_MINIMUM_D', $minimum), $redirectOptions);
                 return;
             }
         } else {// Commodity
-            if ($numberOfItems < $item->getMinimum()) {
-                $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_AMOUNT'), $redirectOptions);
+            if ((int)$numberOfItems < $minimum) {
+                $this->displayWarning(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_LESS_THAN_MINIMUM_D', $minimum), $redirectOptions);
+                return;
+            }
+
+            // Check the number of available units.
+            $inStock = $item->getInStock();
+            if (is_numeric($inStock) and (int)$inStock < (int)$numberOfItems) {
+                $this->displayWarning(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_IN_STOCK_EXCEEDED', (int)$inStock), $redirectOptions);
                 return;
             }
         }
@@ -156,6 +164,6 @@ class VirtualCurrencyControllerCart extends Prism\Controller\Form\Frontend
         // Set payment data to the sessions
         $app->setUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT, $cartSession);
 
-        $this->setRedirect(JRoute::_(VirtualCurrencyHelperRoute::getCartRoute('payment'), false));
+        $this->setRedirect(JRoute::_(VirtualcurrencyHelperRoute::getCartRoute('payment'), false));
     }
 }

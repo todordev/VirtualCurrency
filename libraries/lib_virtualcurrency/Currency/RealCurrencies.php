@@ -1,13 +1,13 @@
 <?php
 /**
- * @package      Virtualcurrency\Real
+ * @package      Virtualcurrency
  * @subpackage   Currencies
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Virtualcurrency\Currency\Real;
+namespace Virtualcurrency\Currency;
 
 use Prism\Database\Collection;
 use Joomla\Utilities\ArrayHelper;
@@ -17,10 +17,10 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class provides functionality that manage real currencies.
  *
- * @package      Virtualcurrency\Real
+ * @package      Virtualcurrency
  * @subpackage   Currencies
  */
-class Currencies extends Collection
+class RealCurrencies extends Collection
 {
     /**
      * Load currencies data by ID from database.
@@ -93,10 +93,6 @@ class Currencies extends Collection
      */
     public function getCurrency($id)
     {
-        if (!$id) {
-            throw new \InvalidArgumentException('Invalid currency ID');
-        }
-
         $currency = null;
 
         if (is_numeric($id)) {
@@ -109,7 +105,6 @@ class Currencies extends Collection
                 }
             }
         } else {
-
             foreach ($this->items as $item) {
                 if (strcmp($id, $item['code']) === 0) {
                     $currency = new Currency($this->db);
@@ -145,8 +140,9 @@ class Currencies extends Collection
 
         $i = 1;
         foreach ($this->items as $item) {
-            $results[$i] = new Currency($this->db);
-            $results[$i]->bind($item);
+            $currency    = new Currency($this->db);
+            $currency->bind($item);
+            $results[$i] = $currency;
             $i++;
         }
 

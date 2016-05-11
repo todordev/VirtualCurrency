@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelRealCurrency extends JModelAdmin
+class VirtualcurrencyModelRealCurrency extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -19,10 +19,10 @@ class VirtualCurrencyModelRealCurrency extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  VirtualCurrencyTableRealCurrency  A database object
+     * @return  VirtualcurrencyTableRealCurrency  A database object
      * @since   1.6
      */
-    public function getTable($type = 'RealCurrency', $prefix = 'VirtualCurrencyTable', $config = array())
+    public function getTable($type = 'RealCurrency', $prefix = 'VirtualcurrencyTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -74,11 +74,11 @@ class VirtualCurrencyModelRealCurrency extends JModelAdmin
      */
     public function save($data)
     {
-        $id       = JArrayHelper::getValue($data, 'id');
-        $title    = JArrayHelper::getValue($data, 'title');
-        $code     = JArrayHelper::getValue($data, 'code');
-        $symbol   = JArrayHelper::getValue($data, 'symbol');
-        $position = JArrayHelper::getValue($data, 'position');
+        $id       = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $title    = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
+        $code     = Joomla\Utilities\ArrayHelper::getValue($data, 'code');
+        $symbol   = Joomla\Utilities\ArrayHelper::getValue($data, 'symbol');
+        $position = Joomla\Utilities\ArrayHelper::getValue($data, 'position');
 
         // Load a record from the database
         $row = $this->getTable();

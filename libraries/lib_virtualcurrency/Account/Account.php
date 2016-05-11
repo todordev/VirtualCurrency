@@ -27,10 +27,16 @@ class Account extends Database\Table
     protected $id;
     protected $amount;
     protected $note;
+    protected $published = 0;
+    protected $created_at;
     protected $user_id;
     protected $currency_id;
 
     protected $name;
+
+    /**
+     * @var Currency
+     */
     protected $currency;
 
     /**
@@ -109,7 +115,7 @@ class Account extends Database\Table
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                'a.id, a.amount, a.note, a.user_id, a.currency_id, ' .
+                'a.id, a.amount, a.note, a.user_id, a.currency_id, a.published, a.created_at, ' .
                 'b.title, b.code, b.symbol, b.image, b.image_icon, ' .
                 'c.name'
             )
@@ -166,6 +172,7 @@ class Account extends Database\Table
             ->insert($this->db->quoteName('#__vc_accounts'))
             ->set($this->db->quoteName('amount') . '=' . $this->db->quote($this->amount))
             ->set($this->db->quoteName('note') . '=' . $note)
+            ->set($this->db->quoteName('published') . '=' . (int)$this->published)
             ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
             ->set($this->db->quoteName('currency_id') . '=' . (int)$this->currency_id);
 
@@ -184,6 +191,8 @@ class Account extends Database\Table
             ->update($this->db->quoteName('#__vc_accounts'))
             ->set($this->db->quoteName('amount') . '=' . $this->db->quote($this->amount))
             ->set($this->db->quoteName('note') . '=' . $note)
+            ->set($this->db->quoteName('published') . '=' . (int)$this->published)
+            ->set($this->db->quoteName('created_at') . '=' . $this->db->quote($this->created_at))
             ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
             ->set($this->db->quoteName('currency_id') . '=' . (int)$this->currency_id)
             ->where($this->db->quoteName('id') . '=' . (int)$this->id);
@@ -334,6 +343,28 @@ class Account extends Database\Table
     }
 
     /**
+     * Check if account is active.
+     *
+     * <code>
+     *  // Get user account by account ID
+     *  $accountId = 1;
+     *
+     *  $account   = new Virtualcurrency\Account\Account(JFactory::getDbo());
+     *  $account->load($accountId);
+     *
+     *  if (!$account->isActive()) {
+     *  ...
+     *  }
+     * </code>
+     *
+     * @return float
+     */
+    public function isActive()
+    {
+        return (bool)$this->published;
+    }
+
+    /**
      * Return the price in real currency.
      *
      * <code>
@@ -350,21 +381,77 @@ class Account extends Database\Table
      * @param int $numberOfUnits
      *
      * @return float
+     *
+     * @deprecated 2.2
      */
     public function getPrice($type, $numberOfUnits = 1)
     {
         if (strcmp('real', $type) === 0) {
-            $price = $this->getParam('price', 0.00);
+            $price = $this->currency->getParam('price_real', 0.00);
             if ($price > 0 and $numberOfUnits > 0) {
                 return round($price * $numberOfUnits, 2);
             }
         }
 
         if (strcmp('virtual', $type) === 0) {
-            $price = $this->getParam('price-virtual', 0.00);
+            $price = $this->currency->getParam('price_virtual', 0.00);
             if ($price > 0 and $numberOfUnits > 0) {
                 return round($price * $numberOfUnits, 2);
             }
+        }
+
+        return 0.00;
+    }
+
+    /**
+     * Calculate the price in real currency.
+     *
+     * <code>
+     *  $accountId = 1;
+     *  $numberOfUnits = 10;
+     *
+     *  $account   = new Virtualcurrency\Account\Account(JFactory::getDbo());
+     *  $account->load($accountId);
+     *
+     *  echo $account->calculateRealPrice($numberOfUnits);
+     * </code>
+     *
+     * @param int $numberOfUnits
+     *
+     * @return float
+     */
+    public function calculateRealPrice($numberOfUnits)
+    {
+        $price = $this->currency->getParam('price_real', 0.00);
+        if ($price > 0 and $numberOfUnits > 0) {
+            return round($price * $numberOfUnits, 2);
+        }
+
+        return 0.00;
+    }
+
+    /**
+     * Return the price in virtual currency.
+     *
+     * <code>
+     *  $accountId = 1;
+     *  $numberOfUnits = 10;
+     *
+     *  $account   = new Virtualcurrency\Account\Account(JFactory::getDbo());
+     *  $account->load($accountId);
+     *
+     *  echo $account->calculateVirtualPrice($numberOfUnits);
+     * </code>
+     *
+     * @param int $numberOfUnits
+     *
+     * @return float
+     */
+    public function calculateVirtualPrice($numberOfUnits)
+    {
+        $price = $this->currency->getParam('price_virtual', 0.00);
+        if ($price > 0 and $numberOfUnits > 0) {
+            return round($price * $numberOfUnits, 2);
         }
 
         return 0.00;
@@ -388,7 +475,7 @@ class Account extends Database\Table
     public function getCurrency()
     {
         if ($this->currency === null) {
-            $this->currency = new Currency($this->db);
+            $this->currency = new Currency();
 
             if ($this->currency_id > 0) {
                 $this->currency->load($this->currency_id);
@@ -415,9 +502,7 @@ class Account extends Database\Table
      * @param array $data
      * @param bool $force // Force creation of account. If it is true, the system does not check for existing account.
      *
-     * @throws /InvalidArgumentException
-     *
-     * @return Currency
+     * @throws \InvalidArgumentException
      */
     public function open(array $data, $force = false)
     {

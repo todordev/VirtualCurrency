@@ -9,7 +9,7 @@
 
 namespace Virtualcurrency\Commodity;
 
-use Prism\Database\Table;
+use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,16 +19,12 @@ defined('JPATH_PLATFORM') or die;
  * @package      Virtualcurrency
  * @subpackage   Commodities
  */
-class Commodity extends Table
+class Commodity extends Database\Table
 {
     protected $id;
     protected $title;
     protected $description;
-    protected $number;
-    protected $price;
-    protected $price_virtual;
-    protected $currency_id;
-    protected $minimum;
+    protected $in_stock;
     protected $image;
     protected $image_icon;
     protected $published;
@@ -50,10 +46,7 @@ class Commodity extends Table
     {
         $query = $this->db->getQuery(true);
         $query
-            ->select(
-                'a.id, a.title, a.number, a.price, a.price_virtual, ' .
-                'a.currency_id, a.minimum, a.published, a.image, a.image_icon'
-            )
+            ->select('a.id, a.title, a.in_stock, a.published, a.image, a.image_icon, a.params')
             ->from($this->db->quoteName('#__vc_commodities', 'a'));
 
         if (is_array($keys)) {
@@ -99,16 +92,16 @@ class Commodity extends Table
     protected function insertObject()
     {
         $description   = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
+        $params        = (!$this->params) ? 'NULL' : $this->db->quote($this->params->toString());
+        $inStock       = (!is_numeric($this->in_stock)) ? 'NULL' : (int)$this->in_stock;
 
         $query = $this->db->getQuery(true);
         $query
             ->insert($this->db->quoteName('#__vc_commodities'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('description') . '=' . $description)
-            ->set($this->db->quoteName('number') . '=' . (int)$this->number)
-            ->set($this->db->quoteName('price') . '=' . $this->db->quote($this->price))
-            ->set($this->db->quoteName('price_virtual') . '=' . $this->db->quote($this->price_virtual))
-            ->set($this->db->quoteName('currency_id') . '=' . $this->currency_id);
+            ->set($this->db->quoteName('in_stock') . '=' . $inStock)
+            ->set($this->db->quoteName('params') . '=' . $params);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -119,16 +112,16 @@ class Commodity extends Table
     protected function updateObject()
     {
         $description   = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
+        $params        = (!$this->params) ? 'NULL' : $this->db->quote($this->params->toString());
+        $inStock       = (!is_numeric($this->in_stock)) ? 'NULL' : (int)$this->in_stock;
 
         $query = $this->db->getQuery(true);
         $query
             ->update($this->db->quoteName('#__vc_commodities'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('description') . '=' . $description)
-            ->set($this->db->quoteName('number') . '=' . (int)$this->number)
-            ->set($this->db->quoteName('price') . '=' . $this->db->quote($this->price))
-            ->set($this->db->quoteName('price_virtual') . '=' . $this->db->quote($this->price_virtual))
-            ->set($this->db->quoteName('currency_id') . '=' . (int)$this->currency_id)
+            ->set($this->db->quoteName('in_stock') . '=' . $inStock)
+            ->set($this->db->quoteName('params') . '=' . $params)
             ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
         $this->db->setQuery($query);
@@ -136,61 +129,59 @@ class Commodity extends Table
     }
 
     /**
-     * This method calculates the price in real currency of the units.
-     * You have to give the number of your units that you would like to calculate.
+     * Decrease the number of items in stock.
      *
      * <code>
      *  $commodityId  = 1;
+     *  $commodity    = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo);
+     *  $commodity->load($commodityId);
      *
-     *  $commodity    = Virtualcurrency\Commodity\Commodity::getInstance(JFactory::getDbo, $commodityId);
-     *
-     *  // It is the number of units, that I would like to buy.
+     *  // It is the number of units, that someone has bought.
      *  $unitsNumber = 10;
-     *  $amount      = $commodity->calculateRealAmount($unitsNumber);
+     *  $commodity->decreaseInStock($unitsNumber);
      * </code>
      *
-     * @param  integer $units
+     * @param  int $number
      *
-     * @return float Amount
+     * @return self
      */
-    public function calculateRealAmount($units)
+    public function decreaseInStock($number)
     {
-        $amount = 0;
-        if ($units > 0) {
-            $amount = $this->price;
-            $amount *= $units;
+        if ($this->in_stock !== null and $number > 0) {
+            $this->in_stock -= (int)$number;
         }
 
-        return $amount;
+        return $this;
     }
 
     /**
-     * This method calculates the price in virtual currency of the units.
-     * You have to give the number of your units that you would like to calculate.
+     * Store the number of items in stock.
      *
      * <code>
      *  $commodityId  = 1;
+     *  $commodity    = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo);
+     *  $commodity->load($commodityId);
      *
-     *  $commodity    = Virtualcurrency\Commodity\Commodity::getInstance(JFactory::getDbo, $commodityId);
-     *
-     *  // It is the number of units, that I would like to buy.
+     *  // It is the number of units, that someone has bought.
      *  $unitsNumber = 10;
-     *  $amount      = $commodity->calculateVirtualAmount($unitsNumber);
+     *  $commodity->decreaseInStock($unitsNumber);
+     *  $commodity->storeInStock();
      * </code>
      *
-     * @param  integer $units
-     *
-     * @return float Amount
+     * @return self
      */
-    public function calculateVirtualAmount($units)
+    public function storeInStock()
     {
-        $amount = 0;
-        if ($units > 0) {
-            $amount = $this->price_virtual;
-            $amount *= $units;
-        }
+        if ($this->in_stock !== null) {
+            $query = $this->db->getQuery(true);
+            $query
+                ->update($this->db->quoteName('#__vc_commodities'))
+                ->set($this->db->quoteName('in_stock') . '=' . (int)$this->in_stock)
+                ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
-        return $amount;
+            $this->db->setQuery($query);
+            $this->db->execute();
+        }
     }
 
     /**
@@ -242,16 +233,16 @@ class Commodity extends Table
      * $commodity    = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
      * $commodity->load($commodityId);
      *
-     * if (!$commodity->getNumber()) {
+     * if (!$commodity->getInStock()) {
      * ...
      * }
      * </code>
      *
-     * @return string
+     * @return null|int
      */
-    public function getNumber()
+    public function getInStock()
     {
-        return $this->number;
+        return $this->in_stock;
     }
 
     /**
@@ -330,7 +321,7 @@ class Commodity extends Table
      */
     public function getMinimum()
     {
-        return $this->minimum;
+        return $this->params->get('minimum');
     }
 
     /**
@@ -342,16 +333,16 @@ class Commodity extends Table
      * $commodity    = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
      * $commodity->load($commodityId);
      *
-     * if (!$commodity->getPrice()) {
+     * if (!$commodity->getPriceReal()) {
      * ...
      * }
      * </code>
      *
      * @return string
      */
-    public function getPrice()
+    public function getPriceReal()
     {
-        return $this->price;
+        return $this->params->get('price_real');
     }
 
     /**
@@ -372,7 +363,7 @@ class Commodity extends Table
      */
     public function getPriceVirtual()
     {
-        return $this->price_virtual;
+        return $this->params->get('price_virtual');
     }
 
     /**
@@ -391,6 +382,49 @@ class Commodity extends Table
      */
     public function getCurrencyId()
     {
-        return (int)$this->currency_id;
+        return (int)$this->params->get('currency_id');
+    }
+
+    /**
+     * Check for enough units.
+     *
+     * <code>
+     * $commodityId = 1;
+     *
+     * $commodity    = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
+     * $commodity->load($commodityId);
+     *
+     * if ($commodity->hasUnits()) {
+     * // ....
+     * }
+     * </code>
+     *
+     * @param int $number
+     *
+     * @return bool
+     */
+    public function hasUnits($number = 0)
+    {
+        $number = (int)abs($number);
+
+        if ($this->in_stock === null) {
+            return true;
+        }
+
+        $inStock = (int)$this->in_stock;
+
+        if ($inStock <= 0) {
+            return false;
+        } else {
+            if ($number === 0) {
+                return true;
+            }
+
+            if ($number < $inStock) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

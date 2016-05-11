@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,20 +11,20 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency real currency controller class.
+ * Virtualcurrency real currency controller class.
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerRealCurrency extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerRealCurrency extends Prism\Controller\Form\Backend
 {
     public function save($key = null, $urlVar = null)
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
             'task' => $this->getTask(),
@@ -32,7 +32,7 @@ class VirtualCurrencyControllerRealCurrency extends Prism\Controller\Form\Backen
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelRealCurrency */
+        /** @var $model VirtualcurrencyModelRealCurrency */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
@@ -52,12 +52,10 @@ class VirtualCurrencyControllerRealCurrency extends Prism\Controller\Form\Backen
         }
 
         try {
-
             $itemId = $model->save($validData);
             $redirectOptions['id'] = $itemId;
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
 

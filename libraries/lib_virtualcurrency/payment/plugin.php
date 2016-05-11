@@ -13,7 +13,7 @@ use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 use Prism;
 use Virtualcurrency;
-use EmailTemplates;
+use Emailtemplates;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -60,7 +60,6 @@ class Plugin extends \JPlugin
     {
         // Set file writer.
         if ($this->logFile and $this->logFile !== '') {
-
             // Create log object
             $this->log = new Prism\Log\Log();
 
@@ -95,7 +94,7 @@ class Plugin extends \JPlugin
             'site_url'       => \JUri::root(),
             'item_title'     => htmlentities($transaction->title, ENT_QUOTES, 'UTF-8'),
             'items_number'   => $transaction->units,
-            'accounts_url'   => $website . \JRoute::_(\VirtualCurrencyHelperRoute::getAccountsRoute()),
+            'accounts_url'   => $website . \JRoute::_(\VirtualcurrencyHelperRoute::getAccountsRoute()),
             'txn_amount'     => $transaction->txn_amount,
             'txn_currency'   => htmlentities($transaction->txn_currency, ENT_QUOTES, 'UTF-8'),
         );
@@ -106,8 +105,7 @@ class Plugin extends \JPlugin
         // Send mail to the administrator
         $emailId = (int)$this->params->get('admin_mail_id', 0);
         if ($emailId > 0) {
-
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -153,14 +151,12 @@ class Plugin extends \JPlugin
             if ($return !== true) {
                 $this->log->add(\JText::_($this->textPrefix . '_ERROR_MAIL_SENDING_ADMIN'), $this->debugType, $mailer->ErrorInfo);
             }
-
         }
 
         // Send mail to buyer.
         $emailId = (int)$this->params->get('user_mail_id', 0);
         if ($emailId > 0) {
-
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -188,10 +184,8 @@ class Plugin extends \JPlugin
             $mailer = \JFactory::getMailer();
             if (strcmp('html', $emailMode) === 0) { // Send as HTML message
                 $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_HTML);
-
             } else { // Send as plain text.
                 $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_PLAIN);
-
             }
 
             // Check for an error.
@@ -204,7 +198,7 @@ class Plugin extends \JPlugin
 
     protected function getCallbackUrl($htmlEncoded = false)
     {
-        $page = \JString::trim($this->params->get('callback_url'));
+        $page = trim($this->params->get('callback_url'));
 
         $uri    = \JUri::getInstance();
         $domain = $uri->toString(array('host'));
@@ -224,10 +218,10 @@ class Plugin extends \JPlugin
 
     protected function getReturnUrl()
     {
-        $page = \JString::trim($this->params->get('return_url'));
+        $page = trim($this->params->get('return_url'));
         if (!$page) {
             $uri  = \JUri::getInstance();
-            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\VirtualCurrencyHelperRoute::getCartRoute('summary'), false);
+            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\VirtualcurrencyHelperRoute::getCartRoute('summary'), false);
         }
 
         return $page;
@@ -235,10 +229,10 @@ class Plugin extends \JPlugin
 
     protected function getCancelUrl()
     {
-        $page = \JString::trim($this->params->get('cancel_url'));
+        $page = trim($this->params->get('cancel_url'));
         if (!$page) {
             $uri  = \JUri::getInstance();
-            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\VirtualCurrencyHelperRoute::getCartRoute(), false);
+            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\VirtualcurrencyHelperRoute::getCartRoute(), false);
         }
 
         return $page;
@@ -288,8 +282,9 @@ class Plugin extends \JPlugin
     public function getPaymentSession(array $options)
     {
         $id        = ArrayHelper::getValue($options, 'id', 0, 'int');
-        $sessionId = ArrayHelper::getValue($options, 'session_id');
-        $uniqueKey = ArrayHelper::getValue($options, 'unique_key');
+        $sessionId = ArrayHelper::getValue($options, 'session_id', '');
+        $uniqueKey = ArrayHelper::getValue($options, 'unique_key', '');
+        $orderId   = ArrayHelper::getValue($options, 'order_id', '');
 
         // Prepare keys for anonymous user.
         if ($id > 0) {
@@ -298,9 +293,18 @@ class Plugin extends \JPlugin
             $keys = array(
                 'session_id'   => $sessionId
             );
-        } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
+        } elseif ($uniqueKey !== '' and $orderId !== '') { // Prepare keys to get record by unique key and order ID.
             $keys = array(
                 'unique_key' => $uniqueKey,
+                'order_id' => $orderId
+            );
+        } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
+            $keys = array(
+                'unique_key' => $uniqueKey
+            );
+        } elseif ($orderId !== '') { // Prepare keys to get record by order ID.
+            $keys = array(
+                'order_id' => $orderId
             );
         } else {
             throw new \UnexpectedValueException('Invalid payment session key.');
@@ -321,10 +325,10 @@ class Plugin extends \JPlugin
      */
     protected function isValidPaymentGateway($gateway)
     {
-        $value1 = \JString::strtolower($this->serviceAlias);
-        $value2 = \JString::strtolower($gateway);
+        $value1 = strtolower($this->serviceAlias);
+        $value2 = strtolower($gateway);
 
-        return (bool)(\JString::strcmp($value1, $value2) === 0);
+        return (bool)(strcmp($value1, $value2) === 0);
     }
 
     /**
@@ -384,7 +388,7 @@ class Plugin extends \JPlugin
         }
 
         // Set a note.
-        if (\JString::strlen($note) > 0) {
+        if (strlen($note) > 0) {
             $extraData[$trackingKey]['NOTE'] = $note;
         }
 

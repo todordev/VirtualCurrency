@@ -11,13 +11,13 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency Transaction controller class.
+ * Virtualcurrency Transaction controller class.
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerTransaction extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerTransaction extends Prism\Controller\Form\Backend
 {
     public function save($key = null, $urlVar = null)
     {
@@ -27,7 +27,7 @@ class VirtualCurrencyControllerTransaction extends Prism\Controller\Form\Backend
         /** @var $app JApplicationAdministrator */
 
         $data   = $app->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         // Prepare return data
         $redirectOptions = array(
@@ -36,13 +36,13 @@ class VirtualCurrencyControllerTransaction extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelTransaction */
+        /** @var $model VirtualcurrencyModelTransaction */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -56,14 +56,12 @@ class VirtualCurrencyControllerTransaction extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $itemId = $model->save($validData);
 
             // Prepare return data
             $redirectOptions['id'] = $itemId;
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
 

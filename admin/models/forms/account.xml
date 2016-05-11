@@ -9,10 +9,8 @@
                 />
 
         <field name="amount" type="text"
-               size="40"
                label="COM_VIRTUALCURRENCY_AMOUNT"
                description="COM_VIRTUALCURRENCY_ACCOUNT_AMOUNT_DESC"
-               filter="float"
                default="0"
                 />
 
@@ -22,11 +20,10 @@
                filter="int"
                 />
 
-        <field name="note" type="textarea"
+        <field name="note" type="textarea" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_NOTE"
                description="COM_VIRTUALCURRENCY_NOTE_DESC"
                filter="trim"
-               cols="30"
                rows="5"
                 />
 

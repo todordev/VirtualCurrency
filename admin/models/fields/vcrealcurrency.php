@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -19,7 +19,7 @@ JFormHelper::loadFieldClass('list');
 /**
  * Form Field class for the Joomla Framework.
  *
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @since        1.6
  */
@@ -41,7 +41,7 @@ class JFormFieldVcrealcurrency extends JFormFieldList
      */
     protected function getOptions()
     {
-        $currencies = new Virtualcurrency\Currency\Real\Currencies(JFactory::getDbo());
+        $currencies = new Virtualcurrency\Currency\RealCurrencies(JFactory::getDbo());
         $currencies->load();
 
         // Get the options.

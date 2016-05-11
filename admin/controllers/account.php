@@ -11,20 +11,20 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency Account controller class.
+ * Virtualcurrency Account controller class.
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerAccount extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerAccount extends Prism\Controller\Form\Backend
 {
     public function save($key = null, $urlVar = null)
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         // Prepare return data
         $redirectOptions = array(
@@ -33,13 +33,13 @@ class VirtualCurrencyControllerAccount extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelAccount */
+        /** @var $model VirtualcurrencyModelAccount */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -53,7 +53,7 @@ class VirtualCurrencyControllerAccount extends Prism\Controller\Form\Backend
         }
 
         // Check user ID
-        $userId = JArrayHelper::getValue($validData, 'user_id');
+        $userId = Joomla\Utilities\ArrayHelper::getValue($validData, 'user_id');
         if (!$userId) {
             $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_USER'), $redirectOptions);
 
@@ -61,26 +61,24 @@ class VirtualCurrencyControllerAccount extends Prism\Controller\Form\Backend
         }
 
         // Check for existing account for that currency
-        $currencyId = JArrayHelper::getValue($data, 'currency_id');
-        if (!$itemId and $model->isExist($userId, $currencyId)) {
-            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_ACCOUNT_EXISTS'), $redirectOptions);
+        $currencyId = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id');
 
+        $account    = new Virtualcurrency\Account\Account(JFactory::getDbo());
+        $account->load(array('user_id' => $userId, 'currency_id' => $currencyId));
+        if (!$itemId and $account->getId()) {
+            $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_ACCOUNT_EXISTS'), $redirectOptions);
             return;
         }
 
         try {
-
             $itemId = $model->save($validData);
 
-            // Prepare return data
             $redirectOptions['id'] = $itemId;
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
 
         $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_ACCOUNT_SAVED'), $redirectOptions);
-
     }
 }

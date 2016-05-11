@@ -9,7 +9,7 @@
 
 defined('_JEXEC') or die;
 
-class VirtualCurrencyTableTemporary extends JTable
+class VirtualcurrencyTableTemporary extends JTable
 {
     /**
      * @param JDatabaseDriver $db

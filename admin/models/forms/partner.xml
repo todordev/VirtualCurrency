@@ -2,32 +2,28 @@
 <form>
     <fieldset>
 
-        <field name="title" type="text"
+        <field name="title" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_TITLE"
                description="COM_VIRTUALCURRENCY_BADGE_TITLE_DESC"
-               size="40"
                filter="trim"
                required="true"
                 />
 
-        <field name="website" type="text"
+        <field name="website" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_WEBSITE"
                description="COM_VIRTUALCURRENCY_WEBSITE_DESC"
-               size="60"
                 />
 
-        <field name="service_url" type="text"
+        <field name="service_url" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_SERVICE_URL"
                description="COM_VIRTUALCURRENCY_SERVICE_URL_DESC"
-               size="60"
                 />
 
-        <field name="note" type="textarea"
+        <field name="note" type="textarea" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_NOTE"
                description="COM_VIRTUALCURRENCY_PARTNER_NOTE_DESC"
                filter="trim"
                rows="5"
-               cols="30"
                 />
 
         <field name="published" type="list"

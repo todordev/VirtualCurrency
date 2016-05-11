@@ -24,8 +24,8 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
 
         $this->serviceProvider = 'Payment Gateway';
         $this->serviceAlias    = 'paymentgateway';
-        $this->textPrefix     .= '_' . \JString::strtoupper($this->serviceAlias);
-        $this->debugType      .= '_' . \JString::strtoupper($this->serviceAlias);
+        $this->textPrefix     .= '_' . strtoupper($this->serviceAlias);
+        $this->debugType      .= '_' . strtoupper($this->serviceAlias);
     }
 
     /**
@@ -34,13 +34,11 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
      * @param string                   $context
      * @param stdClass                 $item
      * @param Joomla\Registry\Registry $params Component options.
-     * @param string $currencyType The type of the currency that should be used - real or virtual.
      *
      * @return null|string
      */
     public function onPreparePayment($context, &$item, &$params)
     {
-
         // The plugin can only be used for payment via real currency.
         $currencyType = (is_array($item->order) and array_key_exists('currency_type', $item->order)) ? $item->order['currency_type'] : '';
         if (!in_array($currencyType, array('virtual', 'both'), true)) {
@@ -90,7 +88,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
 
         $account = new Virtualcurrency\Account\Account(JFactory::getDbo());
         $account->load(array('user_id' => $userId, 'currency_id' => $currency->getId()));
-        if (!$account->getId()) {
+        if (!$account->getId() or !$account->isActive()) {
             return null;
         }
 
@@ -102,9 +100,11 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
 
         $componentParams        = JComponentHelper::getParams('com_virtualcurrency');
 
-        $amountFormatter = new Virtualcurrency\Amount($componentParams);
-        $amountFormatter->setCurrency($currency);
-        $availableAmount = $amountFormatter->setValue($account->getAmount())->formatCurrency();
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $money = new Prism\Money\Money($moneyFormatter);
+        $money->setCurrency($currency);
+
+        $availableAmount = $money->setAmount($account->getAmount())->formatCurrency();
 
         // URL to images.
         $imageURI = JUri::base() . $componentParams->get('media_folder', 'images/virtualcurrency');
@@ -136,7 +136,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         }
 
         // Start the form.
-        $html[] = '<form action="index.php?option=com_virtualcurrency" method="post">';
+        $html[] = '<form action="/index.php?option=com_virtualcurrency" method="post">';
         $html[] = '<input type="hidden" name="task" value="payments.checkout" />';
         $html[] = '<input type="hidden" name="payment_service" value="paymentgateway" />';
         $html[] = JHtml::_('form.token');
@@ -149,7 +149,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
 
         // Display a sticky note if the extension works in sandbox mode.
         if ($this->params->get('sandbox', 1)) {
-            $html[] = '<div class="bg-info p-10-5"><span class="fa fa-info-circle"></span> ' . JText::_($this->textPrefix . '_WORKS_SANDBOX') . '</div>';
+            $html[] = '<div class="alert alert-info mb-0"><span class="fa fa-info-circle"></span> ' . JText::_($this->textPrefix . '_WORKS_SANDBOX') . '</div>';
         }
 
         $html[] = '</div>';
@@ -202,7 +202,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
 
         // Prepare output data.
         $output = array(
-            'redirect_url' => VirtualCurrencyHelperRoute::getCartRoute(),
+            'redirect_url' => VirtualcurrencyHelperRoute::getCartRoute(),
             'message'      => ''
         );
         
@@ -215,7 +215,6 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         
         // Create the charge on Stripe's servers - this will charge the user's card
         try {
-
             // DEBUG DATA
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_PAYMENT_SESSION'), $this->debugType, $paymentSession->getProperties()) : null;
 
@@ -237,20 +236,16 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
                 $transaction = $transaction->getProperties();
                 $transaction = Joomla\Utilities\ArrayHelper::toObject($transaction);
             }
-            
         } catch (RuntimeException $e) {
-
             $output['message']      = $e->getMessage();
             return $output;
-
         } catch (Exception $e) {
-
             $output['message']      = $e->getMessage();
             return $output;
         }
 
         // Get next URL.
-        $output['redirect_url'] = ($this->getReturnUrl()) ?: VirtualCurrencyHelperRoute::getCartRoute('summary');
+        $output['redirect_url'] = ($this->getReturnUrl()) ?: VirtualcurrencyHelperRoute::getCartRoute('summary');
 
         // Send mails
         $this->sendMails($item, $transaction, $params);
@@ -279,7 +274,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             'item_id'          => (int)$item->id,
             'item_type'        => $item->order['item_type'],
             'service_provider' => JText::_($this->textPrefix.'_SYSTEM'),
-            'txn_id'           => JString::strtoupper(Prism\Utilities\StringHelper::generateRandomString(16)),
+            'txn_id'           => strtoupper(Prism\Utilities\StringHelper::generateRandomString(16)),
             'txn_amount'       => $item->order['virtual']['total_cost'],
             'txn_currency'     => $item->order['virtual']['currency_code'],
             'txn_status'       => 'pending',
@@ -386,7 +381,6 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         $db->transactionStart();
 
         try {
-
             // Store the new transaction data.
             $transaction->bind($data);
             $transaction->store();
@@ -399,20 +393,17 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             }
 
             // Decrease the amount in user's account.
-            $account->decreaseAmount($transaction->getTransactionAmount());
+            $account->decreaseAmount($transaction->getAmount());
             $account->storeAmount();
 
             // Increase units.
             if (strcmp('currency', $transaction->getItemType()) === 0) {
-
                 $account = new Virtualcurrency\Account\Account(JFactory::getDbo());
                 $account->load(array('user_id' => $userId, 'currency_id' => $item->id));
 
                 $account->increaseAmount($transaction->getUnits());
                 $account->storeAmount();
-
             } else {
-
                 $commodity = new Virtualcurrency\User\Commodity(JFactory::getDbo());
                 $commodity->load(array('user_id' => $userId, 'commodity_id' => $item->id));
 
@@ -421,9 +412,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             }
 
             $db->transactionCommit();
-
         } catch (Exception $e) {
-
             $db->transactionRollback();
         }
 

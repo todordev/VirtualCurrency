@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelNotifier extends JModelLegacy
+class VirtualcurrencyModelNotifier extends JModelLegacy
 {
     /**
      * Send mail to administrator and notify him

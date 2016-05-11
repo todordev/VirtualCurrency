@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewImport extends JViewLegacy
+class VirtualcurrencyViewImport extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -36,7 +36,7 @@ class VirtualCurrencyViewImport extends JViewLegacy
         $this->form  = $this->get('Form');
 
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu('realcurrencies');
+        VirtualcurrencyHelper::addSubmenu('realcurrencies');
 
         // Prepare actions
         $this->addToolbar();
@@ -59,7 +59,13 @@ class VirtualCurrencyViewImport extends JViewLegacy
         JToolbarHelper::custom('import.realCurrencies', 'upload', '', JText::_('COM_VIRTUALCURRENCY_UPLOAD'), false);
 
         JToolbarHelper::divider();
-        JToolbarHelper::cancel('import.cancel', 'JTOOLBAR_CANCEL');
+
+        // Add custom buttons
+        $bar = JToolbar::getInstance('toolbar');
+
+        // Cancel
+        $link = JRoute::_('index.php?option=com_virtualcurrency&view=realcurrencies');
+        $bar->appendButton('Link', 'cancel', JText::_('JTOOLBAR_CANCEL'), $link);
     }
 
     /**

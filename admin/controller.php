@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -13,20 +13,15 @@ defined('_JEXEC') or die;
 /**
  * Default Controller
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  */
-class VirtualCurrencyController extends JControllerLegacy
+class VirtualcurrencyController extends JControllerLegacy
 {
     public function display($cachable = false, $urlparams = array())
     {
-        $option = $this->input->getCmd('option');
-
         $document = JFactory::getDocument();
         /** @var $document JDocumentHtml */
-
-        // Add component style
-        $document->addStyleSheet('../media/' . $option . '/css/backed.style.css');
 
         $viewName = $this->input->getCmd('view', 'dashboard');
         $this->input->set('view', $viewName);

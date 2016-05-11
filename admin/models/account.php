@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelAccount extends JModelAdmin
+class VirtualcurrencyModelAccount extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -22,7 +22,7 @@ class VirtualCurrencyModelAccount extends JModelAdmin
      * @return  JTable  A database object
      * @since   1.6
      */
-    public function getTable($type = 'Account', $prefix = 'VirtualCurrencyTable', $config = array())
+    public function getTable($type = 'Account', $prefix = 'VirtualcurrencyTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -40,7 +40,7 @@ class VirtualCurrencyModelAccount extends JModelAdmin
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.account', 'account', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -57,8 +57,14 @@ class VirtualCurrencyModelAccount extends JModelAdmin
     {
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.account.data', array());
-        if (empty($data)) {
+        if (!$data) {
             $data = $this->getItem();
+
+            $moneyFormatter = VirtualcurrencyHelper::getMoneyFormatter();
+
+            if ($data->amount !== '') {
+                $data->amount = $moneyFormatter->format($data->amount);
+            }
         }
 
         return $data;
@@ -73,11 +79,16 @@ class VirtualCurrencyModelAccount extends JModelAdmin
      */
     public function save($data)
     {
-        $id         = JArrayHelper::getValue($data, 'id');
-        $amount     = JArrayHelper::getValue($data, 'amount');
-        $currencyId = JArrayHelper::getValue($data, 'currency_id');
-        $userId     = JArrayHelper::getValue($data, 'user_id');
-        $note       = JArrayHelper::getValue($data, 'note');
+        $id         = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $amount     = Joomla\Utilities\ArrayHelper::getValue($data, 'amount');
+        $currencyId = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id');
+        $userId     = Joomla\Utilities\ArrayHelper::getValue($data, 'user_id');
+        $note       = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
+
+        $moneyParser     = VirtualcurrencyHelper::getMoneyFormatter();
+        $numberFormatter = VirtualcurrencyHelper::getNumberFormatter();
+
+        $amount          = ($amount !== '') ? $numberFormatter->format($moneyParser->parse($amount)) : '0.00';
 
         // Load a record from the database
         $row = $this->getTable();

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field
+			name="search"
+			type="text"
+			label="COM_VIRTUALCURRENCY_SEARCH_IN_TITLE_TOOLTIP"
+			description="COM_VIRTUALCURRENCY_SEARCH_IN_TITLE_TOOLTIP"
+			hint="COM_VIRTUALCURRENCY_SEARCH_IN_TITLE"
+		/>
+	</fields>
+	<fields name="list">
+		<field
+			name="fullordering"
+			type="list"
+			label="COM_VIRTUALCURRENCY_LIST_FULL_ORDERING"
+			description="COM_VIRTUALCURRENCY_LIST_FULL_ORDERING_DESC"
+			onchange="this.form.submit();"
+			default="a.id DESC"
+			>
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="a.code ASC">COM_VIRTUALCURRENCY_CODE_ASC</option>
+			<option value="a.code DESC">COM_VIRTUALCURRENCY_CODE_DESC</option>
+			<option value="a.title ASC">COM_VIRTUALCURRENCY_TITLE_ASC</option>
+			<option value="a.title DESC">COM_VIRTUALCURRENCY_TITLE_DESC</option>
+			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+		</field>
+		<field
+			name="limit"
+			type="limitbox"
+			class="input-mini"
+			default="25"
+			label="COM_VIRTUALCURRENCY_LIST_LIMIT"
+			description="COM_VIRTUALCURRENCY_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

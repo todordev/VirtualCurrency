@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -9,7 +9,7 @@
 
 defined('_JEXEC') or die;
 
-class VirtualCurrencyTableCommodity extends JTable
+class VirtualcurrencyTableCommodity extends JTable
 {
     /**
      * @param JDatabaseDriver $db

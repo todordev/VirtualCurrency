@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewPartners extends JViewLegacy
+class VirtualcurrencyViewPartners extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -45,7 +45,7 @@ class VirtualCurrencyViewPartners extends JViewLegacy
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        VirtualcurrencyHelper::addSubmenu($this->getName());
         
         // Prepare actions
         $this->addToolbar();

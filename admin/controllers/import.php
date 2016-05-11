@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,17 +11,16 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency import controller.
+ * Virtualcurrency import controller.
  *
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  */
-class VirtualCurrencyControllerImport extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerImport extends Prism\Controller\Form\Backend
 {
-    public function getModel($name = 'Import', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => false))
+    public function getModel($name = 'Import', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => false))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
@@ -34,17 +33,17 @@ class VirtualCurrencyControllerImport extends Prism\Controller\Form\Backend
         $data = array_merge($data, $file);
 
         $redirectOptions = array(
-            'view' => 'realcurrencies',
+            'view' => 'realcurrencies'
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelImport */
+        /** @var $model VirtualcurrencyModelImport */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -63,7 +62,6 @@ class VirtualCurrencyControllerImport extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $filePath  = $model->uploadFile($fileData, 'currencies');
 
             $resetId   = Joomla\Utilities\ArrayHelper::getValue($data, 'reset_id', false, 'bool');
@@ -73,9 +71,8 @@ class VirtualCurrencyControllerImport extends Prism\Controller\Form\Backend
             }
 
             $model->importCurrencies($filePath, $resetId);
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
 

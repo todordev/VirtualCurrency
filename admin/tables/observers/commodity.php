@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Component
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -15,7 +15,7 @@ defined('JPATH_PLATFORM') or die;
  * The classes extending this class should not be instanciated directly, as they
  * are automatically instanciated by the JObserverMapper
  *
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Component
  * @link         http://docs.joomla.org/JTableObserver
  * @since        3.1.2

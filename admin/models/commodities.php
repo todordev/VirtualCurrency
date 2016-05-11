@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelCommodities extends JModelList
+class VirtualcurrencyModelCommodities extends JModelList
 {
     /**
      * Constructor.
@@ -26,7 +26,7 @@ class VirtualCurrencyModelCommodities extends JModelList
             $config['filter_fields'] = array(
                 'id', 'a.id',
                 'title', 'a.title',
-                'published', 'a.published',
+                'published', 'a.published'
             );
         }
 
@@ -47,7 +47,7 @@ class VirtualCurrencyModelCommodities extends JModelList
         $this->setState('filter.state', $value);
 
         // List state information.
-        parent::populateState('a.title', 'asc');
+        parent::populateState('a.id', 'desc');
     }
 
     /**
@@ -89,8 +89,7 @@ class VirtualCurrencyModelCommodities extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title,a.description, a.number, a.price, a.price_virtual, ' .
-                'a.currency_id, a.minimum, a.published, a.image, a.image_icon'
+                'a.id, a.title, a.description, a.in_stock, a.published, a.image, a.image_icon, a.params'
             )
         );
         $query->from($db->quoteName('#__vc_commodities', 'a'));

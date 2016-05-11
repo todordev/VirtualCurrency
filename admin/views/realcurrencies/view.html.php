@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewRealCurrencies extends JViewLegacy
+class VirtualcurrencyViewRealCurrencies extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -34,6 +34,9 @@ class VirtualCurrencyViewRealCurrencies extends JViewLegacy
     protected $sortFields;
 
     protected $sidebar;
+
+    public $activeFilters;
+    public $filterForm;
 
     public function display($tpl = null)
     {
@@ -64,16 +67,8 @@ class VirtualCurrencyViewRealCurrencies extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
-        if ($this->saveOrder) {
-            $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
-            JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
-        }
-
-        $this->sortFields = array(
-            'a.title' => JText::_('COM_VIRTUALCURRENCY_TITLE'),
-            'a.abbr'  => JText::_('COM_VIRTUALCURRENCY_ABBR'),
-            'a.id'    => JText::_('JGRID_HEADING_ID')
-        );
+        $this->filterForm    = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
     }
 
     /**
@@ -82,7 +77,7 @@ class VirtualCurrencyViewRealCurrencies extends JViewLegacy
     protected function addSidebar()
     {
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        VirtualcurrencyHelper::addSubmenu($this->getName());
         
         $this->sidebar = JHtmlSidebar::render();
     }
@@ -130,7 +125,5 @@ class VirtualCurrencyViewRealCurrencies extends JViewLegacy
         JHtml::_('bootstrap.tooltip');
 
         JHtml::_('formbehavior.chosen', 'select');
-
-        JHtml::_('prism.ui.joomlaList');
     }
 }

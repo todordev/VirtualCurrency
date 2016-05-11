@@ -15,4 +15,3 @@ defined('_JEXEC') or die;
         <?php echo $this->pagination->getListFooter(); ?>
     </td>
 </tr>
-	  

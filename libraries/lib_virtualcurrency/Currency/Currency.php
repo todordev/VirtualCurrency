@@ -10,6 +10,7 @@
 namespace Virtualcurrency\Currency;
 
 use Prism\Database;
+use Prism\Money\CurrencyInterface;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -31,33 +32,6 @@ class Currency extends Database\Table implements CurrencyInterface
     protected $image_icon;
     protected $published;
 
-    protected static $instances = array();
-    
-    /**
-     * Create a currency object, store it to the instances and return it.
-     *
-     * <code>
-     * $currencyId = 1;
-     *
-     * $currency   = Virtualcurrency\Currency\Currency::getInstance(JFactory::getDbo(), $currencyId);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  integer $id
-     *
-     * @return null|self
-     */
-    public static function getInstance(\JDatabaseDriver $db, $id)
-    {
-        if (!array_key_exists($id, self::$instances)) {
-            $currency  = new Currency($db);
-            $currency->load($id);
-            self::$instances[$id] = $currency;
-        }
-
-        return self::$instances[$id];
-    }
-
     /**
      * Load currency data from database.
      *
@@ -75,9 +49,7 @@ class Currency extends Database\Table implements CurrencyInterface
     {
         $query = $this->db->getQuery(true);
         $query
-            ->select(
-                'a.id, a.title, a.description, a.code, a.symbol, a.position, ' .
-                'a.params, a.published, a.image, a.image_icon')
+            ->select('a.id, a.title, a.symbol, a.code, a.position, a.published, a.image, a.image_icon, a.params')
             ->from($this->db->quoteName('#__vc_currencies', 'a'));
 
         if (is_array($keys)) {
@@ -87,7 +59,7 @@ class Currency extends Database\Table implements CurrencyInterface
         } else {
             $query->where('a.id = ' . (int)$keys);
         }
-        
+
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
@@ -130,8 +102,9 @@ class Currency extends Database\Table implements CurrencyInterface
             ->insert($this->db->quoteName('#__vc_currencies'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('description') . '=' . $description)
-            ->set($this->db->quoteName('code') . '=' . (int)$this->code)
-            ->set($this->db->quoteName('symbol') . '=' . (int)$this->symbol)
+            ->set($this->db->quoteName('code') . '=' .$this->db->quote($this->code))
+            ->set($this->db->quoteName('symbol') . '=' .$this->db->quote($this->symbol))
+            ->set($this->db->quoteName('position') . '=' . (int)$this->position)
             ->set($this->db->quoteName('params') . '=' . $params);
 
         $this->db->setQuery($query);
@@ -150,8 +123,9 @@ class Currency extends Database\Table implements CurrencyInterface
             ->update($this->db->quoteName('#__vc_currencies'))
             ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
             ->set($this->db->quoteName('description') . '=' . $description)
-            ->set($this->db->quoteName('code') . '=' . (int)$this->code)
-            ->set($this->db->quoteName('symbol') . '=' . (int)$this->symbol)
+            ->set($this->db->quoteName('code') . '=' .$this->db->quote($this->code))
+            ->set($this->db->quoteName('symbol') . '=' .$this->db->quote($this->symbol))
+            ->set($this->db->quoteName('position') . '=' . (int)$this->position)
             ->set($this->db->quoteName('params') . '=' . $params)
             ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
@@ -174,19 +148,19 @@ class Currency extends Database\Table implements CurrencyInterface
      *  $amount      = $currency->calculate($unitsNumber);
      * </code>
      *
-     * @param  integer $units
+     * @param  int $units
      *
-     * @return float Amount
+     * @return string Amount
      */
     public function calculate($units)
     {
         $amount = 0;
         if ($units > 0) {
-            $amount = $this->params->get('amount');
+            $amount = $this->params->get('price_real');
             $amount *= $units;
         }
 
-        return $amount;
+        return (string)$amount;
     }
 
     /**
@@ -230,6 +204,25 @@ class Currency extends Database\Table implements CurrencyInterface
     }
 
     /**
+     * Set the code of the unit (virtual currency).
+     *
+     * <code>
+     * $currency    = new Virtualcurrency\Currency\Currency();
+     * $currency->setCode('GOLD');
+     * </code>
+     *
+     * @param string $code
+     *
+     * @return self
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    /**
      * Return the code (abbreviation) of the unit (virtual currency).
      *
      * <code>
@@ -265,6 +258,25 @@ class Currency extends Database\Table implements CurrencyInterface
     public function getSymbol()
     {
         return $this->symbol;
+    }
+
+    /**
+     * Set the symbol of the unit (virtual currency).
+     *
+     * <code>
+     * $currency    = new Virtualcurrency\Currency\Currency();
+     * $currency->setSymbol('€');
+     * </code>
+     *
+     * @param string $symbol
+     *
+     * @return self
+     */
+    public function setSymbol($symbol)
+    {
+        $this->symbol = $symbol;
+
+        return $this;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelImport extends JModelForm
+class VirtualcurrencyModelImport extends JModelForm
 {
 
     /**
@@ -54,9 +54,9 @@ class VirtualCurrencyModelImport extends JModelForm
 
         jimport('joomla.filesystem.archive');
 
-        $uploadedFile = JArrayHelper::getValue($fileData, 'tmp_name');
-        $uploadedName = JArrayHelper::getValue($fileData, 'name');
-        $errorCode    = JArrayHelper::getValue($fileData, 'error');
+        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($fileData, 'tmp_name');
+        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($fileData, 'name');
+        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($fileData, 'error');
 
         $source = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . JFile::makeSafe($uploadedName));
 
@@ -98,7 +98,6 @@ class VirtualCurrencyModelImport extends JModelForm
         // Extract file if it is archive
         $ext = JString::strtolower(JFile::getExt($fileName));
         if (strcmp($ext, 'zip') === 0) {
-
             $destFolder = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . $type);
             if (is_dir($destFolder)) {
                 JFolder::delete($destFolder);
@@ -126,14 +125,12 @@ class VirtualCurrencyModelImport extends JModelForm
         $fileName = JFile::stripExt(basename($file));
 
         foreach ($dir as $fileinfo) {
-
             $currentFileName = JFile::stripExt($fileinfo->getFilename());
 
             if (!$fileinfo->isDot() and strcmp($fileName, $currentFileName) === 0) {
                 $filePath = JPath::clean($destFolder . DIRECTORY_SEPARATOR . JFile::makeSafe($fileinfo->getFilename()));
                 break;
             }
-
         }
 
         return $filePath;
@@ -153,7 +150,6 @@ class VirtualCurrencyModelImport extends JModelForm
         $content = new SimpleXMLElement($xmlstr);
 
         if ($content !== null) {
-
             // Check for existed currencies.
             $db    = $this->getDbo();
             $query = $db->getQuery(true);
@@ -180,16 +176,15 @@ class VirtualCurrencyModelImport extends JModelForm
 
         // Generate data for importing.
         foreach ($content as $item) {
-
-            $title = JString::trim($item->title);
-            $code  = JString::trim($item->code);
+            $title = trim($item->title);
+            $code  = trim($item->code);
             if (!$title or !$code) {
                 continue;
             }
 
             $id = (!$resetId) ? (int)$item->id : 'null';
 
-            $items[] = $id . ',' . $db->quote($title) . ',' . $db->quote($code) . ',' . $db->quote(JString::trim($item->symbol)) . ',' . (int)$item->position;
+            $items[] = $id . ',' . $db->quote($title) . ',' . $db->quote($code) . ',' . $db->quote(trim($item->symbol)) . ',' . (int)$item->position;
         }
 
         $query = $db->getQuery(true);
@@ -216,8 +211,7 @@ class VirtualCurrencyModelImport extends JModelForm
         $db = $this->getDbo();
 
         foreach ($content as $item) {
-
-            $code = JString::trim($item->code);
+            $code = trim($item->code);
 
             $keys = array('code' => $code);
 
@@ -225,14 +219,14 @@ class VirtualCurrencyModelImport extends JModelForm
             $table->load($keys);
 
             if (!$table->get('id')) {
-                $table->set('title', JString::trim($item->title));
+                $table->set('title', trim($item->title));
                 $table->set('code', $code);
                 $table->set('position', 0);
             }
 
             // Update the symbol if missing.
             if (!$table->get('symbol') and $item->symbol !== '') {
-                $table->set('symbol', JString::trim($item->symbol));
+                $table->set('symbol', trim($item->symbol));
             }
 
             $table->store();

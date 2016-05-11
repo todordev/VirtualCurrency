@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewCommodity extends JViewLegacy
+class VirtualcurrencyViewCommodity extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -37,7 +37,7 @@ class VirtualCurrencyViewCommodity extends JViewLegacy
     public function display($tpl = null)
     {
         $this->option = JFactory::getApplication()->input->get('option');
-        
+
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
@@ -63,7 +63,7 @@ class VirtualCurrencyViewCommodity extends JViewLegacy
         JFactory::getApplication()->input->set('hidemainmenu', true);
         $isNew = ($this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_COMMODITY') : JText::_('COM_VIRTUALCURRENCY_EDIT_COMMODITY');
+        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_PRODUCT') : JText::_('COM_VIRTUALCURRENCY_EDIT_PRODUCT');
 
         JToolBarHelper::title($this->documentTitle);
 
@@ -96,6 +96,6 @@ class VirtualCurrencyViewCommodity extends JViewLegacy
         JText::script('COM_VIRTUALCURRENCY_QUESTION_REMOVE_IMAGES');
 
         // Add scripts
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

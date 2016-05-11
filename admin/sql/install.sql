@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS `#__vc_accounts` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
   `note` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `published` tinyint(1) UNSIGNED NOT NULL DEFAULT '1',
   `user_id` int(10) UNSIGNED NOT NULL,
   `currency_id` tinyint(4) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
@@ -12,14 +14,11 @@ CREATE TABLE IF NOT EXISTS `#__vc_commodities` (
   `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `number` mediumint(8) UNSIGNED NOT NULL DEFAULT '0',
-  `price` decimal(10,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Price in real currency.',
-  `price_virtual` decimal(10,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Price in virtual currency.',
-  `currency_id` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
-  `minimum` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
+  `in_stock` smallint(5) UNSIGNED DEFAULT NULL,
   `image` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
   `image_icon` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
   `published` tinyint(1) NOT NULL DEFAULT '0',
+  `params` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -54,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `#__vc_paymentsessions` (
   `item_type` enum('currency','commodity') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'currency',
   `items_number` decimal(10,2) UNSIGNED NOT NULL,
   `unique_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `order_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `gateway` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `gateway_data` varchar(2048) COLLATE utf8_unicode_ci DEFAULT NULL,
   `session_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',

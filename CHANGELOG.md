@@ -1,5 +1,10 @@
-Virtual Currency Release Notes
+Virtual Currency Changelog
 ==========================
+
+###v2.1
+* Added section Tools.
+* Improved the payment plugins.
+* Improved the library.
 
 ###v2.0
 * Added images to the currencies.

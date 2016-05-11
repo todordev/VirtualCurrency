@@ -21,12 +21,5 @@
                value="1"
                 />
 
-        <field name="minimum_population" type="text"
-               label="COM_VIRTUALCURRENCY_MINIMUM_POPULATION"
-               description="COM_VIRTUALCURRENCY_MINIMUM_POPULATION_DESC"
-               filter="int"
-               default="0"
-                />
-
     </fieldset>
 </form>

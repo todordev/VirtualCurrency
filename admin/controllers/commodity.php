@@ -11,18 +11,17 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency Commodity controller class.
+ * Virtualcurrency Commodity controller class.
  *
- * @package        VirtualCurrency
+ * @package        Virtualcurrency
  * @subpackage     Components
  * @since          1.6
  */
-class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
+class VirtualcurrencyControllerCommodity extends Prism\Controller\Form\Backend
 {
-    public function getModel($name = 'Commodity', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Commodity', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
     
@@ -31,7 +30,7 @@ class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         $redirectOptions = array(
             'task' => $this->getTask(),
@@ -39,13 +38,13 @@ class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelCommodity */
+        /** @var $model VirtualcurrencyModelCommodity */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Validate the form
@@ -58,7 +57,6 @@ class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
         }
 
         try {
-
             // Upload image
             $file = $this->input->files->get('jform', array(), 'array');
             $file = Joomla\Utilities\ArrayHelper::getValue($file, 'image');
@@ -78,15 +76,13 @@ class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
             $itemId = $model->save($validData);
 
             $redirectOptions['id'] = $itemId;
-
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
 
         }
 
-        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_COMMODITY_SAVED'), $redirectOptions);
+        $this->displayMessage(JText::_('COM_VIRTUALCURRENCY_PRODUCT_SAVED'), $redirectOptions);
     }
 
     /**
@@ -106,16 +102,14 @@ class VirtualCurrencyControllerCommodity extends Prism\Controller\Form\Backend
         );
 
         try {
-
             $params = JComponentHelper::getParams('com_virtualcurrency');
 
             $mediaFolder = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));
 
             $model = $this->getModel();
             $model->removeImage($itemId, $mediaFolder, $type);
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
         }
 

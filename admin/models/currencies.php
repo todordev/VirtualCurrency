@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelCurrencies extends JModelList
+class VirtualcurrencyModelCurrencies extends JModelList
 {
     /**
      * Constructor.
@@ -40,15 +40,16 @@ class VirtualCurrencyModelCurrencies extends JModelList
         $params = JComponentHelper::getParams($this->option);
         $this->setState('params', $params);
 
-        // Load the filter state.
+        // Filter phrase.
         $value = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
         $this->setState('filter.search', $value);
 
+        // Filter state.
         $value = $this->getUserStateFromRequest($this->context . '.filter.state', 'filter_state', '', 'string');
         $this->setState('filter.state', $value);
 
         // List state information.
-        parent::populateState('a.title', 'asc');
+        parent::populateState('a.id', 'desc');
     }
 
     /**
@@ -90,7 +91,7 @@ class VirtualCurrencyModelCurrencies extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.code, a.symbol, a.description, a.params, a.published, a.image, a.image_icon'
+                'a.id, a.title, a.description, a.code, a.symbol, a.published, a.image, a.image_icon, a.params'
             )
         );
         $query->from($db->quoteName('#__vc_currencies', 'a'));

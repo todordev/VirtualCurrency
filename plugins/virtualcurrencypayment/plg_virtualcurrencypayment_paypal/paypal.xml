@@ -6,8 +6,8 @@
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.0</version>
-    <creationDate>29 February, 2016</creationDate>
+    <version>2.1</version>
+    <creationDate>11 May, 2016</creationDate>
     <description><![CDATA[
     <p>Virtual Currency Payment - PayPal is a plugin that enables PayPal payment.</p>
     <p><a href='http://itprism.com/help/111-virtual-currency-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>
@@ -56,7 +56,7 @@
                 <field name="locale" type="text" default="" hint="en_US" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOCALE" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOCALE_DESC" />
                 <field name="image_url" type="text" default="" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOGO_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOGO_URL_DESC" class="input-xxlarge" />
                 <field name="button_url" type="text" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_BUTTON_URL" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_BUTTON_URL_DESC" class="input-xxlarge" />
-                <field name="load_certificate" type="radio" default="0" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOAD_CERTIFICATE" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOAD_CERTIFICATE_DESC" class="btn-group">
+                <field name="load_certificate" type="radio" default="1" label="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOAD_CERTIFICATE" description="PLG_VIRTUALCURRENCYPAYMENT_PAYPAL_LOAD_CERTIFICATE_DESC" class="btn-group">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>

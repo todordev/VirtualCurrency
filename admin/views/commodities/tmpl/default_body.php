@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<?php foreach ($this->items as $i => $item) { ?>
+<?php foreach ($this->items as $i => $item) {?>
     <tr class="row<?php echo $i % 2; ?>">
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
@@ -29,14 +29,13 @@ defined('_JEXEC') or die;
             <?php } ?>
         </td>
         <td class="center hidden-phone">
-            <strong><?php echo $item->number; ?></strong>
+            <strong><?php echo ($item->in_stock === null) ? '---' : (int)$item->in_stock; ?></strong>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('virtualcurrency.virtualGoodsPrice', $item, $this->amount, $this->realCurrency, $this->currencies); ?>
+            <?php echo JHtml::_('virtualcurrency.price', $item, $this->money, $this->realCurrency, $this->virtualCurrencies); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>
         </td>
     </tr>
 <?php } ?>
-	  

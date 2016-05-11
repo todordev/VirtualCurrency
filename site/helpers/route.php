@@ -24,7 +24,7 @@ jimport('Virtualcurrency.init');
  * @subpackage     Components
  * @since          1.5
  */
-abstract class VirtualCurrencyHelperRoute
+abstract class VirtualcurrencyHelperRoute
 {
     protected static $lookup;
 

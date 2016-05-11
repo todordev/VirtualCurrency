@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewAccounts extends JViewLegacy
+class VirtualcurrencyViewAccounts extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -34,17 +34,28 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     protected $sortFields;
 
     protected $sidebar;
+    protected $money;
+    protected $virtualCurrencies;
+
+    public $activeFilters;
+    public $filterForm;
     
     public function display($tpl = null)
     {
         $this->option = JFactory::getApplication()->input->get('option');
 
         // Create accounts for users.
-        VirtualCurrencyHelper::createAccounts();
+        VirtualcurrencyHelper::createAccounts();
 
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
+
+        $this->virtualCurrencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
+        $this->virtualCurrencies->load();
+
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $this->money     = new Prism\Money\Money($moneyFormatter);
 
         // Prepare sorting data
         $this->prepareSorting();
@@ -67,16 +78,8 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
-        if ($this->saveOrder) {
-            $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
-            JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
-        }
-
-        $this->sortFields = array(
-            'a.amount' => JText::_('COM_VIRTUALCURRENCY_AMOUNT'),
-            'b.name'   => JText::_('COM_VIRTUALCURRENCY_NAME'),
-            'a.id'     => JText::_('JGRID_HEADING_ID')
-        );
+        $this->filterForm    = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
     }
 
     /**
@@ -85,7 +88,7 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
     protected function addSidebar()
     {
         // Add submenu
-        VirtualCurrencyHelper::addSubmenu($this->getName());
+        VirtualcurrencyHelper::addSubmenu($this->getName());
         
         $this->sidebar = JHtmlSidebar::render();
     }
@@ -100,6 +103,8 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         JToolBarHelper::title(JText::_('COM_VIRTUALCURRENCY_ACCOUNT_MANAGER'));
         JToolBarHelper::addNew('account.add');
         JToolBarHelper::editList('account.edit');
+        JToolbarHelper::publishList('accounts.publish');
+        JToolbarHelper::unpublishList('accounts.unpublish');
         JToolBarHelper::divider();
         JToolBarHelper::custom('accounts.backToDashboard', 'dashboard', '', JText::_('COM_VIRTUALCURRENCY_DASHBOARD'), false);
     }
@@ -117,7 +122,5 @@ class VirtualCurrencyViewAccounts extends JViewLegacy
         JHtml::_('bootstrap.tooltip');
 
         JHtml::_('formbehavior.chosen', 'select');
-
-        JHtml::_('prism.ui.joomlaList');
     }
 }

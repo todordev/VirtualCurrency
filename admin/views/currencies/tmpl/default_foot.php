@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,8 +11,7 @@
 defined('_JEXEC') or die;
 ?>
 <tr>
-    <td colspan="8">
+    <td colspan="7">
         <?php echo $this->pagination->getListFooter(); ?>
     </td>
 </tr>
-	  

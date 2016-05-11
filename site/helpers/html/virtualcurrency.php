@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Registry\Registry;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -17,7 +19,7 @@ defined('_JEXEC') or die;
  * @subpackage     Components
  * @since          1.6
  */
-abstract class JHtmlVirtualCurrency
+abstract class JHtmlVirtualcurrency
 {
     /**
      * Display an input field for amount
@@ -59,6 +61,28 @@ abstract class JHtmlVirtualCurrency
     }
 
     /**
+     * Display the title of the unit.
+     *
+     * @param Virtualcurrency\Currency\Currency|Virtualcurrency\Commodity\Commodity $unit
+     * @param Joomla\Registry\Registry $params
+     * @param string $imageFolder
+     *
+     * @return string
+     */
+    public static function displayTitle($unit, $params, $imageFolder)
+    {
+        $html = '';
+
+        if ($params->get('payments_show_icons') and $unit->getIcon()) {
+            $html .= '<img src="'.$imageFolder .'/'. $unit->getIcon() .'" /> ';
+        }
+
+        $html .= htmlspecialchars($unit->getTitle(), ENT_COMPAT, 'UTF-8');
+
+        return $html;
+    }
+
+    /**
      * Calculate total price of unites.
      *
      * @param float $units Number of units.
@@ -80,28 +104,22 @@ abstract class JHtmlVirtualCurrency
      * Displays price per units.
      *
      * @param stdClass $item
-     * @param Virtualcurrency\Amount $amountFormatter
-     * @param Virtualcurrency\Currency\Real\Currency $realCurrency
-     * @param Virtualcurrency\Currency\Currencies $virtualCurrencies
      *
      * @return string
      */
-    public static function currencyPrice($item, $amountFormatter, $realCurrency, $virtualCurrencies)
+    public static function currencyDetails($item)
     {
-        $params = new \Joomla\Registry\Registry($item->params);
+        $params = new Registry;
+        $params->loadString($item->params);
 
         $output = array();
 
-        if ($params->get('price')) {
-            $amountFormatter->setCurrency($realCurrency);
-            $output[] = $amountFormatter->setValue($params->get('price'))->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $params->get('minimum')) . ' )';
-        }
-
-        if ($params->get('price_virtual') and (int)$params->get('currency_id') > 0) {
-            $virtualCurrency = $virtualCurrencies->getCurrency($params->get('currency_id'));
-
-            $amountFormatter->setCurrency($virtualCurrency);
-            $output[] = $amountFormatter->setValue($params->get('price_virtual'))->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $params->get('minimum')) . ' )';
+        if ($item->code and $item->symbol) {
+            $output[] = $item->code . ' ( ' . $item->symbol . ' )';
+        } elseif ($item->code and !$item->symbol) {
+            $output[] = $item->code;
+        } elseif ($item->symbol and !$item->code) {
+            $output[] = $item->symbol;
         }
 
         return implode('<br />', $output);
@@ -111,26 +129,42 @@ abstract class JHtmlVirtualCurrency
      * Displays price per units.
      *
      * @param stdClass $item
-     * @param Virtualcurrency\Amount $amount
-     * @param Virtualcurrency\Currency\Real\Currency $realCurrency
+     * @param Prism\Money\Money $money
+     * @param Virtualcurrency\Currency\RealCurrency $realCurrency
      * @param Virtualcurrency\Currency\Currencies $virtualCurrencies
      *
      * @return string
      */
-    public static function virtualGoodsPrice($item, $amount, $realCurrency, $virtualCurrencies)
+    public static function price($item, $money, $realCurrency, $virtualCurrencies)
     {
         $output = array();
 
-        if ($item->price) {
-            $amount->setCurrency($realCurrency);
-            $output[] = $amount->setValue($item->price)->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->minimum) . ' )';
+        if ($item->params->get('price_real')) {
+            $money->setCurrency($realCurrency);
+            $money->setAmount($item->params->get('price_real'));
+
+            $formattedAmount = $money->formatCurrency();
+
+            if ($item->params->get('minimum')) {
+                $formattedAmount .= ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->params->get('minimum')) . ' )';
+            }
+
+            $output[] = $formattedAmount;
         }
 
-        if ($item->price_virtual and (int)$item->currency_id > 0) {
-            $virtualCurrency = $virtualCurrencies->getCurrency($item->currency_id);
+        if ($item->params->get('price_virtual') and (int)$item->params->get('currency_id') > 0) {
+            $currency  = $virtualCurrencies->getCurrency($item->params->get('currency_id'));
 
-            $amount->setCurrency($virtualCurrency);
-            $output[] = $amount->setValue($item->price_virtual)->formatCurrency() . ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->minimum) . ' )';
+            $money->setCurrency($currency);
+            $money->setAmount($item->params->get('price_virtual'));
+
+            $formattedAmount = $money->formatCurrency();
+
+            if ($item->params->get('minimum')) {
+                $formattedAmount .= ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->params->get('minimum')) . ' )';
+            }
+
+            $output[] = $formattedAmount;
         }
 
         return implode('<br />', $output);

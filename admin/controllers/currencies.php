@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -13,15 +13,14 @@ defined('_JEXEC') or die;
 /**
  * Virtualcurrency Currencies controller
  *
- * @package     VirtualCurrency
+ * @package     Virtualcurrency
  * @subpackage  Component
  */
-class VirtualCurrencyControllerCurrencies extends Prism\Controller\Admin
+class VirtualcurrencyControllerCurrencies extends Prism\Controller\Admin
 {
-    public function getModel($name = 'Currency', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Currency', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
@@ -38,7 +37,7 @@ class VirtualCurrencyControllerCurrencies extends Prism\Controller\Admin
         );
 
         $model = $this->getModel();
-        /** @var $model VirtualCurrencyModelCurrency */
+        /** @var $model VirtualcurrencyModelCurrency */
 
         // Check for errors.
         if (count($cid) === 0) {
@@ -49,16 +48,12 @@ class VirtualCurrencyControllerCurrencies extends Prism\Controller\Admin
         $filteredData = $model->prepareDependencies($cid);
 
         try {
-
             if (count($filteredData['ids']) > 0) {
                 $model->delete($filteredData['ids']);
             }
-
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_virtualcurrency');
             throw new Exception(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
-
         }
 
         $message = '';

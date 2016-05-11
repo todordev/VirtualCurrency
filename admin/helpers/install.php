@@ -1,11 +1,13 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
+
+use Joomla\Utilities\ArrayHelper;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -13,7 +15,7 @@ defined('_JEXEC') or die;
 /**
  * These class contains methods using for upgrading the extension
  */
-class VirtualCurrencyInstallHelper
+class VirtualcurrencyInstallHelper
 {
     public static function startTable()
     {
@@ -24,7 +26,7 @@ class VirtualCurrencyInstallHelper
 
     public static function endTable()
     {
-        echo "</table></div>";
+        echo '</table></div>';
     }
 
     public static function addRowHeading($heading)
@@ -49,11 +51,11 @@ class VirtualCurrencyInstallHelper
      */
     public static function addRow($title, $result, $info)
     {
-        $outputType = JArrayHelper::getValue($result, "type", "");
-        $outputText = JArrayHelper::getValue($result, "text", "");
+        $outputType = ArrayHelper::getValue($result, 'type', '');
+        $outputText = ArrayHelper::getValue($result, 'text', '');
 
-        $output = "";
-        if (!empty($outputType) and !empty($outputText)) {
+        $output = '';
+        if ($outputType !== '' and $outputText !== '') {
             $output = '<span class="label label-' . $outputType . '">' . $outputText . '</span>';
         }
 
@@ -69,16 +71,53 @@ class VirtualCurrencyInstallHelper
     {
         // Create image folder
         if (true !== JFolder::create($imagesPath)) {
-            JLog::add(JText::sprintf("COM_VIRTUALCURRENCY_ERROR_CANNOT_CREATE_FOLDER", $imagesPath));
+            JLog::add(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_CANNOT_CREATE_FOLDER', $imagesPath));
         } else {
-
             // Copy index.html
-            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . "index.html";
+            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . 'index.html';
             $html      = '<html><body style="background-color: #fff;"></body></html>';
             if (true !== JFile::write($indexFile, $html)) {
-                JLog::add(JText::sprintf("COM_VIRTUALCURRENCY_ERROR_CANNOT_SAVE_FILE", $indexFile));
+                JLog::add(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_CANNOT_SAVE_FILE', $indexFile));
             }
 
         }
+    }
+
+    /**
+     * Return cURL version.
+     *
+     * @return string
+     */
+    public static function getCurlVersion()
+    {
+        $version = '--';
+
+        if (function_exists('curl_version')) {
+            $curlVersionInfo   = curl_version();
+            $version           = $curlVersionInfo['version'];
+        }
+
+        return $version;
+    }
+
+    /**
+     * Return Open SSL version.
+     *
+     * @return string
+     */
+    public static function getOpenSslVersion()
+    {
+        $openSSLVersion = '--';
+
+        if (function_exists('curl_version')) {
+            $curlVersionInfo   = curl_version();
+            $openSSLVersionRaw = $curlVersionInfo['ssl_version'];
+            // OpenSSL version typically reported as "OpenSSL/1.0.1e", I need to convert it to 1.0.1.5
+            $parts             = explode('/', $openSSLVersionRaw, 2);
+            $openSSLVersionRaw = (count($parts) > 1) ? $parts[1] : $openSSLVersionRaw;
+            $openSSLVersion    = substr($openSSLVersionRaw, 0, -1) . '.' . (ord(substr($openSSLVersionRaw, -1)) - 96);
+        }
+
+        return $openSSLVersion;
     }
 }

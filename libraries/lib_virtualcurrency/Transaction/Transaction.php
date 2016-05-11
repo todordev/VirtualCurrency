@@ -188,9 +188,7 @@ class Transaction extends Database\Table
     {
         // Encode extra data to JSON format.
         foreach ($data as $key => $value) {
-
             if (!in_array($key, $ignored, true)) {
-
                 $this->$key = $value;
 
                 // If it is extra data ( array or object ), encode the data to JSON string.
@@ -329,6 +327,25 @@ class Transaction extends Database\Table
     }
 
     /**
+     * Return the units number.
+     *
+     * <code>
+     * $transactionId  = 1;
+     *
+     * $transaction    = new Virtualcurrency\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $units = $transaction->getUnits();
+     * </code>
+     *
+     * @return float
+     */
+    public function getUnits()
+    {
+        return $this->units;
+    }
+
+    /**
      * Return currency code of transaction.
      *
      * <code>
@@ -437,11 +454,11 @@ class Transaction extends Database\Table
      * }
      * </code>
      *
-     * @return int
+     * @return string
      */
     public function getItemType()
     {
-        return (int)$this->item_type;
+        return (string)$this->item_type;
     }
     
     /**
@@ -459,6 +476,7 @@ class Transaction extends Database\Table
      * </code>
      *
      * @param string $id
+     *
      * @return self
      */
     public function setTransactionId($id)

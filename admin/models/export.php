@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,93 +10,26 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelExport extends JModelLegacy
+class VirtualcurrencyModelExport extends JModelLegacy
 {
     public function getCurrencies()
     {
         $db = $this->getDbo();
-        /** @var $db JDatabaseMyDriver */
+        /** @var $db JDatabaseDriver */
 
         // Create a new query object.
         $query = $db->getQuery(true);
 
         // Select the required fields from the table.
         $query
-            ->select('a.id, a.title, a.abbr, a.symbol, a.position')
-            ->from($db->quoteName('#__crowdf_currencies', 'a'));
+            ->select('a.id, a.title, a.code, a.symbol, a.position')
+            ->from($db->quoteName('#__vc_realcurrencies', 'a'));
 
 
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, "currencies", "currency");
-
-        return $output;
-    }
-
-    public function getLocations()
-    {
-        $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
-
-        // Create a new query object.
-        $query = $db->getQuery(true);
-
-        // Select the required fields from the table.
-        $query
-            ->select(
-                'a.id, a.name, a.latitude, a.longitude, a.country_code, ' .
-                'a.timezone, a.state_code, a.published'
-            )
-            ->from($db->quoteName('#__crowdf_locations', 'a'));
-
-
-        $db->setQuery($query);
-        $results = $db->loadAssocList();
-
-        $output = $this->prepareXML($results, "locations", "location");
-
-        return $output;
-    }
-
-    public function getStates()
-    {
-        $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
-
-        // Create a new query object.
-        $query = $db->getQuery(true);
-
-        // Select the required fields from the table.
-        $query
-            ->select('a.id, a.name, a.state_code')
-            ->from($db->quoteName('#__crowdf_locations', 'a'));
-
-        $db->setQuery($query);
-        $results = $db->loadAssocList();
-
-        $output = $this->prepareXML($results, "states", "state");
-
-        return $output;
-    }
-
-    public function getCountries()
-    {
-        $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
-
-        // Create a new query object.
-        $query = $db->getQuery(true);
-
-        // Select the required fields from the table.
-        $query
-            ->select('a.id, a.name, a.code, a.code4, a.latitude, a.longitude, a.timezone')
-            ->from($db->quoteName('#__crowdf_countries', 'a'));
-
-        $db->setQuery($query);
-        $results = $db->loadAssocList();
-
-        $output = $this->prepareXML($results, "countries", "country");
+        $output = $this->prepareXML($results, 'currencies', 'currency');
 
         return $output;
     }
@@ -104,12 +37,10 @@ class VirtualCurrencyModelExport extends JModelLegacy
     protected function prepareXML($results, $root, $child)
     {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><' . $root . '/>');
-        $xml->addAttribute("generator", "com_virtualcurrency");
+        $xml->addAttribute('generator', 'com_virtualcurrency');
 
         if (!empty($root) and !empty($child)) {
-
             foreach ($results as $data) {
-
                 $item = $xml->addChild($child);
 
                 foreach ($data as $key => $value) {

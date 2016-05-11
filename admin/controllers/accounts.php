@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -11,14 +11,14 @@
 defined('_JEXEC') or die;
 
 /**
- * VirtualCurrency Accounts controller
+ * Virtualcurrency Accounts controller
  *
  * @package     ITPrism Components
- * @subpackage  VirtualCurrency
+ * @subpackage  Virtualcurrency
  */
-class VirtualCurrencyControllerAccounts extends Prism\Controller\Admin
+class VirtualcurrencyControllerAccounts extends Prism\Controller\Admin
 {
-    public function getModel($name = 'Account', $prefix = 'VirtualCurrencyModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Account', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 

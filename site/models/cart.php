@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyModelCart extends JModelLegacy
+class VirtualcurrencyModelCart extends JModelLegacy
 {
 
 }

@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class VirtualCurrencyViewCart extends JViewLegacy
+class VirtualcurrencyViewCart extends JViewLegacy
 {
     /**
      * @var JApplicationSite
@@ -85,14 +85,16 @@ class VirtualCurrencyViewCart extends JViewLegacy
         $this->imageFolder      = $this->params->get('media_folder', 'images/virtualcurrency');
 
         // Prepare amount formatter.
-        $this->realCurrency     = Virtualcurrency\Currency\Real\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amountFormatter  = new Virtualcurrency\Amount($this->params);
+        $this->realCurrency     = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
+        $this->realCurrency->load($this->params->get('project_currency'));
+
+        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
+        $this->amountFormatter  = new Prism\Money\Money($moneyFormatter);
         $this->amountFormatter->setCurrency($this->realCurrency);
 
         $this->layout = $this->getLayout();
 
         switch ($this->layout) {
-
             case 'payment':
                 $this->preparePayment($cartSession);
                 break;
@@ -141,7 +143,7 @@ class VirtualCurrencyViewCart extends JViewLegacy
 
         // Check for debug mode
         if ($this->params->get('debug_payment_disabled', 0)) {
-            $msg = JString::trim($this->params->get('debug_disabled_functionality_msg'));
+            $msg = trim($this->params->get('debug_disabled_functionality_msg'));
             if (!$msg) {
                 $msg = JText::_('COM_VIRTUALCURRENCY_DEBUG_MODE_DEFAULT_MSG');
             }
@@ -157,15 +159,15 @@ class VirtualCurrencyViewCart extends JViewLegacy
     protected function preparePayment($cartSession)
     {
         if ($this->params->get('debug_payment_disabled', 0)) {
-            $this->app->redirect(JRoute::_(VirtualCurrencyHelperRoute::getCartRoute(), false));
+            $this->app->redirect(JRoute::_(VirtualcurrencyHelperRoute::getCartRoute(), false));
             return;
         }
 
-        $this->item = VirtualCurrencyHelper::prepareItem($cartSession, $this->params);
+        $this->item = VirtualcurrencyHelper::prepareItem($cartSession, $this->params);
 
         if ($this->item === null or !$this->item->id) {
             $this->app->enqueueMessage(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), 'warning');
-            $this->app->redirect(JRoute::_(VirtualCurrencyHelperRoute::getCartRoute(), false));
+            $this->app->redirect(JRoute::_(VirtualcurrencyHelperRoute::getCartRoute(), false));
             return;
         }
 
@@ -181,11 +183,11 @@ class VirtualCurrencyViewCart extends JViewLegacy
     protected function prepareSummary($cartSession)
     {
         if ($this->params->get('debug_payment_disabled', 0)) {
-            $this->app->redirect(JRoute::_(VirtualCurrencyHelperRoute::getCartRoute(), false));
+            $this->app->redirect(JRoute::_(VirtualcurrencyHelperRoute::getCartRoute(), false));
             return;
         }
 
-        $this->item = VirtualCurrencyHelper::prepareItem($cartSession, $this->params);
+        $this->item = VirtualcurrencyHelper::prepareItem($cartSession, $this->params);
 
         // Initialize the payment process object.
         $cartSession        = $this->initCartSession();
@@ -211,16 +213,16 @@ class VirtualCurrencyViewCart extends JViewLegacy
         }
 
         if ($this->params->get('menu-meta_keywords')) {
-            $this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         }
 
         if ($this->params->get('robots')) {
-            $this->document->setMetadata('robots', $this->params->get('robots'));
+            $this->document->setMetaData('robots', $this->params->get('robots'));
         }
 
         // Add scripts
-        JHtml::_("jquery.framework");
-        JHtml::script("com_virtualcurrency/site/payment.js", false, true, false);
+        JHtml::_('jquery.framework');
+        JHtml::script('com_virtualcurrency/site/payment.js', false, true, false);
     }
 
     private function preparePageHeading()
@@ -252,9 +254,9 @@ class VirtualCurrencyViewCart extends JViewLegacy
         // Add title before or after Site Name
         if (!$title) {
             $title = $app->get('sitename');
-        } elseif ($app->get('sitename_pagetitles', 0) == 1) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ($app->get('sitename_pagetitles', 0) == 2) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
             $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
         }
 

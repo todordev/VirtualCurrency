@@ -1,6 +1,6 @@
 <?php
 /**
- * @package      VirtualCurrency
+ * @package      Virtualcurrency
  * @subpackage   Components
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -45,9 +45,8 @@ class JFormFieldVcrealamountb2 extends JFormField
         $params     = JComponentHelper::getParams('com_virtualcurrency');
         /** @var  $params Joomla\Registry\Registry */
 
-        $currencyId = $params->get('payments_currency_id');
-
-        $currency = Virtualcurrency\Currency\Real\Currency::getInstance(JFactory::getDbo(), $currencyId);
+        $currency   = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
+        $currency->load($params->get('currency_id'));
 
         $html = '<div class="input-append">';
 

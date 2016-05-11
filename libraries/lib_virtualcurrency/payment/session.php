@@ -29,6 +29,7 @@ class Session extends Database\Table
     protected $item_type;
     protected $items_number;
     protected $unique_key;
+    protected $order_id;
     protected $gateway;
     protected $gateway_data;
     protected $session_id;
@@ -54,7 +55,7 @@ class Session extends Database\Table
         $query
             ->select(
                 'a.id, a.user_id, a.item_id, a.items_number, a.item_type, a.unique_key, ' .
-                'a.gateway, a.gateway_data, a.session_id, a.record_date'
+                'a.order_id, a.gateway, a.gateway_data, a.session_id, a.record_date'
             )
             ->from($this->db->quoteName('#__vc_paymentsessions', 'a'));
 
@@ -116,6 +117,7 @@ class Session extends Database\Table
             ->set($this->db->quoteName('items_number') . '=' . $this->db->quote($this->items_number))
             ->set($this->db->quoteName('record_date') . '=' . $recordDate)
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('order_id') . '=' . $this->db->quote($this->order_id))
             ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
             ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
             ->set($this->db->quoteName('session_id') . '=' . $this->db->quote($this->session_id));
@@ -140,6 +142,7 @@ class Session extends Database\Table
             ->set($this->db->quoteName('items_number') . '=' . $this->db->quote($this->items_number))
             ->set($this->db->quoteName('record_date') . '=' . $this->db->quote($this->record_date))
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('order_id') . '=' . $this->db->quote($this->order_id))
             ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
             ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
             ->set($this->db->quoteName('session_id') . '=' . $this->db->quote($this->session_id))
@@ -234,7 +237,7 @@ class Session extends Database\Table
      *
      * <code>
      * $paymentSessionId = 1;
-     * 
+     *
      * $paymentSession   = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
      * $paymentSession->load($paymentSessionId);
      *
@@ -497,6 +500,48 @@ class Session extends Database\Table
     public function setUniqueKey($key)
     {
         $this->unique_key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Return an order ID.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * echo $intention->getOrderId();
+     * </code>
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->order_id;
+    }
+
+    /**
+     * Set an order ID.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $orderId           = "ORDERID12345";
+     *
+     * $paymentSession    = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setOrderId($orderId);
+     * </code>
+     *
+     * @param string $orderId
+     * @return self
+     */
+    public function setOrderId($orderId)
+    {
+        $this->order_id = $orderId;
 
         return $this;
     }

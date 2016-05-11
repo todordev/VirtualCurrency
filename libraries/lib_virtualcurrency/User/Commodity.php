@@ -32,6 +32,9 @@ class Commodity extends Database\Table
     protected $user_id = 0;
     protected $commodity_id = 0;
 
+    /**
+     * @var CommodityUnit
+     */
     protected $commodity;
 
     /**
@@ -177,7 +180,7 @@ class Commodity extends Database\Table
     }
 
     /**
-     * Return number of the units in stock.
+     * Return number of the units owned by a user.
      *
      * <code>
      * $commodityId = 1;
@@ -209,7 +212,7 @@ class Commodity extends Database\Table
      * echo $commodity->getSold();
      * </code>
      *
-     * @return string
+     * @return CommodityUnit
      */
     public function getCommodity()
     {
@@ -392,7 +395,7 @@ class Commodity extends Database\Table
      *  $numberOfUnits = 10;
      *
      *  $commodity   = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
-     *  $commodity->load($accountId);
+     *  $commodity->load($commodityId);
      *
      *  echo $commodity->getRealPrice($numberOfUnits);
      * </code>
@@ -401,21 +404,77 @@ class Commodity extends Database\Table
      * @param int $numberOfUnits
      *
      * @return float
+     *
+     * @deprecated v2.2
      */
     public function getPrice($type, $numberOfUnits = 1)
     {
         if (strcmp('real', $type) === 0) {
-            $price = $this->getParam('price', 0.00);
+            $price = $this->commodity->getParam('price', 0.00);
             if ($price > 0 and $numberOfUnits > 0) {
                 return round($price * $numberOfUnits, 2);
             }
         }
 
         if (strcmp('virtual', $type) === 0) {
-            $price = $this->getParam('price-virtual', 0.00);
+            $price = $this->commodity->getParam('price-virtual', 0.00);
             if ($price > 0 and $numberOfUnits > 0) {
                 return round($price * $numberOfUnits, 2);
             }
+        }
+
+        return 0.00;
+    }
+
+    /**
+     * Calculate the price in real currency.
+     *
+     * <code>
+     *  $commodityId = 1;
+     *  $numberOfUnits = 10;
+     *
+     *  $commodity   = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
+     *  $commodity->load($commodityId);
+     *
+     *  echo $commodity->calculateRealPrice($numberOfUnits);
+     * </code>
+     *
+     * @param int $numberOfUnits
+     *
+     * @return float
+     */
+    public function calculateRealPrice($numberOfUnits)
+    {
+        $price = $this->commodity->getParam('price_real', 0.00);
+        if ($price > 0 and $numberOfUnits > 0) {
+            return round($price * $numberOfUnits, 2);
+        }
+
+        return 0.00;
+    }
+
+    /**
+     * Return the price in virtual currency.
+     *
+     * <code>
+     *  $commodityId = 1;
+     *  $numberOfUnits = 10;
+     *
+     *  $commodity   = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
+     *  $commodity->load($commodityId);
+     *
+     *  echo $commodity->calculateVirtualPrice($numberOfUnits);
+     * </code>
+     *
+     * @param int $numberOfUnits
+     *
+     * @return float
+     */
+    public function calculateVirtualPrice($numberOfUnits)
+    {
+        $price = $this->commodity->getParam('price_virtual', 0.00);
+        if ($price > 0 and $numberOfUnits > 0) {
+            return round($price * $numberOfUnits, 2);
         }
 
         return 0.00;

@@ -10,12 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.modellist');
-
-/**
- * Get a list of items
- */
-class VirtualCurrencyModelAccounts extends JModelList
+class VirtualcurrencyModelAccounts extends JModelList
 {
     /**
      * Constructor.
@@ -37,13 +32,6 @@ class VirtualCurrencyModelAccounts extends JModelList
         parent::__construct($config);
     }
 
-    /**
-     * Method to auto-populate the model state.
-     *
-     * Note. Calling getState in this method will result in recursion.
-     *
-     * @since   1.6
-     */
     protected function populateState($ordering = null, $direction = null)
     {
         $app = JFactory::getApplication();

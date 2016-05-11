@@ -33,14 +33,14 @@ switch ($displayData->layout) {
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li <?php echo ($active['currency']) ? 'class="active"' : ''; ?>>
-                    <a href="<?php echo JRoute::_(VirtualCurrencyHelperRoute::getCartRoute()); ?>">
+                    <a href="<?php echo JRoute::_(VirtualcurrencyHelperRoute::getCartRoute()); ?>">
                         (1) <?php echo JText::_('COM_VIRTUALCURRENCY_CART'); ?>
                     </a>
                 </li>
 
                 <li <?php echo ($active['payment']) ? 'class="active"' : ''; ?>>
                     <?php if ((bool)$displayData->cartSession->step1 === true) { ?>
-                        <a href="<?php echo JRoute::_(VirtualCurrencyHelperRoute::getCartRoute('payment')); ?>">
+                        <a href="<?php echo JRoute::_(VirtualcurrencyHelperRoute::getCartRoute('payment')); ?>">
                             (2) <?php echo JText::_('COM_VIRTUALCURRENCY_PAYMENT'); ?>
                         </a>
                     <?php } else { ?>
@@ -51,7 +51,7 @@ switch ($displayData->layout) {
 
                 <li <?php echo ($active['summary']) ? 'class="active"' : ''; ?>>
                     <?php if ((isset($displayData->cartSession->step2) and (bool)$displayData->cartSession->step2 === true)) { ?>
-                        <a href="<?php echo JRoute::_(VirtualCurrencyHelperRoute::getCartRoute('summary')); ?>">
+                        <a href="<?php echo JRoute::_(VirtualcurrencyHelperRoute::getCartRoute('summary')); ?>">
                             (3) <?php echo JText::_('COM_VIRTUALCURRENCY_SUMMARY'); ?>
                         </a>
                     <?php } else { ?>

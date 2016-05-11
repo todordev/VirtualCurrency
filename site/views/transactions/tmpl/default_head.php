@@ -39,4 +39,3 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
     </th>
 </tr>
-	  
