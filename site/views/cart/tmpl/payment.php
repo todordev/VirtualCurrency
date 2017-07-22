@@ -32,18 +32,16 @@ defined('_JEXEC') or die;?>
                 <div class="panel-body">
                     <div class="bs-docs-example">
                         <p><span class="vc-otitle"><?php echo JText::_('COM_VIRTUALCURRENCY_YOU_ARE_BUYING'); ?></span>
-                            <?php
-                            echo $this->item->order['items_number_formatted'];
-                            ?>
+                            <?php echo $this->item->order->getItemsNumberFormatted(); ?>
                         </p>
 
                         <p>
                             <span class="vc-otitle">
                                 <?php
-                                if ($this->item->order['real']['items_cost_formatted'] and $this->item->order['virtual']['items_cost_formatted']) {
-                                    echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_WILL_PAY_S_S', $this->item->order['real']['items_cost_formatted'], $this->item->order['virtual']['items_cost_formatted']);
+                                if ($this->item->order->price('real')->getTotalFormatted() and $this->item->order->price('virtual')->getTotalFormatted()) {
+                                    echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_WILL_PAY_S_S', $this->item->order->price('real')->getTotalFormatted(), $this->item->order->price('virtual')->getTotalFormatted());
                                 } else {
-                                    echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_WILL_PAY_S', ($this->item->order['real']['items_cost_formatted']) ?: $this->item->order['virtual']['items_cost_formatted']);
+                                    echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_WILL_PAY_S', $this->item->order->price('real')->getTotalFormatted() ?: $this->item->order->price('virtual')->getTotalFormatted());
                                 }
                                 ?>
                             </span>

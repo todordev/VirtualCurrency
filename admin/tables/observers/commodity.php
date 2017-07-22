@@ -95,6 +95,5 @@ class VirtualcurrencyObserverCommodity extends JTableObserver
             $db->setQuery($query);
             $db->execute();
         }
-
     }
 }

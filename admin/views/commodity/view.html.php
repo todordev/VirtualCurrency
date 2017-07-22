@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class VirtualcurrencyViewCommodity extends JViewLegacy
 {
     /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -36,7 +41,8 @@ class VirtualcurrencyViewCommodity extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
 
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
@@ -60,10 +66,10 @@ class VirtualcurrencyViewCommodity extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id === 0);
+        $this->app->input->set('hidemainmenu', true);
+        $isNew = ((int)$this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_PRODUCT') : JText::_('COM_VIRTUALCURRENCY_EDIT_PRODUCT');
+        $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_COMMODITY') : JText::_('COM_VIRTUALCURRENCY_EDIT_COMMODITY');
 
         JToolBarHelper::title($this->documentTitle);
 

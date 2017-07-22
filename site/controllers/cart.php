@@ -36,6 +36,8 @@ class VirtualcurrencyControllerCart extends Prism\Controller\Form\Frontend
 
     /**
      * Process step 1.
+     *
+     * @throws InvalidArgumentException
      */
     public function process()
     {
@@ -99,11 +101,13 @@ class VirtualcurrencyControllerCart extends Prism\Controller\Form\Frontend
 
         // Get the item.
         if (strcmp('currency', $itemType) === 0) {
-            $item = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
-            $item->load($itemId);
+            $mapper         = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $repository     = new Virtualcurrency\Currency\Repository($mapper);
+            $item           = $repository->fetchById($itemId);
         } else { // Commodity
-            $item = new Virtualcurrency\Commodity\Commodity(JFactory::getDbo());
-            $item->load($itemId);
+            $mapper         = new Virtualcurrency\Commodity\Mapper(new Virtualcurrency\Commodity\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $repository     = new Virtualcurrency\Commodity\Repository($mapper);
+            $item           = $repository->fetchById($itemId);
         }
 
         if (!$item->getId()) {
@@ -126,13 +130,13 @@ class VirtualcurrencyControllerCart extends Prism\Controller\Form\Frontend
 
             // Check the number of available units.
             $inStock = $item->getInStock();
-            if (is_numeric($inStock) and (int)$inStock < (int)$numberOfItems) {
+            if ($inStock !== -1 and (int)$inStock < (int)$numberOfItems) {
                 $this->displayWarning(JText::sprintf('COM_VIRTUALCURRENCY_ERROR_IN_STOCK_EXCEEDED', (int)$inStock), $redirectOptions);
                 return;
             }
         }
 
-        $cartSession = $app->getUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT);
+        $cartSession               = $app->getUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT);
 
         $cartSession->item_id      = $item->getId();
         $cartSession->item_type    = $itemType;
@@ -140,24 +144,27 @@ class VirtualcurrencyControllerCart extends Prism\Controller\Form\Frontend
         $cartSession->step1        = true;
 
         // Store data to payment session table.
-        $data = array(
+        $mapper           = new Virtualcurrency\Payment\Session\Mapper(new Virtualcurrency\Payment\Session\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository       = new Virtualcurrency\Payment\Session\Repository($mapper);
+        if ($cartSession->payment_id) {
+            $paymentSession = $repository->fetchById($cartSession->payment_id);
+        } else {
+            $paymentSession = new Virtualcurrency\Payment\Session\Session();
+        }
+
+        $paymentSession->bind([
             'user_id'       => $userId,
             'item_id'       => $item->getId(),
             'item_type'     => $itemType,
             'items_number'  => $numberOfItems,
             'session_id'    => $cartSession->session_id
-        );
+        ]);
+        
 
-        $paymentSession = new Virtualcurrency\Payment\Session(JFactory::getDbo());
-        if ($cartSession->payment_id) {
-            $paymentSession->load($cartSession->payment_id);
-        }
-
-        $paymentSession->bind($data);
-        $paymentSession->store();
+        $repository->store($paymentSession);
 
         // Remove old payment session records
-        $paymentSession->cleanOld();
+//        $repository->cleanOld();
 
         $cartSession->payment_id = $paymentSession->getId();
 

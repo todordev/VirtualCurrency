@@ -1,13 +1,17 @@
 <?php
 /**
- * @package      Virtualcurrency
+ * @package      Virtualcurrency\Payment
  * @subpackage   Plugin
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Virtualcurrency\Payment;
+
+use Prism\Payment\Result as PaymentResult;
+use Virtualcurrency\Payment\Session\Session as PaymentSession;
+use Virtualcurrency\Payment\Session\Repository as PaymentSessionRepository;
 
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
@@ -15,13 +19,10 @@ use Prism;
 use Virtualcurrency;
 use Emailtemplates;
 
-// no direct access
-defined('_JEXEC') or die;
-
 /**
  * Virtualcurrency payment plugin class.
  *
- * @package      Virtualcurrency
+ * @package      Virtualcurrency\Payment
  * @subpackage   Payments
  */
 class Plugin extends \JPlugin
@@ -58,15 +59,14 @@ class Plugin extends \JPlugin
 
     public function __construct(&$subject, $config = array())
     {
+        $this->app = \JFactory::getApplication();
+
         // Set file writer.
         if ($this->logFile and $this->logFile !== '') {
             // Create log object
             $this->log = new Prism\Log\Log();
 
-            $app = \JFactory::getApplication();
-            /** @var $app \JApplicationSite */
-
-            $file = \JPath::clean($app->get('log_path') . DIRECTORY_SEPARATOR . basename($this->logFile));
+            $file = \JPath::clean($this->app->get('log_path') .'/'. basename($this->logFile));
             $this->log->addAdapter(new Prism\Log\Adapter\File($file));
         }
 
@@ -76,17 +76,18 @@ class Plugin extends \JPlugin
     /**
      * Send emails to the administrator and buyer of units.
      *
-     * @param \stdClass $item
-     * @param \stdClass $transaction
+     * @param PaymentResult $paymentResult
      * @param Registry $params
      */
-    protected function sendMails($item, $transaction, $params)
+    protected function sendMails(PaymentResult $paymentResult, $params)
     {
         // Get website
         $uri     = \JUri::getInstance();
         $website = $uri->toString(array('scheme', 'host'));
 
         $emailMode = $this->params->get('email_mode', 'plain');
+
+        $transaction = $paymentResult->transaction;
 
         // Prepare data for parsing
         $data = array(
@@ -193,7 +194,6 @@ class Plugin extends \JPlugin
                 $this->log->add(\JText::_($this->textPrefix . '_ERROR_MAIL_SENDING_USER'), $this->debugType, $mailer->ErrorInfo);
             }
         }
-
     }
 
     protected function getCallbackUrl($htmlEncoded = false)
@@ -276,8 +276,10 @@ class Plugin extends \JPlugin
      * @param array $options The keys used to load payment session data from database.
      *
      * @throws \UnexpectedValueException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
-     * @return Virtualcurrency\Payment\Session
+     * @return Virtualcurrency\Payment\Session\Session
      */
     public function getPaymentSession(array $options)
     {
@@ -288,7 +290,7 @@ class Plugin extends \JPlugin
 
         // Prepare keys for anonymous user.
         if ($id > 0) {
-            $keys = $id;
+            $keys = array('id' => $id);
         } elseif ($sessionId !== '') {
             $keys = array(
                 'session_id'   => $sessionId
@@ -310,10 +312,10 @@ class Plugin extends \JPlugin
             throw new \UnexpectedValueException('Invalid payment session key.');
         }
 
-        $paymentSession = new Virtualcurrency\Payment\Session(\JFactory::getDbo());
-        $paymentSession->load($keys);
+        $mapper     = new Virtualcurrency\Payment\Session\Mapper(new Virtualcurrency\Payment\Session\Gateway\JoomlaGateway(\JFactory::getDbo()));
+        $repository = new Virtualcurrency\Payment\Session\Repository($mapper);
 
-        return $paymentSession;
+        return $repository->fetch($keys);
     }
 
     /**
@@ -332,18 +334,31 @@ class Plugin extends \JPlugin
     }
 
     /**
-     * This method is executed after complete payment.
-     * It is used to be sent mails to user and administrator
+     * This method is executed after complete payment notification.
+     * It is used to be sent mails to users and the administrator.
      *
-     * @param string $context  Transaction data
-     * @param \stdClass $item  Item data
-     * @param \stdClass $transaction  Transaction data
-     * @param \stdClass $paymentSession Payment session data.
+     * <code>
+     * $paymentResult->transaction;
+     * $paymentResult->paymentSession;
+     * $paymentResult->serviceProvider;
+     * $paymentResult->serviceAlias;
+     * $paymentResult->response;
+     * $paymentResult->returnUrl;
+     * $paymentResult->message;
+     * $paymentResult->triggerEvents;
+     * </code>
+     *
+     * @param string $context
+     * @param PaymentResult $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
      * @param Registry $params Component parameters
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \OutOfBoundsException
      */
-    public function onAfterPayment($context, &$item, &$transaction, &$paymentSession, &$params)
+    public function onAfterPaymentNotify($context, $paymentResult, $params)
     {
-        if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
+        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.'.$this->serviceAlias.'$/', $context)) {
             return;
         }
 
@@ -351,17 +366,64 @@ class Plugin extends \JPlugin
             return;
         }
 
-        $doc = \JFactory::getDocument();
-        /**  @var $doc \JDocumentHtml */
-
         // Check document type
-        $docType = $doc->getType();
-        if (strcmp('raw', $docType) !== 0) {
+        $docType = \JFactory::getDocument()->getType();
+        if (!in_array($docType, array('raw', 'html'), true)) {
             return;
         }
 
         // Send mails
-        $this->sendMails($item, $transaction, $params);
+        $this->sendMails($paymentResult, $params);
+    }
+
+    /**
+     * This method will be executed after all payment events, especially onAfterPaymentNotify.
+     * It is used to close payment session.
+     *
+     * <code>
+     * $paymentResult->transaction;
+     * $paymentResult->paymentSession;
+     * $paymentResult->serviceProvider;
+     * $paymentResult->serviceAlias;
+     * $paymentResult->response;
+     * $paymentResult->returnUrl;
+     * $paymentResult->message;
+     * $paymentResult->triggerEvents;
+     * </code>
+     *
+     * @param string $context
+     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
+     * @param Registry $params Component parameters
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     */
+    public function onAfterPayment($context, $paymentResult, $params)
+    {
+        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.'.$this->serviceAlias.'$/', $context)) {
+            return;
+        }
+
+        if ($this->app->isAdmin()) {
+            return;
+        }
+
+        // Check document type
+        $docType = \JFactory::getDocument()->getType();
+        if (!in_array($docType, array('raw', 'html'), true)) {
+            return;
+        }
+
+        $paymentSession = $paymentResult->paymentSession;
+        /** @var PaymentSession $paymentSession */
+
+        // Remove payment session record from database.
+        if (($paymentSession instanceof PaymentSession) and $paymentSession->getId()) {
+            $gateway    = new VirtualCurrency\Payment\Session\Gateway\JoomlaGateway(\JFactory::getDbo());
+            $repository = new PaymentSessionRepository(new VirtualCurrency\Payment\Session\Mapper($gateway));
+
+            $repository->delete($paymentSession);
+        }
     }
 
     /**

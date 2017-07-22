@@ -1,131 +1,75 @@
 <?php
 /**
  * @package      Virtualcurrency
- * @subpackage   Currencies
+ * @subpackage   Currency
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Virtualcurrency\Currency;
 
-use Prism\Constants;
-use Prism\Database\Collection;
-use Joomla\Utilities\ArrayHelper;
-
-defined('JPATH_PLATFORM') or die;
+use Prism\Domain\CollectionToOptions;
+use Prism\Domain\PropertiesMethods;
+use Prism\Domain\Collection;
+use Prism\Domain\ToOptionsMethod;
 
 /**
  * This class contains methods used for managing a set of currencies.
  *
  * @package      Virtualcurrency
- * @subpackage   Currencies
+ * @subpackage   Currency
  */
-class Currencies extends Collection
+class Currencies extends Collection implements CollectionToOptions
 {
-    /**
-     * Load currencies data.
-     *
-     * <code>
-     * $currencyId = 1;
-     *
-     * $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-     * $currencies->load();
-     * </code>
-     *
-     * @param array $options
-     *
-     */
-    public function load(array $options = array())
-    {
-        $query = $this->db->getQuery(true);
+    use PropertiesMethods, ToOptionsMethod;
 
-        $query
-            ->select('a.id, a.title, a.description, a.published, a.code, a.symbol, a.params, a.image, a.image_icon')
-            ->from($this->db->quoteName('#__vc_currencies', 'a'));
-
-        // Filter by state.
-        $state = ArrayHelper::getValue($options, 'state');
-        if ($state !== null) {
-            $state = (!$state) ? Constants::UNPUBLISHED : Constants::PUBLISHED;
-            $query->where('a.published = ' . (int)$state);
-        }
-
-        $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList();
-    }
+    protected $codeIndexed = array();
+    protected $idIndexed   = array();
 
     /**
-     * Return a currency data, getting it by currency ID.
+     * @param $code
      *
-     * <code>
-     * $currencyId = 1;
-     *
-     * $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-     * $currencies->load();
-     *
-     * $currency   = $currencies->getCurrency($currencyId);
-     * </code>
-     *
-     * @param int|string $id Currency ID or currency code.
-     *
-     * @return null|Currency
+     * @return Currency|null
      */
-    public function getCurrency($id)
+    public function fetchByCode($code)
     {
-        $currency = null;
+        // Create an array that provide an array indexed by the codes of the items.
+        if (!$this->codeIndexed) {
+            /** @var Currency $item */
+            foreach ($this->items as $item) {
+                $itemCode = $item->getCode();
+                if (!$itemCode) {
+                    continue;
+                }
 
-        if (is_numeric($id)) {
-            $id = (int)$id;
-            foreach ($this->items as $item) {
-                if ($id === (int)$item['id']) {
-                    $currency = new Currency($this->db);
-                    $currency->bind($item);
-                    break;
-                }
-            }
-        } else {
-            foreach ($this->items as $item) {
-                if (strcmp($id, $item['code']) === 0) {
-                    $currency = new Currency($this->db);
-                    $currency->bind($item);
-                    break;
-                }
+                $this->codeIndexed[$itemCode] = $item;
             }
         }
 
-        return $currency;
+        return array_key_exists($code, $this->codeIndexed) ? $this->codeIndexed[$code] : null;
     }
 
     /**
-     * Returns the currencies as objects.
+     * @param $currencyId
      *
-     * <code>
-     *  // The state could be 1 = published, 0 = unpublished, null = all
-     *  $options = array(
-     *      'state' => Prism\Constants::PUBLISHED
-     *  );
-     *
-     * $currencies  = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-     * $currencies->load($options);
-     *
-     * $results = $commodities->getCurrencies();
-     * </code>
-     *
-     * @return array
+     * @return Currency|null
      */
-    public function getCurrencies()
+    public function fetchById($currencyId)
     {
-        $results = array();
+        // Create an array that provide an array indexed by the codes of the items.
+        if (!$this->idIndexed) {
+            /** @var Currency $item */
+            foreach ($this->items as $item) {
+                $itemId = $item->getId();
+                if (!$itemId) {
+                    continue;
+                }
 
-        $i = 0;
-        foreach ($this->items as $item) {
-            $currency = new Currency($this->db);
-            $currency->bind($item);
-            $results[$i] = $currency;
-            $i++;
+                $this->idIndexed[$itemId] = $item;
+            }
         }
 
-        return $results;
+        return array_key_exists($currencyId, $this->idIndexed) ? $this->idIndexed[$currencyId] : null;
     }
 }

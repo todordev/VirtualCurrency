@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -19,7 +21,7 @@ class VirtualcurrencyModelRealCurrency extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  VirtualcurrencyTableRealCurrency  A database object
+     * @return  VirtualcurrencyTableRealCurrency|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'RealCurrency', $prefix = 'VirtualcurrencyTable', $config = array())
@@ -33,7 +35,7 @@ class VirtualcurrencyModelRealCurrency extends JModelAdmin
      * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
@@ -74,11 +76,11 @@ class VirtualcurrencyModelRealCurrency extends JModelAdmin
      */
     public function save($data)
     {
-        $id       = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title    = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $code     = Joomla\Utilities\ArrayHelper::getValue($data, 'code');
-        $symbol   = Joomla\Utilities\ArrayHelper::getValue($data, 'symbol');
-        $position = Joomla\Utilities\ArrayHelper::getValue($data, 'position');
+        $id       = ArrayHelper::getValue($data, 'id');
+        $title    = ArrayHelper::getValue($data, 'title');
+        $code     = ArrayHelper::getValue($data, 'code');
+        $symbol   = ArrayHelper::getValue($data, 'symbol');
+        $position = ArrayHelper::getValue($data, 'position');
 
         // Load a record from the database
         $row = $this->getTable();

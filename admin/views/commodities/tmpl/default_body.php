@@ -29,10 +29,10 @@ defined('_JEXEC') or die;
             <?php } ?>
         </td>
         <td class="center hidden-phone">
-            <strong><?php echo ($item->in_stock === null) ? '---' : (int)$item->in_stock; ?></strong>
+            <strong><?php echo ((int)$item->in_stock === -1) ? '---' : (int)$item->in_stock; ?></strong>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('virtualcurrency.price', $item, $this->money, $this->realCurrency, $this->virtualCurrencies); ?>
+            <?php echo JHtml::_('virtualcurrency.price', $item, $this->formatter, $this->realCurrency, $this->virtualCurrencies); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->id; ?>

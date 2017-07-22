@@ -8,16 +8,25 @@
  */
  
 // no direct access
-defined('_JEXEC') or die; ?>
+defined('_JEXEC') or die;
+/**
+ * @var $accounts \Virtualcurrency\Account\Accounts
+ * @var $account \Virtualcurrency\Account\Account
+ * @var $currencies \Virtualcurrency\Currency\Currencies
+ * @var $currency \Virtualcurrency\Currency\Currency
+ * @var $formatter \Prism\Money\Formatter\IntlDecimalFormatter
+ */
+?>
 <?php
 foreach ($accounts as $account) {
-    $currency = $currencies->getCurrency($account['currency_id']);
+    $virtualCurrency = $currencies->fetchById($account->getCurrencyId());
+    $currency = new \Prism\Money\Currency($virtualCurrency->getProperties());
 
     if ($currency !== null) {
-        $money->setCurrency($currency);
+        $money = new \Prism\Money\Money($account->getAmount(), $currency);
         ?>
         <p class="vcm-account-amount">
-            <?php echo htmlentities($account['title'], ENT_QUOTES, 'UTF-8'); ?>: <?php echo $money->setAmount($account['amount'])->formatCurrency(); ?>
+            <?php echo htmlentities($account->getCurrency()->getTitle(), ENT_QUOTES, 'UTF-8'); ?>: <?php echo $formatter->formatCurrency($money); ?>
         </p>
         <?php
     }

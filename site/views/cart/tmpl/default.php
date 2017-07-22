@@ -25,10 +25,8 @@ defined('_JEXEC') or die;
     </div>
 
     <?php
-    foreach ($this->currencies as $item) {
-        $currency = new Virtualcurrency\Currency\Currency();
-        $currency->bind($item);
-
+    /** @var \Virtualcurrency\Currency\Currency $currency */
+    foreach ($this->currencies as $currency) {
         if (!$currency->getParam('price_real') and !$currency->getParam('price_virtual')) {
             continue;
         }
@@ -66,8 +64,8 @@ defined('_JEXEC') or die;
                             </div>
                         <?php } ?>
 
-                        <button type="submit" class="btn" <?php echo $this->disabledButton; ?>>
-                            <?php echo JText::_('COM_VIRTUALCURRENCY_CONTINUE_NEXT_STEP'); ?>
+                        <button type="submit" class="btn mt-10" <?php echo $this->disabledButton; ?>>
+                            <?php echo JText::_('COM_VIRTUALCURRENCY_SUBMIT_CONTINUE'); ?>
                         </button>
                     </div>
                 </form>
@@ -76,10 +74,8 @@ defined('_JEXEC') or die;
     <?php } ?>
 
     <?php
-    foreach ($this->commodities as $item) {
-        $commodity = new Virtualcurrency\Commodity\Commodity();
-        $commodity->bind($item);
-
+    /** @var \Virtualcurrency\Commodity\Commodity $commodity */
+    foreach ($this->commodities as $commodity) {
         if ((!$commodity->getParam('price_real') and !$commodity->getParam('price_virtual')) or !$commodity->hasUnits()) {
             continue;
         }
@@ -129,15 +125,12 @@ defined('_JEXEC') or die;
                         </div>
                         <?php } ?>
 
-                        <button type="submit" class="btn" <?php echo $this->disabledButton; ?>>
-                            <?php echo JText::_('COM_VIRTUALCURRENCY_CONTINUE_NEXT_STEP'); ?>
+                        <button type="submit" class="btn mt-10" <?php echo $this->disabledButton; ?>>
+                            <?php echo JText::_('COM_VIRTUALCURRENCY_SUBMIT_CONTINUE'); ?>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     <?php } ?>
-
-
-
 </div>

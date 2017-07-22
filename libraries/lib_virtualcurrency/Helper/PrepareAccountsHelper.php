@@ -1,26 +1,25 @@
 <?php
 /**
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Virtualcurrency\Helper;
 
+use Prism\Domain\BindException;
 use Prism\Helper\HelperInterface;
 use Virtualcurrency\Currency\Currencies;
 use Virtualcurrency\Currency\Currency;
-use Prism\Money\Money;
-
-defined('JPATH_PLATFORM') or die;
+use Prism\Money;
 
 /**
  * This class provides functionality to prepare accounts data.
  *
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  */
 class PrepareAccountsHelper implements HelperInterface
 {
@@ -30,12 +29,12 @@ class PrepareAccountsHelper implements HelperInterface
     /**
      * Initialize the object.
      *
-     * @param Money $formatter
+     * @param Money\Formatter $formatter
      * @param Currencies $currencies
      */
     public function __construct($formatter, $currencies)
     {
-        $this->formatter = $formatter;
+        $this->formatter  = $formatter;
         $this->currencies = $currencies;
     }
 
@@ -44,6 +43,8 @@ class PrepareAccountsHelper implements HelperInterface
      *
      * @param array $data
      * @param array $options
+     *
+     * @throws BindException
      */
     public function handle(&$data, array $options = array())
     {
@@ -53,18 +54,21 @@ class PrepareAccountsHelper implements HelperInterface
             foreach ($data as $key => $item) {
                 // Format account amount.
                 if (!array_key_exists($item->currency_id, $foundCurrencies)) {
-                    $currency = $this->currencies->getCurrency($item->currency_id);
+                    $currency = $this->currencies->fetchById($item->currency_id);
                     if (!$currency) {
-                        $currency = new Currency();
+                        $currency = new Currency;
                     }
 
                     $foundCurrencies[$item->currency_id] = $currency;
+                } else {
+                    $currency = $foundCurrencies[$item->currency_id];
                 }
 
-                $currency = $foundCurrencies[$item->currency_id];
+                $formatCurrency   = new Money\Currency;
+                $formatCurrency->bind($currency->getProperties());
+                $money            = new Money\Money($item->amount, $formatCurrency);
 
-                $this->formatter->setCurrency($currency);
-                $item->amount = $this->formatter->setAmount($item->amount)->formatCurrency();
+                $item->amount = $this->formatter->formatCurrency($money);
             }
         }
     }

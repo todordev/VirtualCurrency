@@ -40,14 +40,14 @@ class VirtualcurrencyViewAccounts extends JViewLegacy
 
         $this->params = $this->state->get('params');
 
-        $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $currencies->load();
+        $gateway    = new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo());
+        $repository = new Virtualcurrency\Currency\Repository(new Virtualcurrency\Currency\Mapper($gateway));
+        $currencies = $repository->fetchAll();
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $money           = new Prism\Money\Money($moneyFormatter);
+        $moneyFormatter  = Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
         $helperBus       = new Prism\Helper\HelperBus($this->items);
-        $helperBus->addCommand(new Virtualcurrency\Helper\PrepareAccountsHelper($money, $currencies));
+        $helperBus->addCommand(new Virtualcurrency\Helper\PrepareAccountsHelper($moneyFormatter, $currencies));
         $helperBus->handle();
 
         $this->prepareDocument();

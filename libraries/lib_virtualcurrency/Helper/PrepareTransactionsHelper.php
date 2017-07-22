@@ -1,27 +1,26 @@
 <?php
 /**
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Virtualcurrency\Helper;
 
+use Prism\Domain\BindException;
 use Prism\Helper\HelperInterface;
+use Prism\Money;
 use Virtualcurrency\Currency\Currencies;
 use Virtualcurrency\Currency\Currency;
-use Virtualcurrency\Currency\RealCurrencies;
-use Prism\Money\Money;
-
-defined('JPATH_PLATFORM') or die;
+use Virtualcurrency\RealCurrency\Currencies as RealCurrencies;
 
 /**
  * This class provides functionality to prepare transaction data.
  *
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  */
 class PrepareTransactionsHelper implements HelperInterface
 {
@@ -32,7 +31,7 @@ class PrepareTransactionsHelper implements HelperInterface
     /**
      * PrepareTransactionsHelper constructor.
      *
-     * @param Money $formatter
+     * @param Money\Formatter $formatter
      * @param Currencies $currencies
      * @param RealCurrencies $realCurrencies
      */
@@ -48,6 +47,8 @@ class PrepareTransactionsHelper implements HelperInterface
      *
      * @param array $data
      * @param array $options
+     *
+     * @throws BindException
      */
     public function handle(&$data, array $options = array())
     {
@@ -57,9 +58,10 @@ class PrepareTransactionsHelper implements HelperInterface
             foreach ($data as $key => $item) {
                 // Format transaction currency.
                 if (!array_key_exists($item->txn_currency, $foundCurrencies)) {
-                    $currency = $this->realCurrencies->getCurrency($item->txn_currency);
+                    $currency = $this->realCurrencies->fetchByCode($item->txn_currency);
+
                     if ($currency === null) {
-                        $currency = $this->currencies->getCurrency($item->txn_currency);
+                        $currency = $this->currencies->fetchByCode($item->txn_currency);
                     }
 
                     if (!$currency) {
@@ -68,15 +70,20 @@ class PrepareTransactionsHelper implements HelperInterface
                     }
 
                     $foundCurrencies[$item->txn_currency] = $currency;
+                } else {
+                    $currency = $foundCurrencies[$item->txn_currency];
                 }
 
-                $currency = $foundCurrencies[$item->txn_currency];
+                $formatCurrency   = new Money\Currency;
+                $formatCurrency->bind($currency->getProperties());
 
-                $this->formatter->setCurrency($currency);
-                $item->txn_amount = $this->formatter->setAmount($item->txn_amount)->formatCurrency();
+                // Format transaction amount.
+                $money            = new Money\Money($item->txn_amount, $formatCurrency);
+                $item->txn_amount = $this->formatter->formatCurrency($money);
 
                 // Format units.
-                $item->units = $this->formatter->setAmount($item->units)->format();
+                $money            = new Money\Money($item->units, $formatCurrency);
+                $item->units      = $this->formatter->format($money);
             }
         }
     }

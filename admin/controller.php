@@ -20,11 +20,10 @@ class VirtualcurrencyController extends JControllerLegacy
 {
     public function display($cachable = false, $urlparams = array())
     {
-        $document = JFactory::getDocument();
-        /** @var $document JDocumentHtml */
-
         $viewName = $this->input->getCmd('view', 'dashboard');
         $this->input->set('view', $viewName);
+
+        JHtml::_('Prism.ui.backendStyles');
 
         parent::display();
 

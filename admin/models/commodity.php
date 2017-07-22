@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -19,7 +21,7 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  VirtualcurrencyTableCommodity  A database object
+     * @return  VirtualcurrencyTableCommodity|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Commodity', $prefix = 'VirtualcurrencyTable', $config = array())
@@ -33,7 +35,7 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
      * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
@@ -60,14 +62,18 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         if (!$data) {
             $data            = $this->getItem();
 
-            $moneyFormatter = VirtualcurrencyHelper::getMoneyFormatter();
+            $numberFormatter = Virtualcurrency\Intl\Helper::factory('joomla')->getNumberFormatter();
 
             if (array_key_exists('price_real', $data->params) and $data->params['price_real'] !== '') {
-                $data->params['price_real'] = $moneyFormatter->format($data->params['price_real']);
+                $data->params['price_real'] = $numberFormatter->format($data->params['price_real']);
             }
 
             if (array_key_exists('price_virtual', $data->params) and $data->params['price_virtual'] !== '') {
-                $data->params['price_virtual'] = $moneyFormatter->format($data->params['price_virtual']);
+                $data->params['price_virtual'] = $numberFormatter->format($data->params['price_virtual']);
+            }
+
+            if ($data->in_stock === '-1') {
+                $data->in_stock = '';
             }
         }
 
@@ -83,26 +89,25 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
      */
     public function save($data)
     {
-        $id             = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
-        $title          = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $description    = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $published      = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $inStock        = Joomla\Utilities\ArrayHelper::getValue($data, 'in_stock');
-        $params         = Joomla\Utilities\ArrayHelper::getValue($data, 'params', array(), 'array');
+        $id             = ArrayHelper::getValue($data, 'id', 0, 'int');
+        $title          = ArrayHelper::getValue($data, 'title');
+        $description    = ArrayHelper::getValue($data, 'description');
+        $published      = ArrayHelper::getValue($data, 'published', 0, 'int');
+        $inStock        = ArrayHelper::getValue($data, 'in_stock');
+        $params         = ArrayHelper::getValue($data, 'params', array(), 'array');
 
         if (!$description) {
             $description = null;
         }
 
-        if (!is_numeric($inStock)) {
-            $inStock = null;
+        if ($inStock === '') {
+            $inStock = '-1';
         }
 
-        $moneyParser     = VirtualcurrencyHelper::getMoneyFormatter();
-        $numberFormatter = VirtualcurrencyHelper::getNumberFormatter();
+        $numberParser     = Virtualcurrency\Intl\Helper::factory('joomla')->getNumberParser();
 
-        $params['price_real']    = ($params['price_real'] !== '') ? $numberFormatter->format($moneyParser->parse($params['price_real'])) : '';
-        $params['price_virtual'] = ($params['price_virtual'] !== '') ? $numberFormatter->format($moneyParser->parse($params['price_virtual'])) : '';
+        $params['price_real']    = ($params['price_real'] !== '') ? $numberParser->parse($params['price_real']) : '';
+        $params['price_virtual'] = ($params['price_virtual'] !== '') ? $numberParser->parse($params['price_virtual']) : '';
 
         // Load a record from the database
         $row = $this->getTable();
@@ -134,12 +139,12 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         $params          = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
-        $mediaFolder     = JPath::clean(JPATH_ROOT . '/' . $params->get('media_folder', 'images/virtualcurrency'));
+        $mediaFolder     = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));
 
         if (!empty($data['image'])) {
             // Delete old image.
             if ($table->get('image')) {
-                $file = JPath::clean($mediaFolder . '/' . $table->get('image'));
+                $file = JPath::clean($mediaFolder .'/'. $table->get('image'));
                 if (JFile::exists($file)) {
                     JFile::delete($file);
                 }
@@ -151,7 +156,7 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         if (!empty($data['image_icon'])) {
             // Delete old icon.
             if ($table->get('image_icon')) {
-                $file = JPath::clean($mediaFolder . '/' . $table->get('image_icon'));
+                $file = JPath::clean($mediaFolder .'/'. $table->get('image_icon'));
                 if (JFile::exists($file)) {
                     JFile::delete($file);
                 }
@@ -164,25 +169,23 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
     /**
      * Upload an image
      *
-     * @param array $image
+     * @param array $uploadedFileData
+     * @param string $type
      *
      * @throws RuntimeException
      * @return string
      */
-    public function uploadImage($image, $type)
+    public function uploadImage($uploadedFileData, $type)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationAdministrator */
-
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         $params          = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
         // Prepare media folder.
-        $mediaFolder     = JPath::clean(JPATH_ROOT . '/' . $params->get('media_folder', 'images/virtualcurrency'));
+        $mediaFolder     = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));
         if (!JFolder::exists($mediaFolder)) {
             JFolder::create($mediaFolder);
         }
@@ -191,11 +194,9 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         /** @var  $mediaParams Joomla\Registry\Registry */
         $mediaParams   = JComponentHelper::getParams('com_media');
 
-        $file          = new Prism\File\File();
-
         // Prepare size validator.
         $KB            = 1024 * 1024;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file size validator
@@ -215,6 +216,7 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
         $imageValidator->setImageExtensions($imageExtensions);
 
+        $file = new Prism\File\File($uploadedFile);
         $file
             ->addValidator($sizeValidator)
             ->addValidator($imageValidator)
@@ -226,11 +228,11 @@ class VirtualcurrencyModelCommodity extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext        = JFile::makeSafe(JFile::getExt($image['name']));
+        $ext        = JFile::makeSafe(JFile::getExt($uploadedName));
         $suffix     = (strcmp('image', $type) === 0) ? '_image' : '_icon';
-        $filename   = Prism\Utilities\StringHelper::generateRandomString(12) . $suffix .'.' . $ext;
+        $filename   = Prism\Utilities\StringHelper::generateRandomString(12) .$suffix.'.' . $ext;
 
-        $destinationFile  = JPath::clean($mediaFolder . DIRECTORY_SEPARATOR . $filename);
+        $destinationFile  = JPath::clean($mediaFolder .'/'. $filename);
 
         if (!JFile::upload($uploadedFile, $destinationFile)) {
             throw new \RuntimeException(\JText::_('COM_VIRTUALCURRENCY_ERROR_FILE_CANT_BE_UPLOADED'));

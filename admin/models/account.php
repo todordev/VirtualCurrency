@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -60,7 +62,7 @@ class VirtualcurrencyModelAccount extends JModelAdmin
         if (!$data) {
             $data = $this->getItem();
 
-            $moneyFormatter = VirtualcurrencyHelper::getMoneyFormatter();
+            $moneyFormatter = Virtualcurrency\Intl\Helper::factory('joomla')->getNumberFormatter();
 
             if ($data->amount !== '') {
                 $data->amount = $moneyFormatter->format($data->amount);
@@ -79,16 +81,14 @@ class VirtualcurrencyModelAccount extends JModelAdmin
      */
     public function save($data)
     {
-        $id         = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $amount     = Joomla\Utilities\ArrayHelper::getValue($data, 'amount');
-        $currencyId = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id');
-        $userId     = Joomla\Utilities\ArrayHelper::getValue($data, 'user_id');
-        $note       = Joomla\Utilities\ArrayHelper::getValue($data, 'note');
+        $id         = ArrayHelper::getValue($data, 'id');
+        $amount     = ArrayHelper::getValue($data, 'amount');
+        $currencyId = ArrayHelper::getValue($data, 'currency_id');
+        $userId     = ArrayHelper::getValue($data, 'user_id');
+        $note       = ArrayHelper::getValue($data, 'note');
 
-        $moneyParser     = VirtualcurrencyHelper::getMoneyFormatter();
-        $numberFormatter = VirtualcurrencyHelper::getNumberFormatter();
-
-        $amount          = ($amount !== '') ? $numberFormatter->format($moneyParser->parse($amount)) : '0.00';
+        $moneyParser     = Virtualcurrency\Intl\Helper::factory('joomla')->getNumberParser();
+        $amount          = ($amount !== '') ? $moneyParser->parse($amount) : '0.00';
 
         // Load a record from the database
         $row = $this->getTable();

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -12,13 +12,11 @@ namespace Virtualcurrency\Helper;
 use Joomla\Registry\Registry;
 use Prism\Helper\HelperInterface;
 
-defined('JPATH_PLATFORM') or die;
-
 /**
  * This class provides functionality to prepare items parameters.
  *
  * @package      Virtualcurrency
- * @subpackage   Helpers
+ * @subpackage   Helper
  */
 class PrepareItemsParamsHelper implements HelperInterface
 {

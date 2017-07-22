@@ -83,7 +83,6 @@ class VirtualcurrencyObserverCurrency extends JTableObserver
                     JFile::delete($file);
                 }
             }
-
         }
     }
 }

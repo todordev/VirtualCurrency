@@ -40,11 +40,12 @@ class JFormFieldVccurrency extends JFormFieldList
      */
     protected function getOptions()
     {
-        $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $currencies->load();
+        $mapper     = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository = new Virtualcurrency\Currency\Repository($mapper);
+        $currencies = $repository->fetchAll();
 
         $columnValue = (isset($this->element['column_value']) and $this->element['column_value']) ? (string)$this->element['column_value'] : 'id';
-        $columnText = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
+        $columnText  = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
 
         // Get the options.
         $options = $currencies->toOptions($columnValue, $columnText);

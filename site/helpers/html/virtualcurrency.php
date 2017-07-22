@@ -129,21 +129,19 @@ abstract class JHtmlVirtualcurrency
      * Displays price per units.
      *
      * @param stdClass $item
-     * @param Prism\Money\Money $money
-     * @param Virtualcurrency\Currency\RealCurrency $realCurrency
+     * @param Prism\Money\Formatter $formatter
+     * @param Prism\Money\Currency $realCurrency
      * @param Virtualcurrency\Currency\Currencies $virtualCurrencies
      *
      * @return string
      */
-    public static function price($item, $money, $realCurrency, $virtualCurrencies)
+    public static function price($item, $formatter, $realCurrency, $virtualCurrencies)
     {
         $output = array();
 
         if ($item->params->get('price_real')) {
-            $money->setCurrency($realCurrency);
-            $money->setAmount($item->params->get('price_real'));
-
-            $formattedAmount = $money->formatCurrency();
+            $money = new Prism\Money\Money($item->params->get('price_real'), $realCurrency);
+            $formattedAmount = $formatter->formatCurrency($money);
 
             if ($item->params->get('minimum')) {
                 $formattedAmount .= ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->params->get('minimum')) . ' )';
@@ -153,12 +151,14 @@ abstract class JHtmlVirtualcurrency
         }
 
         if ($item->params->get('price_virtual') and (int)$item->params->get('currency_id') > 0) {
-            $currency  = $virtualCurrencies->getCurrency($item->params->get('currency_id'));
+            $virtualCurrency  = $virtualCurrencies->fetchById($item->params->get('currency_id'));
 
-            $money->setCurrency($currency);
-            $money->setAmount($item->params->get('price_virtual'));
+            $currency = new Prism\Money\Currency();
+            $currency->bind($virtualCurrency->getProperties());
 
-            $formattedAmount = $money->formatCurrency();
+            $money = new Prism\Money\Money($item->params->get('price_virtual'), $currency);
+
+            $formattedAmount = $formatter->formatCurrency($money);
 
             if ($item->params->get('minimum')) {
                 $formattedAmount .= ' ( ' .JText::sprintf('COM_VIRTUALCURRENCY_MINIMUM_D', $item->params->get('minimum')) . ' )';

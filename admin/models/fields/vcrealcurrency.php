@@ -41,8 +41,9 @@ class JFormFieldVcrealcurrency extends JFormFieldList
      */
     protected function getOptions()
     {
-        $currencies = new Virtualcurrency\Currency\RealCurrencies(JFactory::getDbo());
-        $currencies->load();
+        $mapper     = new Virtualcurrency\RealCurrency\Mapper(new Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository = new Virtualcurrency\RealCurrency\Repository($mapper);
+        $currencies = $repository->fetchAll();
 
         // Get the options.
         $options = $currencies->toOptions('id', 'title', 'code');

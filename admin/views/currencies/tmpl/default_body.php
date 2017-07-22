@@ -29,7 +29,7 @@ defined('_JEXEC') or die;
             <?php } ?>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('virtualcurrency.price', $item, $this->money, $this->realCurrency, $this->virtualCurrencies); ?>
+            <?php echo JHtml::_('virtualcurrency.price', $item, $this->formatter, $this->realCurrency, $this->virtualCurrencies); ?>
         </td>
         <td class="hidden-phone">
             <?php echo JHtml::_('virtualcurrency.currencyDetails', $item); ?>

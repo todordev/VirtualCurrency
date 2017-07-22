@@ -7,11 +7,18 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\String\StringHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
 class VirtualcurrencyViewCurrency extends JViewLegacy
 {
+    /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
     /**
      * @var JDocumentHtml
      */
@@ -36,7 +43,8 @@ class VirtualcurrencyViewCurrency extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
         
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
@@ -60,8 +68,8 @@ class VirtualcurrencyViewCurrency extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id === 0);
+        $this->app->input->set('hidemainmenu', true);
+        $isNew = ((int)$this->item->id === 0);
 
         $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_NEW_CURRENCY') : JText::_('COM_VIRTUALCURRENCY_EDIT_CURRENCY');
 
@@ -96,6 +104,6 @@ class VirtualcurrencyViewCurrency extends JViewLegacy
         JText::script('COM_VIRTUALCURRENCY_QUESTION_REMOVE_IMAGES');
 
         // Add scripts
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

@@ -3,9 +3,16 @@
  * @package         VirtualCurrency
  * @subpackage      Plugins
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
+
+use Virtualcurrency\Cart\Item as CartItem;
+use Prism\Payment\Result as PaymentResult;
+use Virtualcurrency\Payment\Session\Session as PaymentSession;
+use Joomla\Utilities\ArrayHelper;
+use Virtualcurrency\Transaction\Transaction;
+use Virtualcurrency\Account\Account;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -39,8 +46,16 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
      */
     public function onPreparePayment($context, &$item, &$params)
     {
+        if (strcmp('com_virtualcurrency.payment.prepare', $context) !== 0) {
+            return null;
+        }
+
+        if (!isset($item->order)) {
+            return null;
+        }
+
         // The plugin can only be used for payment via real currency.
-        $currencyType = (is_array($item->order) and array_key_exists('currency_type', $item->order)) ? $item->order['currency_type'] : '';
+        $currencyType = ($item->order instanceof CartItem) ? $item->order->getCurrencyType() : '';
         if (!in_array($currencyType, array('virtual', 'both'), true)) {
             return null;
         }
@@ -61,22 +76,15 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             return null;
         }
 
-        if (strcmp('com_virtualcurrency.payment.prepare', $context) !== 0) {
-            return null;
-        }
-
-        $virtualCurrencyData = array();
-        if (isset($item->order) or !is_array($item->order) and array_key_exists('virtual', $item->order)) {
-            $virtualCurrencyData = $item->order['virtual'];
-        }
-
-        if (!$virtualCurrencyData or !array_key_exists('currency_id', $virtualCurrencyData)) {
+        $virtualCurrencyData = $item->order->price('virtual');
+        if (!$virtualCurrencyData->getCurrencyId()) {
             return null;
         }
 
         // Get the virtual currency that will be used for payment.
-        $currency = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
-        $currency->load($virtualCurrencyData['currency_id']);
+        $mapper       = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository   = new Virtualcurrency\Currency\Repository($mapper);
+        $currency     = $repository->fetchById($virtualCurrencyData->getCurrencyId());
         if (!$currency->getId()) {
             return null;
         }
@@ -86,25 +94,27 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             return null;
         }
 
-        $account = new Virtualcurrency\Account\Account(JFactory::getDbo());
-        $account->load(array('user_id' => $userId, 'currency_id' => $currency->getId()));
+        $mapper     = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository = new Virtualcurrency\Account\Repository($mapper);
+        $account    = $repository->fetch(['user_id' => $userId, 'currency_id' => $currency->getId()]);
         if (!$account->getId() or !$account->isActive()) {
             return null;
         }
 
-        $totalCost              = $virtualCurrencyData['total_cost'];
-        $currencyCode           = $virtualCurrencyData['currency_code'];
+        $totalCost              = $virtualCurrencyData->getTotal();
+        $currencyCode           = $virtualCurrencyData->getCurrencyCode();
         $currencyTitle          = htmlentities($currency->getTitle(), ENT_QUOTES, 'UTF-8');
-        $numberOfItemsFormatted = htmlentities($item->order['items_number_formatted'], ENT_QUOTES, 'UTF-8');
-        $itemsCostFormatted     = htmlentities($virtualCurrencyData['items_cost_formatted'], ENT_QUOTES, 'UTF-8');
+        $numberOfItemsFormatted = htmlentities($item->order->getItemsNumberFormatted(), ENT_QUOTES, 'UTF-8');
+        $itemsCostFormatted     = htmlentities($virtualCurrencyData->getTotalFormatted(), ENT_QUOTES, 'UTF-8');
 
         $componentParams        = JComponentHelper::getParams('com_virtualcurrency');
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $money = new Prism\Money\Money($moneyFormatter);
-        $money->setCurrency($currency);
+        $moneyFormatter  = Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
+        /** @var $moneyFormatter \Prism\Money\Formatter  */
 
-        $availableAmount = $money->setAmount($account->getAmount())->formatCurrency();
+        $moneyCurrency   = new Prism\Money\Currency($currency->getProperties());
+        $money           = new Prism\Money\Money($account->getAmount(), $moneyCurrency);
+        $availableAmount = $moneyFormatter->formatCurrency($money);
 
         // URL to images.
         $imageURI = JUri::base() . $componentParams->get('media_folder', 'images/virtualcurrency');
@@ -138,7 +148,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         // Start the form.
         $html[] = '<form action="/index.php?option=com_virtualcurrency" method="post">';
         $html[] = '<input type="hidden" name="task" value="payments.checkout" />';
-        $html[] = '<input type="hidden" name="payment_service" value="paymentgateway" />';
+        $html[] = '<input type="hidden" name="service_alias" value="'.$this->serviceAlias.'" />';
         $html[] = JHtml::_('form.token');
 
         // Prepare button
@@ -164,9 +174,13 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
      * @param stdClass                 $item
      * @param Joomla\Registry\Registry $params
      *
-     * @return null|array
+     * @return PaymentResult
+     *
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \RuntimeException
      */
-    public function onPaymentsCheckout($context, &$item, &$params)
+    public function onPaymentsCheckout($context, $item, $params)
     {
         if (strcmp('com_virtualcurrency.payments.checkout.paymentgateway', $context) !== 0) {
             return null;
@@ -188,12 +202,7 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         // Validate request method
         $requestMethod = $this->app->input->getMethod();
         if (strcmp('POST', $requestMethod) !== 0) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_REQUEST_METHOD'),
-                $this->debugType,
-                JText::sprintf($this->textPrefix . '_ERROR_INVALID_TRANSACTION_REQUEST_METHOD', $requestMethod)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_REQUEST_METHOD'), $this->debugType, JText::sprintf($this->textPrefix . '_ERROR_INVALID_TRANSACTION_REQUEST_METHOD', $requestMethod));
             return null;
         }
 
@@ -201,18 +210,16 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESPONSE'), $this->debugType, $_POST) : null;
 
         // Prepare output data.
-        $output = array(
-            'redirect_url' => VirtualcurrencyHelperRoute::getCartRoute(),
-            'message'      => ''
-        );
-        
+        $paymentResult = new PaymentResult;
+        $paymentResult->redirectUrl = VirtualcurrencyHelperRoute::getCartRoute();
+
         // Get payment session.
         $cartSession    = $this->app->getUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT);
 
         $paymentSession = $this->getPaymentSession(array(
             'session_id' => $cartSession->session_id
         ));
-        
+
         // Create the charge on Stripe's servers - this will charge the user's card
         try {
             // DEBUG DATA
@@ -221,43 +228,68 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             // Validate transaction data
             $validData = $this->validateData($item, $paymentSession);
             if ($validData === null) {
-                return $output;
+                return $paymentResult;
             }
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_VALID_DATA'), $this->debugType, $validData) : null;
 
+            // Get the account from which we will have to get units.
+            $payerId      = ArrayHelper::getValue($validData, 'receiver_id');
+            $currencyId   = $item->order->price('virtual')->getCurrencyId();
+
+            $accountMapper      = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $accountRepository  = new Virtualcurrency\Account\Repository($accountMapper);
+            $account            = $accountRepository->fetch(['user_id' => $payerId, 'currency_id' => $currencyId]);
+
+            // DEBUG DATA
+            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_ACCOUNT_OBJECT'), $this->debugType, $account->getProperties()) : null;
+
+            // Check for valid project
+            if (!$account->getId()) {
+                $paymentResult->message = JText::_($this->textPrefix . '_ERROR_INVALID_ACCOUNT');
+                $this->log->add($paymentResult->message, $this->debugType, $validData);
+                return $paymentResult;
+            }
+
+            // Check if user account contains enough units.
+            if ($validData['txn_amount'] > $account->getAmount()) {
+                $paymentResult->message = 'The amount of the transaction is greater than the available in the account of the user.';
+                return $paymentResult;
+            }
+
             // Save transaction data.
             // If it is not completed, return empty results.
             // If it is complete, continue with process transaction data
-            $transaction = $this->storeTransaction($item, $validData, $this->params->get('sandbox', 1));
-
+            $transaction = $this->storeTransaction($validData, $account, $this->params->get('sandbox', Prism\Constants::YES));
             if ($transaction !== null) {
-                $transaction = $transaction->getProperties();
-                $transaction = Joomla\Utilities\ArrayHelper::toObject($transaction);
+                $transaction                = $transaction->getProperties();
+                $paymentResult->transaction = ArrayHelper::toObject($transaction);
             }
         } catch (RuntimeException $e) {
-            $output['message']      = $e->getMessage();
-            return $output;
+            $paymentResult->message  = $e->getMessage();
+            return $paymentResult;
         } catch (Exception $e) {
-            $output['message']      = $e->getMessage();
-            return $output;
+            $paymentResult->message  = $e->getMessage();
+            return $paymentResult;
         }
 
         // Get next URL.
-        $output['redirect_url'] = ($this->getReturnUrl()) ?: VirtualcurrencyHelperRoute::getCartRoute('summary');
+        $paymentResult->redirectUrl = $this->getReturnUrl() ?: VirtualcurrencyHelperRoute::getCartRoute('summary');
+        $paymentResult->skipEvent(PaymentResult::EVENT_AFTER_PAYMENT_NOTIFY);
+        $paymentResult->skipEvent(PaymentResult::EVENT_AFTER_PAYMENT);
 
         // Send mails
-        $this->sendMails($item, $transaction, $params);
+        $this->sendMails($paymentResult, $params);
 
-        return $output;
+        return $paymentResult;
     }
 
     /**
      * Validate transaction.
      *
      * @param stdClass                        $item
-     * @param Virtualcurrency\Payment\Session $paymentSession
+     * @param PaymentSession $paymentSession
      *
      * @return array
      */
@@ -268,44 +300,33 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
         // Prepare transaction data
         $transaction = array(
             'title'            => htmlentities($item->title, ENT_QUOTES, 'UTF-8'),
-            'units'            => (int)abs($item->order['items_number']),
+            'units'            => (int)abs($item->order->getItemsNumber()),
             'sender_id'        => Virtualcurrency\Constants::BANK_ID,
             'receiver_id'      => (int)$paymentSession->getUserId(),
             'item_id'          => (int)$item->id,
-            'item_type'        => $item->order['item_type'],
-            'service_provider' => JText::_($this->textPrefix.'_SYSTEM'),
+            'item_type'        => $item->order->getItemType(),
+            'service_provider' => $this->serviceProvider,
+            'service_alias'    => $this->serviceAlias,
             'txn_id'           => strtoupper(Prism\Utilities\StringHelper::generateRandomString(16)),
-            'txn_amount'       => $item->order['virtual']['total_cost'],
-            'txn_currency'     => $item->order['virtual']['currency_code'],
+            'txn_amount'       => $item->order->price('virtual')->getTotal(),
+            'txn_currency'     => $item->order->price('virtual')->getCurrencyCode(),
             'txn_status'       => 'pending',
             'txn_date'         => $date->toSql()
         );
 
         // Check Currency ID and Transaction ID
         if (!$transaction['item_id'] or !$transaction['receiver_id']) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'),
-                $this->debugType,
-                $transaction
-            );
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'), $this->debugType, $transaction);
             return null;
         }
 
         if (!$transaction['txn_amount'] or !$transaction['txn_currency']) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_AMOUNT_OR_CURRENCY'),
-                $this->debugType,
-                $transaction
-            );
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_AMOUNT_OR_CURRENCY'), $this->debugType, $transaction);
             return null;
         }
 
         if (!in_array($transaction['item_type'], array('currency', 'commodity'), true)) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_ITEM_TYPE'),
-                $this->debugType,
-                $transaction
-            );
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_ITEM_TYPE'), $this->debugType, $transaction);
             return null;
         }
 
@@ -315,22 +336,26 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
     /**
      * Save transaction.
      *
-     * @param stdClass $item
      * @param array $data
+     * @param Account $account
      * @param bool $testMode
      *
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
      *
-     * @return null|Virtualcurrency\Transaction\Transaction
+     * @return null|Transaction
      */
-    protected function storeTransaction($item, $data, $testMode)
+    protected function storeTransaction($data, Account $account, $testMode)
     {
         // Get transaction by txn ID
         $keys        = array(
-            'txn_id' => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id')
+            'txn_id' => ArrayHelper::getValue($data, 'txn_id')
         );
-        $transaction = new Virtualcurrency\Transaction\Transaction(JFactory::getDbo());
-        $transaction->load($keys);
+
+        $txnMapper      = new Virtualcurrency\Transaction\Mapper(new Virtualcurrency\Transaction\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $txnRepository  = new Virtualcurrency\Transaction\Repository($txnMapper);
+        $transaction    = $txnRepository->fetch($keys);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_TRANSACTION_OBJECT'), $this->debugType, $transaction->getProperties()) : null;
@@ -341,80 +366,22 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             throw new \RuntimeException('Transaction has been completed.');
         }
 
-        // Get the account from which we will have to get units.
-        $userId       = Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id');
-        $currencyId   = Joomla\Utilities\ArrayHelper::getValue($item->order['virtual'], 'currency_id');
-
-        $account      = new Virtualcurrency\Account\Account(JFactory::getDbo());
-        $account->load(array('user_id' => $userId, 'currency_id' => $currencyId));
-
-        // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_ACCOUNT_OBJECT'), $this->debugType, $account->getProperties()) : null;
-
-        // Check for valid project
-        if (!$account->getId()) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_ACCOUNT'),
-                $this->debugType,
-                $data
-            );
-
-            throw new \RuntimeException('Invalid account.');
-        }
-
-        // Check if user account contains enough units.
-        if ($data['txn_amount'] > $account->getAmount()) {
-            throw new \RuntimeException('The amount of the transaction is greater than the available in the account of the user.');
-        } else {
-            $data['txn_status'] = 'completed';
-        }
+        $data['txn_status'] = 'completed';
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_TRANSACTION_OBJECT'), $this->debugType, $data) : null;
-
         if ($testMode) {
-            throw new \RuntimeException('Transaction in test mode.');
+            return null;
         }
+
+        // Store the new transaction data.
+        $transaction->bind($data);
 
         // Start database transaction.
-        $db = JFactory::getDbo();
-        $db->transactionStart();
-
-        try {
-            // Store the new transaction data.
-            $transaction->bind($data);
-            $transaction->store();
-
-            // If it is not completed (it might be pending or other status),
-            // stop the process. Only completed transaction will continue
-            // and will process the units.
-            if (!$transaction->isCompleted()) {
-                return null;
-            }
-
-            // Decrease the amount in user's account.
-            $account->decreaseAmount($transaction->getAmount());
-            $account->storeAmount();
-
-            // Increase units.
-            if (strcmp('currency', $transaction->getItemType()) === 0) {
-                $account = new Virtualcurrency\Account\Account(JFactory::getDbo());
-                $account->load(array('user_id' => $userId, 'currency_id' => $item->id));
-
-                $account->increaseAmount($transaction->getUnits());
-                $account->storeAmount();
-            } else {
-                $commodity = new Virtualcurrency\User\Commodity(JFactory::getDbo());
-                $commodity->load(array('user_id' => $userId, 'commodity_id' => $item->id));
-
-                $commodity->increaseNumber($transaction->getUnits());
-                $commodity->storeNumber();
-            }
-
-            $db->transactionCommit();
-        } catch (Exception $e) {
-            $db->transactionRollback();
-        }
+        $transactionalApp       = new \Virtualcurrency\Transaction\Service\Joomla\CommodityByVirtual($transaction, $account, JFactory::getDbo());
+        $transactionalSession   = new \Prism\Database\JoomlaDatabaseSession(JFactory::getDbo());
+        $paymentTransaction     = new \Prism\Domain\TransactionalApplicationService($transactionalApp, $transactionalSession);
+        $paymentTransaction->execute();
 
         return $transaction;
     }

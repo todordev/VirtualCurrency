@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class VirtualcurrencyViewRealCurrency extends JViewLegacy
 {
     /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -30,7 +35,8 @@ class VirtualcurrencyViewRealCurrency extends JViewLegacy
     
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
         
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
@@ -50,8 +56,8 @@ class VirtualcurrencyViewRealCurrency extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id === 0);
+        $this->app->input->set('hidemainmenu', true);
+        $isNew = ((int)$this->item->id === 0);
 
         $this->documentTitle = $isNew ? JText::_('COM_VIRTUALCURRENCY_REAL_NEW_CURRENCY') : JText::_('COM_VIRTUALCURRENCY_REAL_EDIT_CURRENCY');
 
@@ -83,6 +89,6 @@ class VirtualcurrencyViewRealCurrency extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

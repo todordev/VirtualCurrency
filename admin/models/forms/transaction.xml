@@ -13,7 +13,7 @@
                filter="float"
                />
 
-        <field name="txn_id" type="text"
+        <field name="txn_id" type="text" class="input-xxlarge"
                label="COM_VIRTUALCURRENCY_TXN_ID"
                description="COM_VIRTUALCURRENCY_TXN_ID_DESC"
                />

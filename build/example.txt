@@ -1,6 +1,0 @@
-cfg.name=virtualcurrency
-cfg.version=v2.1
-cfg.joomlaVersion=J3.5
-cfg.buildDir=packages
-cfg.sourceDir=/.../.../virtualcurrency
-cfg.pkgDir=/.../.../pkg_virtualcurrency

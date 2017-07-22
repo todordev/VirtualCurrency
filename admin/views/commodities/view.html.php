@@ -7,11 +7,19 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Virtualcurrency\Commodity\Command\CreateCommodities;
+use Virtualcurrency\Commodity\Command\Gateway\JoomlaCreateCommodities;
+
 // no direct access
 defined('_JEXEC') or die;
 
 class VirtualcurrencyViewCommodities extends JViewLegacy
 {
+    /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
     /**
      * @var JDocumentHtml
      */
@@ -43,34 +51,47 @@ class VirtualcurrencyViewCommodities extends JViewLegacy
     protected $mediaFolderUrl;
     protected $realCurrency;
     protected $virtualCurrencies;
-    protected $money;
+    protected $formatter;
 
     public $activeFilters;
     public $filterForm;
 
     public function display($tpl = null)
     {
-        $this->option     = JFactory::getApplication()->input->get('option');
+        // Create commodities.
+        $createCommoditiesCommand = new CreateCommodities();
+        $createCommoditiesCommand->setGateway(new JoomlaCreateCommodities(JFactory::getDbo()));
+        $createCommoditiesCommand->handle();
 
-        VirtualcurrencyHelper::createCommodities();
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
 
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $this->params         = $this->state->get('params');
+        $this->params     = $this->state->get('params');
 
         $this->mediaFolderUrl = JUri::root() . $this->params->get('media_folder', 'images/virtualcurrency');
 
-        // Get real and virtual currencies
-        $this->realCurrency   = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
-        $this->realCurrency->load($this->params->get('currency_id'));
+        // Load all currencies
+        $mapper                  = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository              = new Virtualcurrency\Currency\Repository($mapper);
+        $this->virtualCurrencies = $repository->fetchAll();
 
-        $this->virtualCurrencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->virtualCurrencies->load();
+        // Get real currencies
+        if ((int)$this->params->get('currency_id')) {
+            $mapper             = new Virtualcurrency\RealCurrency\Mapper(new Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $repository         = new Virtualcurrency\RealCurrency\Repository($mapper);
+            $currency           = $repository->fetchById($this->params->get('currency_id'));
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $this->money     = new Prism\Money\Money($moneyFormatter);
+            $this->realCurrency = new Prism\Money\Currency($currency->getProperties());
+        } else {
+            $this->app->enqueueMessage(JText::sprintf('COM_VIRTUALCURRENCY_REAL_CURRENCY_SELECTION_S', JRoute::_('index.php?option=com_virtualcurrency&view=import', false)), 'warning');
+            $this->realCurrency = new Prism\Money\Currency();
+        }
+
+        $this->formatter      = \Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
         $helperBus       = new Prism\Helper\HelperBus($this->items);
         $helperBus->addCommand(new Virtualcurrency\Helper\PrepareItemsParamsHelper());

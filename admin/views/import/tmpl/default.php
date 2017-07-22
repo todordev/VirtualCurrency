@@ -17,32 +17,14 @@ defined('_JEXEC') or die;
 
             <fieldset>
                 <legend><?php echo $this->legend; ?></legend>
+                <?php echo $this->form->renderField('data'); ?>
+                <?php echo $this->form->renderField('reset_id'); ?>
+                <?php echo $this->form->renderField('remove_old'); ?>
 
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('data'); ?></div>
-                    <div class="controls">
-
-                        <div class="fileupload fileupload-new" data-provides="fileupload">
-                            <span class="btn btn-file">
-                                <span class="fileupload-new"><i class="icon-folder-open"></i> <?php echo JText::_("COM_VIRTUALCURRENCY_SELECT_FILE"); ?></span>
-                                <span class="fileupload-exists"><i class="icon-folder-open"></i> <?php echo JText::_("COM_VIRTUALCURRENCY_CHANGE"); ?></span>
-                                <?php echo $this->form->getInput('data'); ?>
-                            </span>
-                            <span class="fileupload-preview"></span>
-                            <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
-                        </div>
-                    </div>
+                <div class="alert alert-info">
+                    <i class="icon icon-info"></i>
+                    <?php echo JText::sprintf('COM_VIRTUALCURRENCY_DOWNLOAD_REAL_CURRENCY_S', 'https://github.com/ITPrism/currency-list'); ?>
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('reset_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('reset_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('remove_old'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('remove_old'); ?></div>
-                </div>
-
             </fieldset>
 
             <input type="hidden" name="task" value="" id="task"/>

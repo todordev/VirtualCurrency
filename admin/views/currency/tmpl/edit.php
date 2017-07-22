@@ -52,7 +52,7 @@ defined('_JEXEC') or die;
                         <tr>
                             <?php if ($this->item->image) {?>
                                 <td>
-                                    <a href="<?php echo JRoute::_('index.php?option=com_virtualcurrency&task=commodity.removeImage&type=image&'.JSession::getFormToken().'=1&id='.(int)$this->item->id);?>" class="btn btn-mini btn-danger js-remove-images">
+                                    <a href="<?php echo JRoute::_('index.php?option=com_virtualcurrency&task=currency.removeImage&type=image&'.JSession::getFormToken().'=1&id='.(int)$this->item->id);?>" class="btn btn-mini btn-danger js-remove-images">
                                         <i class="icon-trash"></i>
                                         <?php echo JText::_('COM_VIRTUALCURRENCY_REMOVE_IMAGE'); ?>
                                     </a>
@@ -60,7 +60,7 @@ defined('_JEXEC') or die;
                             <?php } ?>
                             <?php if ($this->item->image_icon) {?>
                                 <td>
-                                    <a href="<?php echo JRoute::_('index.php?option=com_virtualcurrency&task=commodity.removeImage&type=icon&'.JSession::getFormToken().'=1&id='.(int)$this->item->id);?>" class="btn btn-mini btn-danger js-remove-images">
+                                    <a href="<?php echo JRoute::_('index.php?option=com_virtualcurrency&task=currency.removeImage&type=icon&'.JSession::getFormToken().'=1&id='.(int)$this->item->id);?>" class="btn btn-mini btn-danger js-remove-images">
                                         <i class="icon-trash"></i>
                                         <?php echo JText::_('COM_VIRTUALCURRENCY_REMOVE_ICON'); ?>
                                     </a>

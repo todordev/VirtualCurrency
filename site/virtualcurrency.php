@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('Prism.init');
 jimport('Virtualcurrency.init');
+jimport('Emailtemplates.init');
 
 $controller = JControllerLegacy::getInstance('Virtualcurrency');
 $controller->execute(JFactory::getApplication()->input->getCmd('task'));

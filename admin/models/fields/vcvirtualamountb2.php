@@ -39,13 +39,15 @@ class JFormFieldVcvirtualamountb2 extends JFormField
         $maxLength = $this->element['maxlength'] ? ' maxlength="' . (int)$this->element['maxlength'] . '"' : '';
         $readonly  = ((string)$this->element['readonly'] === 'true') ? ' readonly="readonly"' : '';
         $disabled  = ((string)$this->element['disabled'] === 'true') ? ' disabled="disabled"' : '';
-        $class     = (!empty($this->element['class'])) ? ' class="' . (string)$this->element['class'] . '"' : "";
+        $class     = (!empty($this->element['class'])) ? ' class="' . (string)$this->element['class'] . '"' : '';
 
         // Initialize JavaScript field attributes.
         $onchange = $this->element['onchange'] ? ' onchange="' . (string)$this->element['onchange'] . '"' : '';
 
-        $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $currencies->load();
+        $mapper       = new Virtualcurrency\Currency\Mapper(new \Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository   = new Virtualcurrency\Currency\Repository($mapper);
+        $currencies   = $repository->fetchAll();
+        /** @var Virtualcurrency\Currency\Currencies $currencies */
 
         // Get the options.
         $options = $currencies->toOptions('id', 'code');

@@ -10,7 +10,8 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<?php foreach ($this->items as $i => $item) {?>
+<?php foreach ($this->items as $i => $item) {
+    ?>
     <tr class="row<?php echo $i % 2; ?>">
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
@@ -24,11 +25,11 @@ defined('_JEXEC') or die;
             <?php echo $item->units; ?>
         </td>
         <td class="hidden-phone">
-            <?php echo $item->txn_amount . ' ' . $item->txn_currency; ?>
+            <?php echo $item->txn_amount; ?>
         </td>
 
         <td class="hidden-phone">
-            <?php echo ($item->sender) ?: JText::_('COM_VIRTUALCURRENCY_BANK'); ?>
+            <?php echo $item->sender ?: JText::_('COM_VIRTUALCURRENCY_BANK'); ?>
         </td>
         <td class="hidden-phone">
             <?php echo $this->escape($item->receiver); ?>
@@ -50,4 +51,3 @@ defined('_JEXEC') or die;
         </td>
     </tr>
 <?php } ?>
-	  

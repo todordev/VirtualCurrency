@@ -11,8 +11,10 @@
 defined('_JEXEC') or die;
 ?>
 <?php foreach ($this->items as $i => $item) {
-    $currency  = $this->virtualCurrencies->getCurrency($item->currency_id);
-    $this->money->setCurrency($currency);
+    $currency  = $this->currencies->fetchById($item->currency_id);
+    /** @var Virtualcurrency\Currency\Currency $currency */
+
+    $money = new Prism\Money\Money($item->amount, new Prism\Money\Currency($currency->getProperties()));
     ?>
     <tr class="row<?php echo $i % 2; ?>">
         <td class="center hidden-phone">
@@ -33,7 +35,7 @@ defined('_JEXEC') or die;
             </div>
         </td>
         <td class="hidden-phone">
-            <?php echo $this->money->setAmount($item->amount)->formatCurrency(); ?>
+            <?php echo $this->formatter->formatCurrency($money); ?>
         </td>
         <td class="center hidden-phone">
             <?php echo $item->created_at; ?>

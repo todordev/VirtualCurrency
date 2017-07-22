@@ -18,6 +18,13 @@ defined('_JEXEC') or die;
  */
 class VirtualcurrencyControllerExport extends JControllerLegacy
 {
+    /**
+     * @param string $name
+     * @param string $prefix
+     * @param array  $config
+     *
+     * @return bool|VirtualcurrencyModelExport
+     */
     public function getModel($name = 'Export', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);

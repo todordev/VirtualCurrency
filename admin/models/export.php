@@ -29,9 +29,7 @@ class VirtualcurrencyModelExport extends JModelLegacy
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, 'currencies', 'currency');
-
-        return $output;
+        return $this->prepareXML($results, 'currencies', 'currency');
     }
 
     protected function prepareXML($results, $root, $child)

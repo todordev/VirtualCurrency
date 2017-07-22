@@ -19,6 +19,13 @@ defined('_JEXEC') or die;
  */
 class VirtualcurrencyControllerCurrency extends Prism\Controller\Form\Backend
 {
+    /**
+     * @param string $name
+     * @param string $prefix
+     * @param array  $config
+     *
+     * @return VirtualcurrencyModelCurrency
+     */
     public function getModel($name = 'Currency', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
@@ -93,8 +100,8 @@ class VirtualcurrencyControllerCurrency extends Prism\Controller\Form\Backend
         // Check for request forgeries.
         JSession::checkToken('get') or jexit(JText::_('JINVALID_TOKEN'));
 
-        $itemId = $this->input->getInt('id', 0);
-        $type   = $this->input->getCmd('type');
+        $itemId = $this->input->get->getUint('id');
+        $type   = $this->input->get->getCmd('type');
 
         $redirectOptions = array(
             'view' => 'currency',
@@ -102,7 +109,6 @@ class VirtualcurrencyControllerCurrency extends Prism\Controller\Form\Backend
         );
 
         try {
-
             $params = JComponentHelper::getParams('com_virtualcurrency');
 
             $mediaFolder = JPath::clean(JPATH_ROOT .'/'. $params->get('media_folder', 'images/virtualcurrency'));

@@ -38,7 +38,7 @@ class VirtualcurrencyViewTransactions extends JViewLegacy
     protected $saveOrderingUrl;
     protected $realCurrencies;
     protected $currencies;
-    protected $money;
+    protected $moneyFormatter;
 
     protected $pageclass_sfx;
 
@@ -52,17 +52,18 @@ class VirtualcurrencyViewTransactions extends JViewLegacy
 
         $this->params     = $this->state->get('params');
 
-        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->currencies->load();
+        $gateway          = new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo());
+        $repository       = new Virtualcurrency\Currency\Repository(new Virtualcurrency\Currency\Mapper($gateway));
+        $this->currencies = $repository->fetchAll();
 
-        $this->realCurrencies = new Virtualcurrency\Currency\RealCurrencies(JFactory::getDbo());
-        $this->realCurrencies->load();
+        $gateway          = new Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo());
+        $repository       = new Virtualcurrency\RealCurrency\Repository(new Virtualcurrency\RealCurrency\Mapper($gateway));
+        $this->realCurrencies = $repository->fetchAll();
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $this->money     = new Prism\Money\Money($moneyFormatter);
+        $this->moneyFormatter  = Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
         $helperBus       = new Prism\Helper\HelperBus($this->items);
-        $command         = new Virtualcurrency\Helper\PrepareTransactionsHelper($this->money, $this->currencies, $this->realCurrencies);
+        $command         = new Virtualcurrency\Helper\PrepareTransactionsHelper($this->moneyFormatter, $this->currencies, $this->realCurrencies);
         $helperBus->addCommand($command);
         $helperBus->handle();
 

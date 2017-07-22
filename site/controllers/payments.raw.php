@@ -7,6 +7,10 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+use Joomla\Data\DataObject;
+use Joomla\String\StringHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -40,6 +44,9 @@ class VirtualcurrencyControllerPayments extends JControllerLegacy
      * This method trigger the event onPaymentsPreparePayment.
      * The purpose of this method is to load a data and send it to browser.
      * That data will be used in the process of payment.
+     *
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function preparePaymentAjax()
     {
@@ -54,11 +61,10 @@ class VirtualcurrencyControllerPayments extends JControllerLegacy
 
         // Check for disabled payment functionality
         if ($params->get('debug_payment_disabled', 0)) {
-
             // Send response to the browser
             $response
                 ->setTitle(JText::_('COM_VIRTUALCURRENCY_FAIL'))
-                ->setText(JText::_('COM_VIRTUALCURRENCY_ERROR_PAYMENT_HAS_BEEN_DISABLED_MESSAGE'))
+                ->setContent(JText::_('COM_VIRTUALCURRENCY_ERROR_PAYMENT_HAS_BEEN_DISABLED_MESSAGE'))
                 ->failure();
 
             echo $response;
@@ -69,12 +75,11 @@ class VirtualcurrencyControllerPayments extends JControllerLegacy
 
         // Prepare payment service name.
         $filter         = new JFilterInput();
-        $paymentService = JString::trim(JString::strtolower($this->input->getCmd('payment_service')));
+        $paymentService = StringHelper::trim(StringHelper::strtolower($this->input->getCmd('payment_service')));
         $paymentService = $filter->clean($paymentService, 'ALNUM');
 
         // Trigger the event
         try {
-
             $context = 'com_virtualcurrency.preparepayment.' . $paymentService;
 
             // Import Virtualcurrency Payment Plugins
@@ -102,36 +107,36 @@ class VirtualcurrencyControllerPayments extends JControllerLegacy
             $response
                 ->failure()
                 ->setTitle(JText::_('COM_VIRTUALCURRENCY_FAIL'))
-                ->setText(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
+                ->setContent(JText::_('COM_VIRTUALCURRENCY_ERROR_SYSTEM'));
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         // Check the response
-        $success = Joomla\Utilities\ArrayHelper::getValue($output, 'success');
+        $success = ArrayHelper::getValue($output, 'success');
         if (!$success) { // If there is an error...
             $paymentProcessContext = Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT;
 
             // Initialize the payment process object.
-            $paymentProcess        = new JData();
+            $paymentProcess        = new DataObject();
             $paymentProcess->step1 = false;
             $app->setUserState($paymentProcessContext, $paymentProcess);
 
             // Send response to the browser
             $response
                 ->failure()
-                ->setTitle(Joomla\Utilities\ArrayHelper::getValue($output, 'title'))
-                ->setText(Joomla\Utilities\ArrayHelper::getValue($output, 'text'));
+                ->setTitle(ArrayHelper::getValue($output, 'title'))
+                ->setContent(ArrayHelper::getValue($output, 'text'));
         } else { // If all is OK...
             $response
                 ->success()
-                ->setTitle(Joomla\Utilities\ArrayHelper::getValue($output, 'title'))
-                ->setText(Joomla\Utilities\ArrayHelper::getValue($output, 'text'))
-                ->setData(Joomla\Utilities\ArrayHelper::getValue($output, 'data'));
+                ->setTitle(ArrayHelper::getValue($output, 'title'))
+                ->setContent(ArrayHelper::getValue($output, 'text'))
+                ->setData(ArrayHelper::getValue($output, 'data'));
         }
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="module" version="3.5" client="site" method="upgrade">
+<extension type="module" version="3.7" client="site" method="upgrade">
     <name>MOD_VIRTUALCURRENCYACCOUNTS</name>
     <author>Todor Iliev</author>
-    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
+    <copyright>Copyright (C) 2017 Todor Iliev ( ITPrism.com )</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.1</version>
-    <creationDate>11 May, 2016</creationDate>
+    <version>3.0</version>
+    <creationDate>22 July, 2017</creationDate>
     <description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" >Virtual Currency Accounts</a> is a module that displays currency state of accounts used for managing virtual currency.</p>
     <p><a href='http://itprism.com/help/111-virtual-currency-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>

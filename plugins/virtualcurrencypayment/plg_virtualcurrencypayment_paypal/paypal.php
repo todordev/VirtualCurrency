@@ -3,12 +3,16 @@
  * @package         VirtualCurrency
  * @subpackage      Plugins
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2017h Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
-use Joomla\Registry\Registry;
+use Virtualcurrency\Payment\Session\Session as PaymentSession;
+use Virtualcurrency\Cart\Item as CartItem;
 use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
+use Prism\Payment\Result as PaymentResult;
+use Virtualcurrency\Transaction\Transaction;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -21,6 +25,8 @@ defined('_JEXEC') or die;
  */
 class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
 {
+    protected $logFile    = 'vc_paypal.log.php';
+
     public function __construct(&$subject, $config = array())
     {
         parent::__construct($subject, $config);
@@ -39,11 +45,19 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
      * @param Registry $params Component options.
      *
      * @return null|string
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws UnexpectedValueException
      */
     public function onPreparePayment($context, &$item, &$params)
     {
-        $currencyType = (is_array($item->order) and array_key_exists('currency_type', $item->order)) ? $item->order['currency_type'] : '';
+        if (strcmp('com_virtualcurrency.payment.prepare', $context) !== 0) {
+            return null;
+        }
+
         // The plugin can only be used for payment via real currency.
+        $currencyType = ($item->order instanceof CartItem) ? $item->order->getCurrencyType() : '';
         if (!in_array($currencyType, array('real', 'both'), true)) {
             return null;
         }
@@ -64,26 +78,21 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
             return null;
         }
 
-        if (strcmp('com_virtualcurrency.payment.prepare', $context) !== 0) {
-            return null;
-        }
-
         $notifyUrl = $this->getCallbackUrl();
         $returnUrl = $this->getReturnUrl();
         $cancelUrl = $this->getCancelUrl();
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_NOTIFY_URL'), $this->debugType, $notifyUrl) : null;
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RETURN_URL'), $this->debugType, $returnUrl) : null;
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_CANCEL_URL'), $this->debugType, $cancelUrl) : null;
+        JDEBUG ? $this->log->add('URL for notifying from IPN', $this->debugType, $notifyUrl) : null;
+        JDEBUG ? $this->log->add('Return URL', $this->debugType, $returnUrl) : null;
+        JDEBUG ? $this->log->add('Cancel URL', $this->debugType, $cancelUrl) : null;
 
         $html   = array();
         $html[] = '<div class="well">';
-
         $html[] = '<h4><img src="plugins/virtualcurrencypayment/paypal/images/paypal_icon.png" width="36" height="32" alt="PayPal" />' . JText::_($this->textPrefix . '_TITLE') . '</h4>';
 
         // Prepare payment receiver.
-        $paymentReceiver = ($this->params->get('sandbox', 0)) ? trim($this->params->get('sandbox_business_name')) : trim($this->params->get('business_name'));
+        $paymentReceiver = $this->params->get('sandbox', 0) ? trim($this->params->get('sandbox_business_name')) : trim($this->params->get('business_name'));
         if (!$paymentReceiver) {
             $html[] = $this->generateSystemMessage(JText::_($this->textPrefix . '_ERROR_PAYMENT_RECEIVER_MISSING'));
             return implode("\n", $html);
@@ -102,9 +111,9 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
         $html[] = '<input type="hidden" name="business" value="' . $paymentReceiver . '" />';
         $html[] = '<input type="hidden" name="cmd" value="_xclick" />';
         $html[] = '<input type="hidden" name="charset" value="utf-8" />';
-        $html[] = '<input type="hidden" name="currency_code" value="' . $item->order['real']['currency_code'] . '" />';
-        $html[] = '<input type="hidden" name="amount" value="' . $item->order['real']['item_price'] . '" />';
-        $html[] = '<input type="hidden" name="quantity" value="' . $item->order['items_number'] . '" />';
+        $html[] = '<input type="hidden" name="currency_code" value="' . $item->order->price('real')->getCurrencyCode() . '" />';
+        $html[] = '<input type="hidden" name="amount" value="' . $item->order->price('real')->getPrice() . '" />';
+        $html[] = '<input type="hidden" name="quantity" value="' . $item->order->getItemsNumber() . '" />';
         $html[] = '<input type="hidden" name="no_shipping" value="1" />';
         $html[] = '<input type="hidden" name="no_note" value="1" />';
         $html[] = '<input type="hidden" name="tax" value="0" />';
@@ -168,7 +177,10 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
      * @param string   $context
      * @param Registry $params The parameters of the component
      *
-     * @return null|array
+     * @return PaymentResult|null
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function onPaymentNotify($context, &$params)
     {
@@ -192,34 +204,24 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
         // Validate request method
         $requestMethod = $this->app->input->getMethod();
         if (strcmp('POST', $requestMethod) !== 0) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_REQUEST_METHOD'),
-                $this->debugType,
-                JText::sprintf($this->textPrefix . '_ERROR_INVALID_TRANSACTION_REQUEST_METHOD', $requestMethod)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_REQUEST_METHOD'), $this->debugType, JText::sprintf($this->textPrefix . '_ERROR_INVALID_TRANSACTION_REQUEST_METHOD', $requestMethod));
             return null;
         }
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESPONSE'), $this->debugType, $_POST) : null;
+        JDEBUG ? $this->log->add('POST Response', $this->debugType, $_POST) : null;
 
         // Decode custom data
         $custom = ArrayHelper::getValue($_POST, 'custom');
         $custom = json_decode(base64_decode($custom), true);
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_CUSTOM'), $this->debugType, $custom) : null;
+        JDEBUG ? $this->log->add('Custom data', $this->debugType, $custom) : null;
 
         // Verify gateway. Is it PayPal?
         $gateway = ArrayHelper::getValue($custom, 'gateway');
         if (!$this->isValidPaymentGateway($gateway)) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_PAYMENT_GATEWAY'),
-                $this->debugType,
-                array('custom' => $custom, '_POST' => $_POST)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PAYMENT_GATEWAY'), $this->debugType, ['custom' => $custom, '_POST' => $_POST]);
             return null;
         }
 
@@ -235,116 +237,41 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
         $paypalIpn->verify($loadCertificate);
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_VERIFY_OBJECT'), $this->debugType, $paypalIpn) : null;
+        JDEBUG ? $this->log->add('Verified object', $this->debugType, $paypalIpn) : null;
 
-        // Prepare the array that have to be returned by this method.
-        $result = array(
-            'item'             => null,
-            'transaction'      => null,
-            'payment_session'  => null,
-            'service_provider' => $this->serviceProvider,
-            'service_alias'    => $this->serviceAlias
-        );
+        // Prepare output data.
+        $paymentResult = new PaymentResult;
+        $paymentResult->serviceProvider = $this->serviceProvider;
+        $paymentResult->serviceAlias = $this->serviceAlias;
 
         if ($paypalIpn->isVerified()) {
-            $currency   = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
-            $currency->load($params->get('currency_id'));
+            $mapper = new \Virtualcurrency\RealCurrency\Mapper(new \Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $repository = new \Virtualcurrency\RealCurrency\Repository($mapper);
+            $currency   = $repository->fetchById($params->get('currency_id'));
 
             // Get payment session data
             $paymentSessionId = ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
             $paymentSession   = $this->getPaymentSession(array('id' => $paymentSessionId));
 
             // DEBUG DATA
-            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_PAYMENT_SESSION'), $this->debugType, $paymentSession->getProperties()) : null;
+            JDEBUG ? $this->log->add('Payment session', $this->debugType, $paymentSession->getProperties()) : null;
 
             // Validate transaction data
             $validData = $this->validateData($_POST, $currency->getCode(), $paymentSession);
             if ($validData === null) {
-                return $result;
+                return null;
             }
 
             // DEBUG DATA
-            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_VALID_DATA'), $this->debugType, $validData) : null;
+            JDEBUG ? $this->log->add('Validated Data', $this->debugType, $validData) : null;
 
-            // Get item.
-            $itemId     = ArrayHelper::getValue($validData, 'item_id', 0, 'int');
-            $itemType   = ArrayHelper::getValue($validData, 'item_type', '', 'cmd');
-            $receiverId = ArrayHelper::getValue($validData, 'receiver_id', 0, 'int');
-
-            if (strcmp('currency', $itemType) === 0) {
-                $item   = new Virtualcurrency\Account\Account(JFactory::getDbo());
-                $item->load(array('user_id' => $receiverId, 'currency_id' => $itemId));
-            } else { // Commodity
-                $item   = new Virtualcurrency\User\Commodity(JFactory::getDbo());
-                $item->load(array('user_id' => $receiverId, 'commodity_id' => $itemId));
-            }
-
-            // DEBUG DATA
-            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_ITEM_OBJECT'), $this->debugType, $item->getProperties()) : null;
-
-            // Check for valid item.
-            if (!$item->getId()) {
-                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_ITEM'), $this->debugType, $item->getProperties());
-                return $result;
-            }
-
-            // Check for available items.
-            if (strcmp($itemType, 'commodity') === 0) {
-                $commodity = $item->getCommodity();
-                $inStock   = $commodity->getInStock();
-                if ($inStock !== null and (int)$inStock < (int)$validData['units']) {
-                    $this->log->add(JText::sprintf($this->textPrefix . '_ERROR_NOT_ENOUGH_UNITS_D_D', (int)$validData['units'], $inStock), $this->debugType, $validData);
-                    return $result;
-                }
-            }
-
-            // @todo Decrease in_stock when buy units.
-
-            if ($validData['txn_amount'] < $item->calculateRealPrice($validData['units'])) {
-                // Log data in the database
-                $this->log->add(
-                    JText::_($this->textPrefix . '_ERROR_INVALID_ITEMS_PRICE'),
-                    $this->debugType,
-                    $validData
-                );
-
-                return $result;
-            }
-
-            // Start database transaction.
-            $db = JFactory::getDbo();
-            $db->transactionStart();
-
-            try {
-                // Save transaction data.
-                // If it is not completed, return empty results.
-                // If it is complete, continue with process transaction data
-                $transactionData = $this->storeTransaction($validData, $item);
-                if ($transactionData === null) {
-                    return $result;
-                }
-
-                // Generate data object, based on the payment session properties.
-                $properties = $paymentSession->getProperties();
-                $result['payment_session'] = ArrayHelper::toObject($properties);
-
-                // Generate object of data, based on the transaction properties.
-                $result['transaction']     = ArrayHelper::toObject($transactionData);
-
-                // Generate object of data based on the project properties.
-                $properties     = $item->getProperties();
-                $result['item'] = ArrayHelper::toObject($properties);
-
-                // DEBUG DATA
-                JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESULT_DATA'), $this->debugType, $result) : null;
-
-                // Remove payment session.
-                $paymentSession->delete();
-
-                $db->transactionCommit();
-            } catch (Exception $e) {
-                $db->transactionRollback();
-                return $result;
+            // Save transaction data.
+            // If it is not completed, return empty results.
+            // If it is complete, continue with process transaction data
+            $transaction = $this->storeTransaction($validData);
+            if ($transaction !== null) {
+                $transaction                = $transaction->getProperties();
+                $paymentResult->transaction = ArrayHelper::toObject($transaction);
             }
         } else {
             // Log error
@@ -355,7 +282,7 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
             );
         }
 
-        return $result;
+        return $paymentResult;
     }
 
     /**
@@ -363,9 +290,10 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
      *
      * @param array  $data
      * @param string $currencyCode
-     * @param Virtualcurrency\Payment\Session  $paymentSession
+     * @param PaymentSession  $paymentSession
      *
      * @return array
+     * @throws InvalidArgumentException
      */
     protected function validateData($data, $currencyCode, $paymentSession)
     {
@@ -374,12 +302,12 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
 
         // Prepare transaction data
         $transaction = array(
+            'title'            => ArrayHelper::getValue($data, 'item_name', '', 'string'),
+            'units'            => (int)$paymentSession->getItemsNumber(),
             'sender_id'        => Virtualcurrency\Constants::BANK_ID,
             'receiver_id'      => (int)$paymentSession->getUserId(),
-            'title'            => ArrayHelper::getValue($data, 'item_name', '', 'string'),
             'item_id'          => (int)$paymentSession->getItemId(),
             'item_type'        => $paymentSession->getItemType(),
-            'units'            => (int)$paymentSession->getItemsNumber(),
             'service_provider' => $this->serviceProvider,
             'service_alias'    => $this->serviceAlias,
             'txn_id'           => ArrayHelper::getValue($data, 'txn_id', null, 'string'),
@@ -392,24 +320,13 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
 
         // Check Project ID and Transaction ID
         if (!$transaction['item_id'] or !$transaction['txn_id']) {
-            // Log data in the database
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'),
-                $this->debugType,
-                $transaction
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'), $this->debugType, $transaction);
             return null;
         }
 
         // Check currency
         if (strcmp($transaction['txn_currency'], $currencyCode) !== 0) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_CURRENCY'),
-                $this->debugType,
-                array('TRANSACTION DATA' => $transaction, 'CURRENCY' => $currencyCode)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_CURRENCY'), $this->debugType, ['TRANSACTION DATA' => $transaction, 'CURRENCY' => $currencyCode]);
             return null;
         }
 
@@ -421,20 +338,14 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
         );
 
         // Get payment receiver.
-        if ($this->params->get('paypal_sandbox', 1)) {
+        if ($this->params->get('paypal_sandbox', Prism\Constants::YES)) {
             $paymentReceiver = strtolower(trim($this->params->get('sandbox_business_name')));
         } else {
             $paymentReceiver = strtolower(trim($this->params->get('business_name')));
         }
 
         if (!in_array($paymentReceiver, $allowedReceivers, true)) {
-            // Log data in the database
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_RECEIVER'),
-                $this->debugType,
-                array('TRANSACTION DATA' => $transaction, 'RECEIVER' => $paymentReceiver, 'RECEIVER DATA' => $allowedReceivers)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_RECEIVER'), $this->debugType, ['TRANSACTION DATA' => $transaction, 'RECEIVER' => $paymentReceiver, 'RECEIVER DATA' => $allowedReceivers]);
             return null;
         }
 
@@ -444,22 +355,25 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
     /**
      * Save transaction data.
      *
-     * @param array     $transactionData
-     * @param Virtualcurrency\Account\Account|Virtualcurrency\User\Commodity  $item
+     * @param array $data
      *
-     * @return null|array
+     * @return null|Transaction
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
      */
-    protected function storeTransaction($transactionData, $item)
+    protected function storeTransaction(array $data)
     {
         // Get transaction by txn ID
         $keys        = array(
-            'txn_id' => ArrayHelper::getValue($transactionData, 'txn_id')
+            'txn_id' => ArrayHelper::getValue($data, 'txn_id')
         );
-        $transaction = new Virtualcurrency\Transaction\Transaction(JFactory::getDbo());
-        $transaction->load($keys);
+        $txnMapper      = new Virtualcurrency\Transaction\Mapper(new Virtualcurrency\Transaction\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $txnRepository  = new Virtualcurrency\Transaction\Repository($txnMapper);
+        $transaction    = $txnRepository->fetch($keys);
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_TRANSACTION_OBJECT'), $this->debugType, $transaction->getProperties()) : null;
+        JDEBUG ? $this->log->add('Transaction object before bind().', $this->debugType, $transaction->getProperties()) : null;
 
         // Check for existed transaction
         // If the current status if completed, stop the payment process.
@@ -468,47 +382,49 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
         }
 
         // Add extra data.
-        if (array_key_exists('extra_data', $transactionData)) {
-            if (!empty($transactionData['extra_data'])) {
-                $transaction->addExtraData($transactionData['extra_data']);
+        if (array_key_exists('extra_data', $data)) {
+            if (!empty($data['extra_data'])) {
+                $transaction->addExtraData($data['extra_data']);
             }
-
-            unset($transactionData['extra_data']);
+            unset($data['extra_data']);
         }
 
         // Store the new transaction data.
-        $transaction->bind($transactionData);
-        $transaction->store();
+        $transaction->bind($data);
+
+        // DEBUG DATA
+        JDEBUG ? $this->log->add('Transaction object after bind().', $this->debugType, $transaction->getProperties()) : null;
 
         // If it is not completed (it might be pending or other status),
         // stop the process. Only completed transaction will continue
         // and will process the project, rewards,...
-        if (!$transaction->isCompleted()) {
+       /* if (!$transaction->isCompleted()) {
             return null;
-        }
+        }*/
 
-        // Set transaction ID.
-        $transactionData['id'] = $transaction->getId();
+        $itemType    = ArrayHelper::getValue($data, 'item_type', '', 'cmd');
 
-        // Get item.
-        $itemType    = ArrayHelper::getValue($transactionData, 'item_type', '', 'cmd');
-        $itemsNumber = ArrayHelper::getValue($transactionData, 'units', 0, 'int');
+        // DEBUG DATA
+        JDEBUG ? $this->log->add('Item Type', $this->debugType, $itemType) : null;
 
-        if (strcmp('currency', $itemType) === 0 and $itemsNumber > 0) {
-            $item->increaseAmount($itemsNumber);
-            $item->storeAmount();
+        // Start database transaction.
+        if (strcmp('currency', $itemType) === 0) {
+            $transactionalApp  = new \Virtualcurrency\Transaction\Service\Joomla\VirtualByReal($transaction, \JFactory::getDbo());
         } else { // Commodity
-            $item->increaseNumber($itemsNumber);
-            $item->storeNumber();
-
-            // Decrease in stock.
-            $commodity = $item->getCommodity();
-            if ($commodity->getInStock() !== null) {
-                $commodity->decreaseInStock($itemsNumber);
-                $commodity->storeInStock();
-            }
+            $transactionalApp  = new \Virtualcurrency\Transaction\Service\Joomla\CommodityByReal($transaction, \JFactory::getDbo());
         }
 
-        return $transactionData;
+        $transactionalSession   = new \Prism\Database\JoomlaDatabaseSession(\JFactory::getDbo());
+        $paymentTransaction     = new \Prism\Domain\TransactionalApplicationService($transactionalApp, $transactionalSession);
+
+        // DEBUG DATA
+        JDEBUG ? $this->log->add('Before execute', $this->debugType) : null;
+
+        $paymentTransaction->execute();
+
+        // DEBUG DATA
+        JDEBUG ? $this->log->add('After execute', $this->debugType) : null;
+
+        return $transaction;
     }
 }

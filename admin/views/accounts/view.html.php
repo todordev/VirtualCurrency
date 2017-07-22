@@ -34,8 +34,8 @@ class VirtualcurrencyViewAccounts extends JViewLegacy
     protected $sortFields;
 
     protected $sidebar;
-    protected $money;
-    protected $virtualCurrencies;
+    protected $formatter;
+    protected $currencies;
 
     public $activeFilters;
     public $filterForm;
@@ -44,18 +44,20 @@ class VirtualcurrencyViewAccounts extends JViewLegacy
     {
         $this->option = JFactory::getApplication()->input->get('option');
 
-        // Create accounts for users.
-        VirtualcurrencyHelper::createAccounts();
+        // Create accounts.
+        $createAccountsCommand = new Virtualcurrency\Account\Command\CreateAccounts();
+        $createAccountsCommand->setGateway(new \Virtualcurrency\Account\Command\Gateway\JoomlaCreateAccounts(JFactory::getDbo()));
+        $createAccountsCommand->handle();
 
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $this->virtualCurrencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->virtualCurrencies->load();
+        $mapper = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository = new Virtualcurrency\Currency\Repository($mapper);
+        $this->currencies = $repository->fetchAll();
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $this->money     = new Prism\Money\Money($moneyFormatter);
+        $this->formatter  = Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
         // Prepare sorting data
         $this->prepareSorting();

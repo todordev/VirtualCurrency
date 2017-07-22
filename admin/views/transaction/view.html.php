@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class VirtualcurrencyViewTransaction extends JViewLegacy
 {
     /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -30,7 +35,8 @@ class VirtualcurrencyViewTransaction extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
         
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
@@ -50,7 +56,7 @@ class VirtualcurrencyViewTransaction extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
+        $this->app->input->set('hidemainmenu', true);
 
         $this->documentTitle = JText::_('COM_VIRTUALCURRENCY_EDIT_TRANSACTION');
 
@@ -75,6 +81,6 @@ class VirtualcurrencyViewTransaction extends JViewLegacy
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.formvalidation');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

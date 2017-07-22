@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Data\DataObject;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -46,9 +48,9 @@ class VirtualcurrencyViewCart extends JViewLegacy
     /**
      * Real currency amount formatter.
      *
-     * @var Virtualcurrency\Amount
+     * @var Prism\Money\Formatter
      */
-    protected $amountFormatter;
+    protected $formatter;
 
     protected $layoutData;
     protected $disabledButton = false;
@@ -82,15 +84,14 @@ class VirtualcurrencyViewCart extends JViewLegacy
         }
 
         // Images
-        $this->imageFolder      = $this->params->get('media_folder', 'images/virtualcurrency');
+        $this->imageFolder = $this->params->get('media_folder', 'images/virtualcurrency');
 
         // Prepare amount formatter.
-        $this->realCurrency     = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
-        $this->realCurrency->load($this->params->get('project_currency'));
+        $mapper             = new Virtualcurrency\RealCurrency\Mapper(new Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository         = new Virtualcurrency\RealCurrency\Repository($mapper);
+        $this->realCurrency = $repository->fetchById((int)$this->params->get('currency_id'));
 
-        $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-        $this->amountFormatter  = new Prism\Money\Money($moneyFormatter);
-        $this->amountFormatter->setCurrency($this->realCurrency);
+        $this->formatter    = Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
         $this->layout = $this->getLayout();
 
@@ -109,9 +110,9 @@ class VirtualcurrencyViewCart extends JViewLegacy
         }
 
         // Prepare the data of the layout
-        $this->layoutData = new JData(array(
-            'layout'       => $this->getLayout(),
-            'cartSession'  => $cartSession
+        $this->layoutData = new DataObject(array(
+            'layout'      => $this->getLayout(),
+            'cartSession' => $cartSession
         ));
 
         $this->prepareDocument();
@@ -120,23 +121,25 @@ class VirtualcurrencyViewCart extends JViewLegacy
     }
 
     /**
-     * @param JData $cartSession
+     * @param DataObject $cartSession
      */
     protected function prepareCart($cartSession)
     {
         // Create payment session ID.
-        $cartSession->session_id = Prism\Utilities\StringHelper::generateRandomString(32);
+        $cartSession->session_id = (string)Ramsey\Uuid\Uuid::uuid4();
 
         // Load virtual currencies.
-        $options = array(
-            'state' => Prism\Constants::PUBLISHED
+        $conditions = array(
+            'published' => Prism\Constants::PUBLISHED
         );
 
-        $this->currencies       = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->currencies->load($options);
+        $mapper           = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository       = new Virtualcurrency\Currency\Repository($mapper);
+        $this->currencies = $repository->fetchCollection($conditions);
 
-        $this->commodities      = new Virtualcurrency\Commodity\Commodities(JFactory::getDbo());
-        $this->commodities->load($options);
+        $mapper            = new Virtualcurrency\Commodity\Mapper(new Virtualcurrency\Commodity\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository        = new Virtualcurrency\Commodity\Repository($mapper);
+        $this->commodities = $repository->fetchCollection($conditions);
 
         // Check days left. If there is no days, disable the button.
         $this->disabledButton = '';
@@ -163,7 +166,7 @@ class VirtualcurrencyViewCart extends JViewLegacy
             return;
         }
 
-        $this->item = VirtualcurrencyHelper::prepareItem($cartSession, $this->params);
+        $this->item = $this->prepareItem($cartSession);
 
         if ($this->item === null or !$this->item->id) {
             $this->app->enqueueMessage(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_ITEM'), 'warning');
@@ -173,10 +176,10 @@ class VirtualcurrencyViewCart extends JViewLegacy
 
         // Events
         JPluginHelper::importPlugin('virtualcurrencypayment');
-        $dispatcher             = JEventDispatcher::getInstance();
-        $this->item->event      = new stdClass;
+        $dispatcher        = JEventDispatcher::getInstance();
+        $this->item->event = new stdClass;
 
-        $results                = $dispatcher->trigger('onPreparePayment', array('com_virtualcurrency.payment.prepare', &$this->item, &$this->params));
+        $results                             = $dispatcher->trigger('onPreparePayment', array('com_virtualcurrency.payment.prepare', &$this->item, &$this->params));
         $this->item->event->onPreparePayment = trim(implode("\n", $results));
     }
 
@@ -187,10 +190,10 @@ class VirtualcurrencyViewCart extends JViewLegacy
             return;
         }
 
-        $this->item = VirtualcurrencyHelper::prepareItem($cartSession, $this->params);
+        $this->item = $this->prepareItem($cartSession);
 
         // Initialize the payment process object.
-        $cartSession        = $this->initCartSession();
+        $cartSession = $this->initCartSession();
         $this->app->setUserState(Virtualcurrency\Constants::PAYMENT_SESSION_CONTEXT, $cartSession);
     }
 
@@ -225,14 +228,11 @@ class VirtualcurrencyViewCart extends JViewLegacy
         JHtml::script('com_virtualcurrency/site/payment.js', false, true, false);
     }
 
-    private function preparePageHeading()
+    public function preparePageHeading()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Because the application sets a default page title,
         // we need to get it from the menu item itself
-        $menus = $app->getMenu();
+        $menus = $this->app->getMenu();
         $menu  = $menus->getActive();
 
         // Prepare page heading
@@ -245,19 +245,16 @@ class VirtualcurrencyViewCart extends JViewLegacy
 
     private function preparePageTitle()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Prepare page title
         $title = $this->params->get('page_title', '');
 
         // Add title before or after Site Name
         if (!$title) {
-            $title = $app->get('sitename');
-        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
-            $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
-            $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
+            $title = $this->app->get('sitename');
+        } elseif ((int)$this->app->get('sitename_pagetitles', 0) === 1) {
+            $title = JText::sprintf('JPAGETITLE', $this->app->get('sitename'), $title);
+        } elseif ((int)$this->app->get('sitename_pagetitles', 0) === 2) {
+            $title = JText::sprintf('JPAGETITLE', $title, $this->app->get('sitename'));
         }
 
         $this->document->setTitle($title);
@@ -265,12 +262,37 @@ class VirtualcurrencyViewCart extends JViewLegacy
 
     private function initCartSession()
     {
-        $cartSession             = new JData();
+        $cartSession               = new DataObject();
         $cartSession->item_id      = '';
         $cartSession->item_type    = '';
         $cartSession->items_number = 0;
         $cartSession->step1        = false;
+        $cartSession->session_id   = '';
 
         return $cartSession;
+    }
+
+    private function prepareItem($cartSession)
+    {
+        switch ($cartSession->item_type) {
+            case 'currency':
+                $currencyGateway  = new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo());
+                $currencyPreparer = new Virtualcurrency\Cart\Command\CurrencyPreparation($this->formatter, $this->realCurrency, $currencyGateway);
+                $item = $currencyPreparer->prepare(new Virtualcurrency\Cart\Session($cartSession));
+                break;
+
+            case 'commodity':
+                $currencyGateway   = new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo());
+                $commodityGateway  = new Virtualcurrency\Commodity\Gateway\JoomlaGateway(JFactory::getDbo());
+                $commodityPreparer = new Virtualcurrency\Cart\Command\CommodityPreparation($this->formatter, $this->realCurrency, $currencyGateway, $commodityGateway);
+                $item = $commodityPreparer->prepare(new Virtualcurrency\Cart\Session($cartSession));
+                break;
+
+            default:
+                $item = null;
+                break;
+        }
+
+        return $item;
     }
 }

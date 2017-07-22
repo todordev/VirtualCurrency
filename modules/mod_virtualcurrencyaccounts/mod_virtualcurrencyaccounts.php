@@ -18,14 +18,15 @@ $userId = JFactory::getUser()->get('id');
 $accounts = null;
 
 if ($userId > 0) {
-    $accounts = new Virtualcurrency\Account\Accounts(JFactory::getDbo());
-    $accounts->load(array('user_id' => $userId, 'state' => Prism\Constants::PUBLISHED));
+    $mapper     = new \Virtualcurrency\Account\Mapper(new \Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
+    $repository = new \Virtualcurrency\Account\Repository($mapper);
+    $accounts   = $repository->fetchCollection(['user_id' => $userId, 'state' => Prism\Constants::PUBLISHED]);
 
-    $currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-    $currencies->load();
+    $mapper     = new \Virtualcurrency\Currency\Mapper(new \Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+    $repository = new \Virtualcurrency\Currency\Repository($mapper);
+    $currencies = $repository->fetchAll();
 
-    $moneyFormatter  = VirtualcurrencyHelper::getMoneyFormatter();
-    $money           = new Prism\Money\Money($moneyFormatter);
+    $formatter = \Virtualcurrency\Money\Helper::factory('joomla')->getFormatter();
 
     require JModuleHelper::getLayoutPath('mod_virtualcurrencyaccounts', $params->get('layout', 'default'));
 }

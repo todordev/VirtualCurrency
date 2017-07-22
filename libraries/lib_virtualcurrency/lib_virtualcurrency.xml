@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="library" version="3.5" method="upgrade">
+<extension type="library" version="3.7" method="upgrade">
     <name>Virtual Currency Library</name>
     <libraryname>Virtualcurrency</libraryname>
     <author>Todor Iliev</author>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <copyright>Copyright (C) 2017 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <packager>ITPrism</packager>
     <packagerurl>http://itprism.com</packagerurl>
-    <version>2.1</version>
-    <creationDate>11 May, 2016</creationDate>
+    <version>3.0</version>
+    <creationDate>22 July, 2017</creationDate>
     <description>This is the library of Virtual Currency that can be used from developers in their extensions.</description>
     <files>
         <folder>Account</folder>
+        <folder>Cart</folder>
         <folder>Commodity</folder>
         <folder>Currency</folder>
         <folder>Helper</folder>
+        <folder>Intl</folder>
+        <folder>Money</folder>
         <folder>Payment</folder>
+        <folder>RealCurrency</folder>
         <folder>Transaction</folder>
         <folder>User</folder>
-        <file>Amount.php</file>
         <file>Constants.php</file>
         <file>init.php</file>
         <file>Version.php</file>

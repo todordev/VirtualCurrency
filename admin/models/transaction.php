@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -73,18 +75,18 @@ class VirtualcurrencyModelTransaction extends JModelAdmin
      */
     public function save($data)
     {
-        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
-        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $units       = Joomla\Utilities\ArrayHelper::getValue($data, 'units', 0.00, 'float');
-        $txnId       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id');
-        $txnAmount   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount');
-        $txnCurrency = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency');
-        $txnStatus   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
-        $txnDate     = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
-        $senderId    = Joomla\Utilities\ArrayHelper::getValue($data, 'sender_id', 0, 'int');
-        $receiverId  = Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id', 0, 'int');
+        $id          = ArrayHelper::getValue($data, 'id', 0, 'int');
+        $title       = ArrayHelper::getValue($data, 'title');
+        $units       = ArrayHelper::getValue($data, 'units', 0.00, 'float');
+        $txnId       = ArrayHelper::getValue($data, 'txn_id');
+        $txnAmount   = ArrayHelper::getValue($data, 'txn_amount');
+        $txnCurrency = ArrayHelper::getValue($data, 'txn_currency');
+        $txnStatus   = ArrayHelper::getValue($data, 'txn_status');
+        $txnDate     = ArrayHelper::getValue($data, 'txn_date');
+        $senderId    = ArrayHelper::getValue($data, 'sender_id', 0, 'int');
+        $receiverId  = ArrayHelper::getValue($data, 'receiver_id', 0, 'int');
 
-        $serviceProvider = Joomla\Utilities\ArrayHelper::getValue($data, 'service_provider');
+        $serviceProvider = ArrayHelper::getValue($data, 'service_provider');
 
         // Load a record from the database
         $row = $this->getTable();

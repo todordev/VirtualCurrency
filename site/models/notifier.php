@@ -32,18 +32,4 @@ class VirtualcurrencyModelNotifier extends JModelLegacy
             JLog::add($error);
         }
     }
-
-    /**
-     * Remove a record of payment session from the database.
-     *
-     * @param stdClass $session
-     */
-    public function closePaymentSession($session)
-    {
-        if (is_object($session) and (int)$session->id > 0) {
-            $intention = new Virtualcurrency\Payment\Session(JFactory::getDbo());
-            $intention->setId($session->id);
-            $intention->delete();
-        }
-    }
 }

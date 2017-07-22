@@ -62,9 +62,7 @@ class VirtualcurrencyRouter extends JComponentRouterBase
 
         // Views
         if (isset($view)) {
-
             switch ($view) {
-
                 case 'cart':
                     unset($query['view']);
                     break;
@@ -144,11 +142,9 @@ class VirtualcurrencyRouter extends JComponentRouterBase
          * then we assume it is a category.  If they don't we assume it is an article
          */
         if ($count === 1) {
-
             $view = $segments[$count - 1];
 
             switch ($view) {
-
                 case 'cart':
                     $vars['view'] = 'cart';
                     break;

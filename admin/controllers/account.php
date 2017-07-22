@@ -48,7 +48,6 @@ class VirtualcurrencyControllerAccount extends Prism\Controller\Form\Backend
         // Check for errors.
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 
@@ -56,16 +55,17 @@ class VirtualcurrencyControllerAccount extends Prism\Controller\Form\Backend
         $userId = Joomla\Utilities\ArrayHelper::getValue($validData, 'user_id');
         if (!$userId) {
             $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_INVALID_USER'), $redirectOptions);
-
             return;
         }
 
         // Check for existing account for that currency
         $currencyId = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id');
 
-        $account    = new Virtualcurrency\Account\Account(JFactory::getDbo());
-        $account->load(array('user_id' => $userId, 'currency_id' => $currencyId));
-        if (!$itemId and $account->getId()) {
+        $gateway    = new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo());
+        $repository = new Virtualcurrency\Account\Repository(new Virtualcurrency\Account\Mapper($gateway));
+
+        $account    = $repository->fetch(['user_id' => $userId, 'currency_id' => $currencyId]);
+        if (!$itemId or $account->getId()) {
             $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_ACCOUNT_EXISTS'), $redirectOptions);
             return;
         }

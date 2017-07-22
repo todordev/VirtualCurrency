@@ -29,10 +29,10 @@ defined('_JEXEC') or die;?>
             <h2><?php echo JText::_('COM_VIRTUALCURRENCY_THANK_YOU_VERY_MUCH'); ?></h2>
             <p class="message"><?php echo JText::_('COM_VIRTUALCURRENCY_SUCCESSFULL_ORDER'); ?></p>
 
-            <?php if($this->item) {?>
+            <?php if ($this->item) {?>
             <h3><?php echo JText::_('COM_VIRTUALCURRENCY_ORDER_SUMMARY'); ?></h3>
             <p>
-                <?php echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_BOUGHT_S', $this->item->order['items_number_formatted']); ?>
+                <?php echo JText::sprintf('COM_VIRTUALCURRENCY_YOU_BOUGHT_S', $this->item->order->getItemsNumberFormatted()); ?>
             </p>
             <?php } ?>
         </div>

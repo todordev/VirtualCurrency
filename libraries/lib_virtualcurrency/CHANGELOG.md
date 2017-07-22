@@ -1,0 +1,3 @@
+VirtualCurrency Library changelog
+=================================
+

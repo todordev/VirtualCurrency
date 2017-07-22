@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.5" method="upgrade">
+<extension type="component" version="3.7" method="upgrade">
     <name>COM_VIRTUALCURRENCY</name>
     <author>Todor Iliev</author>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
+    <copyright>Copyright (C) 2017 Todor Iliev ( ITPrism.com )</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
-    <version>2.1</version>
-    <creationDate>11 May, 2016</creationDate>
+    <version>3.0</version>
+    <creationDate>22 July, 2017</creationDate>
     <description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/virtual-currency-accounts-manager" target="_blank">Virtual Currency</a> is a Joomla! extension that provides ability to generate and manage virtual currencies on your websites.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>

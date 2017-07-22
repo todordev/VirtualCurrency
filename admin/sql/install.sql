@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `#__vc_commodities` (
   `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `in_stock` smallint(5) UNSIGNED DEFAULT NULL,
+  `in_stock` smallint(5) NOT NULL DEFAULT '-1',
   `image` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
   `image_icon` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
   `published` tinyint(1) NOT NULL DEFAULT '0',
@@ -46,17 +46,25 @@ CREATE TABLE IF NOT EXISTS `#__vc_partners` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__vc_paymentsessiongateways` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Payment session primary key',
+  `alias` varchar(32) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Payment service name (alias)',
+  `data` varchar(2048) COLLATE utf8_unicode_ci NOT NULL DEFAULT '{}' COMMENT 'Contains a specific data for the gateways',
+  `token` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'It is a unique key (token) from the gateway',
+  `order_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`,`alias`),
+  UNIQUE KEY `idx_vc_pstoken` (`token`),
+  KEY `idx_vc_pspk` (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__vc_paymentsessions` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
   `item_id` int(10) UNSIGNED NOT NULL,
   `item_type` enum('currency','commodity') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'currency',
   `items_number` decimal(10,2) UNSIGNED NOT NULL,
-  `unique_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `order_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `gateway` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `gateway_data` varchar(2048) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `session_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `session_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `record_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -75,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `#__vc_transactions` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `units` decimal(10,2) UNSIGNED NOT NULL COMMENT 'Number units of virtual currency',
-  `txn_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `txn_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `txn_amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT 'Paid amount by payment gateway',
   `txn_currency` varchar(8) COLLATE utf8_unicode_ci NOT NULL COMMENT 'A currency of payment by payment gateway.',
   `txn_status` enum('pending','completed','canceled','refunded','failed') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'pending',
@@ -87,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `#__vc_transactions` (
   `receiver_id` int(10) UNSIGNED NOT NULL COMMENT 'The man who receives the amount.',
   `item_id` tinyint(3) UNSIGNED NOT NULL,
   `item_type` enum('currency','commodity') COLLATE utf8_unicode_ci NOT NULL,
+  `error_msg` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_txns_txn_id` (`txn_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\String\StringHelper as JStringHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -47,23 +49,17 @@ class VirtualcurrencyModelImport extends JModelForm
         return $data;
     }
 
-    public function uploadFile($fileData, $type)
+    public function uploadFile($uploadedFileData, $type)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
-        jimport('joomla.filesystem.archive');
-
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($fileData, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($fileData, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($fileData, 'error');
-
-        $source = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . JFile::makeSafe($uploadedName));
-
-        $file = new Prism\File\File();
+        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Prepare size validator.
-        $KB       = 1024 * 1024;
+        $KB       = pow(1024, 2);
         $fileSize = (int)$app->input->server->get('CONTENT_LENGTH');
 
         $mediaParams   = JComponentHelper::getParams('com_media');
@@ -77,36 +73,36 @@ class VirtualcurrencyModelImport extends JModelForm
         // Prepare server validator.
         $serverValidator = new Prism\File\Validator\Server($errorCode, array(UPLOAD_ERR_NO_FILE));
 
-        $file->addValidator($sizeValidator);
-        $file->addValidator($serverValidator);
+        $file = new Prism\File\File($uploadedFile);
+        $file
+            ->addValidator($sizeValidator)
+            ->addValidator($serverValidator);
 
         // Validate the file
         if (!$file->isValid()) {
             throw new RuntimeException($file->getError());
         }
 
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($source);
+        $ext           = JStringHelper::strtolower(JFile::makeSafe(JFile::getExt($uploadedName)));
+        $filename      = Prism\Utilities\StringHelper::generateRandomString(12) . '.'. $ext;
+        $sourceFile    = JPath::clean($app->get('tmp_path') .'/'. $filename);
 
-        // Upload the file
-        $file->setUploader($uploader);
-        $file->upload();
-
-        $fileName = basename($source);
+        // Upload the file.
+        if (!JFile::upload($uploadedFile, $sourceFile)) {
+            throw new \RuntimeException(\JText::_('COM_VIRTUALCURRENCY_ERROR_FILE_CANT_BE_UPLOADED'));
+        }
 
         // Extract file if it is archive
-        $ext = JString::strtolower(JFile::getExt($fileName));
         if (strcmp($ext, 'zip') === 0) {
-            $destFolder = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . $type);
+            $destFolder = JPath::clean($app->get('tmp_path') .'/'. $type);
             if (is_dir($destFolder)) {
                 JFolder::delete($destFolder);
             }
 
-            $filePath = $this->extractFile($source, $destFolder);
+            $filePath = $this->extractFile($sourceFile, $destFolder);
 
         } else {
-            $filePath = $source;
+            $filePath = $sourceFile;
         }
 
         return $filePath;
@@ -114,6 +110,8 @@ class VirtualcurrencyModelImport extends JModelForm
 
     public function extractFile($file, $destFolder)
     {
+        jimport('joomla.filesystem.archive');
+
         $filePath = null;
 
         // extract type
@@ -122,20 +120,16 @@ class VirtualcurrencyModelImport extends JModelForm
 
         $dir = new DirectoryIterator($destFolder);
 
-        $fileName = JFile::stripExt(basename($file));
-
         foreach ($dir as $fileinfo) {
-            $currentFileName = JFile::stripExt($fileinfo->getFilename());
-
-            if (!$fileinfo->isDot() and strcmp($fileName, $currentFileName) === 0) {
-                $filePath = JPath::clean($destFolder . DIRECTORY_SEPARATOR . JFile::makeSafe($fileinfo->getFilename()));
+            if (!$fileinfo->isDot()) {
+                $filePath = JPath::clean($destFolder .'/'. JFile::makeSafe($fileinfo->getFilename()));
                 break;
             }
         }
 
         return $filePath;
     }
-    
+
     /**
      *
      * Import currencies from XML file.
@@ -168,6 +162,10 @@ class VirtualcurrencyModelImport extends JModelForm
         }
     }
 
+    /**
+     * @param array $content
+     * @param bool $resetId
+     */
     protected function insertCurrencies($content, $resetId)
     {
         $items = array();
@@ -176,21 +174,23 @@ class VirtualcurrencyModelImport extends JModelForm
 
         // Generate data for importing.
         foreach ($content as $item) {
-            $title = trim($item->title);
-            $code  = trim($item->code);
+            $title = JStringHelper::trim($item->title);
+            $code  = JStringHelper::trim($item->code);
             if (!$title or !$code) {
                 continue;
             }
 
-            $id = (!$resetId) ? (int)$item->id : 'null';
+            $id = 'null';
+            if (!$resetId and (isset($item->id) and (int)$item->id)) {
+                $id = (int)$item->id;
+            }
 
-            $items[] = $id . ',' . $db->quote($title) . ',' . $db->quote($code) . ',' . $db->quote(trim($item->symbol)) . ',' . (int)$item->position;
+            $items[] = $id . ',' . $db->quote($title) . ',' . $db->quote($code) . ',' . $db->quote(JStringHelper::trim($item->symbol)) . ',' . (int)$item->position;
         }
-
-        $query = $db->getQuery(true);
 
         $columns = array('id', 'title', 'code', 'symbol', 'position');
 
+        $query = $db->getQuery(true);
         $query
             ->insert($db->quoteName('#__vc_realcurrencies'))
             ->columns($db->quoteName($columns))

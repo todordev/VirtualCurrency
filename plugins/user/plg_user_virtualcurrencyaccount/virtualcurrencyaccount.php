@@ -13,6 +13,10 @@ defined('_JEXEC') or die;
 jimport('Prism.init');
 jimport('Virtualcurrency.init');
 
+use Virtualcurrency\Account\Command\Gateway\JoomlaCreateAccounts;
+use Virtualcurrency\Account\Command\Gateway\JoomlaUpdateAmount;
+use Virtualcurrency\Commodity\Command\Gateway\JoomlaCreateCommodities;
+
 /**
  * This class provides functionality
  * for creating accounts used for storing
@@ -41,10 +45,13 @@ class plgUserVirtualcurrencyAccount extends JPlugin
             $userId = Joomla\Utilities\ArrayHelper::getValue($user, 'id');
 
             // Create accounts for users.
-            VirtualcurrencyHelper::createAccounts($userId);
-            VirtualcurrencyHelper::createCommodities($userId);
+            $createAccountsCommand = new Virtualcurrency\Account\Command\CreateAccounts($userId);
+            $createAccountsCommand->setGateway(new JoomlaCreateAccounts(JFactory::getDbo()))->handle();
 
-            if ($this->params->get('give_units', 0)) {
+            $createCommoditiesCommand = new Virtualcurrency\Commodity\Command\CreateCommodities($userId);
+            $createCommoditiesCommand->setGateway(new JoomlaCreateCommodities(JFactory::getDbo()))->handle();
+
+            if ((bool)$this->params->get('give_units', 0)) {
                 $this->giveUnits($userId);
             }
         }
@@ -63,85 +70,80 @@ class plgUserVirtualcurrencyAccount extends JPlugin
      */
     public function onUserLogin($user, $options)
     {
-        if (!JComponentHelper::isEnabled('com_virtualcurrency')) {
-            return;
+        if ((bool)$this->params->get('give_units', 0) and JComponentHelper::isEnabled('com_virtualcurrency')) {
+            $username = Joomla\Utilities\ArrayHelper::getValue($user, 'username');
+
+            $user   = JFactory::getUser($username);
+            $userId = (int)$user->get('id');
+
+            // Used only for testing.
+            if ($user->authorise('core.admin')) {
+                $this->giveUnits($userId);
+            }
         }
-
-        // Get user id
-        $userName = Joomla\Utilities\ArrayHelper::getValue($user, 'username');
-
-        $db    = JFactory::getDbo();
-        $query = $db->getQuery(true);
-
-        $query
-            ->select('a.id')
-            ->from($db->quoteName('#__users', 'a'))
-            ->where('a.username = ' . $db->quote($userName));
-
-        $db->setQuery($query, 0, 1);
-        $userId = (int)$db->loadResult();
-
-        // Create accounts for users.
-        VirtualcurrencyHelper::createAccounts($userId);
-        VirtualcurrencyHelper::createCommodities($userId);
-
-        // Used only for testing.
-//        $this->giveUnits($userId);
     }
-    
 
     /**
      *
      * Add virtual currency to user account after registration.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws UnexpectedValueException
      */
     protected function giveUnits($userId)
     {
-        $this->loadLanguage();
-
         $units      = (int)$this->params->get('number', 0);
         $currencyId = (int)$this->params->get('unit', 0);
 
         if ($units > 0 and $currencyId > 0) {
-            $currency = new Virtualcurrency\Currency\Currency(JFactory::getDbo());
-            $currency->load($currencyId);
+            $mapper     = new Virtualcurrency\Currency\Mapper(new \Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+            $repository = new Virtualcurrency\Currency\Repository($mapper);
+            $currency   = $repository->fetchById($currencyId);
 
             if ($currency->getId()) {
-                $keys = array(
-                    'user_id' => $userId,
+                $conditions = array(
+                    'user_id'     => $userId,
                     'currency_id' => $currency->getId(),
                 );
 
                 // Add the units to the account
-                $account = new Virtualcurrency\Account\Account(JFactory::getDbo());
-                $account->load($keys);
+                $mapper     = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
+                $repository = new Virtualcurrency\Account\Repository($mapper);
+                $account    = $repository->fetch($conditions);
 
                 if ($account->getId()) {
+                    $this->loadLanguage();
+
                     $account->increaseAmount($units);
-                    $account->storeAmount();
+
+                    $updateAmountCommand = new Virtualcurrency\Account\Command\UpdateAmount($account);
+                    $updateAmountCommand->setGateway(new JoomlaUpdateAmount(JFactory::getDbo()))->handle();
 
                     // Store transaction
-                    $transaction = new Virtualcurrency\Transaction\Transaction(JFactory::getDbo());
-
-                    $txnId = strtoupper(Prism\Utilities\StringHelper::generateRandomString(16));
-
                     $data = array(
                         'title'            => $currency->getTitle(),
                         'units'            => $units,
-                        'txn_id'           => $txnId,
+                        'txn_id'           => strtoupper(Prism\Utilities\StringHelper::generateRandomString(16)),
                         'txn_amount'       => 0,
-                        'txn_currency'     => $currency->getCode(),
+                        'txn_currency'     => '',
                         'txn_status'       => 'completed',
                         'service_provider' => JText::_('PLG_USER_VIRTUALCURRENCYACCOUNT_SYSTEM'),
+                        'service_alias'    => 'system',
                         'item_id'          => $currency->getId(),
                         'item_type'        => 'currency',
                         'sender_id'        => Virtualcurrency\Constants::BANK_ID,
                         'receiver_id'      => $userId
                     );
 
+                    $transaction = new Virtualcurrency\Transaction\Transaction();
                     $transaction->bind($data);
-                    $transaction->store();
+
+                    $mapper     = new Virtualcurrency\Transaction\Mapper(new Virtualcurrency\Transaction\Gateway\JoomlaGateway(JFactory::getDbo()));
+                    $repository = new Virtualcurrency\Transaction\Repository($mapper);
+                    $repository->store($transaction);
 
                     // Integrate with notifier
 

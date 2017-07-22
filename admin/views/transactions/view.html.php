@@ -55,18 +55,18 @@ class VirtualcurrencyViewTransactions extends JViewLegacy
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $params       = $this->state->get('params');
+        $this->params       = $this->state->get('params');
         /** @var  $params Joomla\Registry\Registry */
 
-        $this->params = $params;
-
         // Load all currencies
-        $this->currencies = new Virtualcurrency\Currency\Currencies(JFactory::getDbo());
-        $this->currencies->load();
+        $mapper           = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository       = new Virtualcurrency\Currency\Repository($mapper);
+        $this->currencies = $repository->fetchAll();
 
         // Get real currencies
-        $this->realCurrency = new Virtualcurrency\Currency\RealCurrency(JFactory::getDbo());
-        $this->realCurrency->load($this->params->get('payments_currency_id'));
+        $mapper             = new Virtualcurrency\RealCurrency\Mapper(new Virtualcurrency\RealCurrency\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository         = new Virtualcurrency\RealCurrency\Repository($mapper);
+        $this->realCurrency = $repository->fetchAll();
 
         // Prepare sorting data
         $this->prepareSorting();

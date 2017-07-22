@@ -47,7 +47,6 @@ class VirtualcurrencyControllerRealCurrency extends Prism\Controller\Form\Backen
         // Check for errors.
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 

@@ -13,6 +13,7 @@ jimport('joomla.form.formfield');
 jimport('joomla.form.helper');
 jimport('Prism.init');
 jimport('Virtualcurrency.init');
+
 JFormHelper::loadFieldClass('list');
 
 /**
@@ -32,9 +33,6 @@ class JFormFieldVcgoods extends JFormFieldList
      */
     protected $type = 'vcgoods';
 
-    protected $column_value;
-    protected $column_text;
-
     /**
      * Method to get the field options.
      *
@@ -43,14 +41,15 @@ class JFormFieldVcgoods extends JFormFieldList
      */
     protected function getOptions()
     {
-        $commodities = new Virtualcurrency\Commodity\Commodities(JFactory::getDbo());
-        $commodities->load();
+        $mapper      = new Virtualcurrency\Commodity\Mapper(new Virtualcurrency\Commodity\Gateway\JoomlaGateway(JFactory::getDbo()));
+        $repository  = new Virtualcurrency\Commodity\Repository($mapper);
+        $commodities = $repository->fetchAll();
 
-        $this->column_value = (isset($this->element['column_value']) and $this->element['column_value']) ? (string)$this->element['column_value'] : 'id';
-        $this->column_text = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
+        $columnValue = (isset($this->element['column_value']) and $this->element['column_value']) ? (string)$this->element['column_value'] : 'id';
+        $columnText  = (isset($this->element['column_text']) and $this->element['column_text']) ? (string)$this->element['column_text'] : 'title';
 
         // Get the options.
-        $options = $commodities->toOptions($this->column_value, $this->column_text);
+        $options = $commodities->toOptions($columnValue, $columnText);
 
         // Merge any additional options in the XML definition.
         $options = array_merge(parent::getOptions(), $options);

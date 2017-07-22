@@ -3,13 +3,11 @@
  * @package      Virtualcurrency
  * @subpackage   Version
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2017 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Virtualcurrency;
-
-defined('JPATH_PLATFORM') or die;
 
 /**
  * This class contains data about the extension and methods,
@@ -32,14 +30,14 @@ class Version
      *
      * @var integer
      */
-    public $release = '2';
+    public $release = '3';
 
     /**
      * Sub Release Level
      *
      * @var integer
      */
-    public $devLevel = '1';
+    public $devLevel = '0';
 
     /**
      * Release Type
@@ -60,7 +58,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '11 May, 2016';
+    public $releaseDate = '22 July, 2017';
 
     /**
      * Link to license page.
@@ -74,7 +72,7 @@ class Version
      *
      * @var string
      */
-    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2017 ITPrism. All rights reserved.';
 
     /**
      * URL to the extension page.
@@ -102,7 +100,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.13';
+    public $requiredPrismVersion = '1.20';
 
     /**
      *  Build long format of the version text.

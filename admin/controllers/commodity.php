@@ -19,10 +19,16 @@ defined('_JEXEC') or die;
  */
 class VirtualcurrencyControllerCommodity extends Prism\Controller\Form\Backend
 {
+    /**
+     * @param string $name
+     * @param string $prefix
+     * @param array  $config
+     *
+     * @return VirtualcurrencyModelCommodity
+     */
     public function getModel($name = 'Commodity', $prefix = 'VirtualcurrencyModel', $config = array('ignore_request' => true))
     {
-        $model = parent::getModel($name, $prefix, $config);
-        return $model;
+        return parent::getModel($name, $prefix, $config);
     }
     
     public function save($key = null, $urlVar = null)
