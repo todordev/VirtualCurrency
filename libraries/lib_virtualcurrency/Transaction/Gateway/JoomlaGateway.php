@@ -172,6 +172,7 @@ class JoomlaGateway extends JoomlaDatabase implements TransactionGateway
         $txnDate   = $object->getTransactionDate() ? $this->db->quote($object->getTransactionDate()) : 'NULL';
         $errorMsg  = $object->getErrorMessage() ? $this->db->quote($object->getErrorMessage()) : 'NULL';
 
+        $extraData = 'NULL';
         if ($object->getExtraData()) {
             $extraData = json_encode($object->getExtraData());
             $extraData = $extraData ? $this->db->quote($extraData) : 'NULL';
@@ -208,6 +209,7 @@ class JoomlaGateway extends JoomlaDatabase implements TransactionGateway
         $txnDate   = (!$object->getTransactionDate()) ? 'NULL' : $this->db->quote($object->getTransactionDate());
         $errorMsg  = (!$object->getErrorMessage()) ? 'NULL' : $this->db->quote($object->getErrorMessage());
 
+        $extraData = 'NULL';
         if ($object->getExtraData()) {
             $extraData = json_encode($object->getExtraData());
             $extraData = $extraData ? $this->db->quote($extraData) : 'NULL';

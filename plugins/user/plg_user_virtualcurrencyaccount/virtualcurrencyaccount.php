@@ -130,7 +130,7 @@ class plgUserVirtualcurrencyAccount extends JPlugin
                         'txn_amount'       => 0,
                         'txn_currency'     => '',
                         'txn_status'       => 'completed',
-                        'service_provider' => JText::_('PLG_USER_VIRTUALCURRENCYACCOUNT_SYSTEM'),
+                        'service_provider' => 'System',
                         'service_alias'    => 'system',
                         'item_id'          => $currency->getId(),
                         'item_type'        => 'currency',

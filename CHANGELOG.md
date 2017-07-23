@@ -2,7 +2,7 @@ Virtual Currency Changelog
 ==========================
 
 ###v3.0
-* Reworked Virtual Currency library to domain driver design methodology. It was made the library much more abstract.
+* Reworked Virtual Currency library to domain-driven design (DDD) methodology. It was made the library much more abstract.
 
 ###v2.1
 * Added section Tools.
