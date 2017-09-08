@@ -9,6 +9,7 @@
 
 namespace Virtualcurrency\Account\Gateway;
 
+use Prism\Domain\RichFetcher;
 use Virtualcurrency\Account\Account;
 
 /**
@@ -17,35 +18,8 @@ use Virtualcurrency\Account\Account;
  * @package         Virtualcurrency\Account
  * @subpackage      Gateway
  */
-interface AccountGateway
+interface AccountGateway extends RichFetcher
 {
-    /**
-     * Return an item filtering by its ID.
-     *
-     * @param int $id
-     *
-     * @return array
-     */
-    public function fetchById($id);
-
-    /**
-     * Return an item filtering results by conditions.
-     *
-     * @param array $conditions
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array());
-
-    /**
-     * Return a collection of items filtering by conditions.
-     *
-     * @param array $conditions
-     *
-     * @return array
-     */
-    public function fetchCollection(array $conditions = array());
-
     /**
      * Insert a record to database.
      *

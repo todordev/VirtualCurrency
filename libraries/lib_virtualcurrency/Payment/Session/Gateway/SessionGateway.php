@@ -9,6 +9,7 @@
 
 namespace Virtualcurrency\Payment\Session\Gateway;
 
+use Prism\Domain\Fetcher;
 use Virtualcurrency\Payment\Session\Session;
 
 /**
@@ -17,26 +18,8 @@ use Virtualcurrency\Payment\Session\Session;
  * @package         Virtualcurrency\Payment\Session
  * @subpackage      Gateway
  */
-interface SessionGateway
+interface SessionGateway extends Fetcher
 {
-    /**
-     * Return an item filtering by its ID.
-     *
-     * @param int $id
-     *
-     * @return array
-     */
-    public function fetchById($id);
-
-    /**
-     * Return an item filtering results by conditions.
-     *
-     * @param array $conditions
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array());
-
     public function insertObject(Session $object);
     public function updateObject(Session $object);
     public function deleteObject(Session $object);

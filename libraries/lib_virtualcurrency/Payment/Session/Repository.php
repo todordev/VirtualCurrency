@@ -10,6 +10,7 @@
 namespace Virtualcurrency\Payment\Session;
 
 use Prism\Domain;
+use Prism\Database\Request\Request;
 use Virtualcurrency\Payment\Session\Gateway\SessionGateway;
 
 /**
@@ -104,19 +105,20 @@ class Repository extends Domain\Repository
      * </code>
      *
      * @param int $id
+     * @param Request $request
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      *
      * @return Session
      */
-    public function fetchById($id)
+    public function fetchById($id, Request $request = null)
     {
         if (!$id) {
             throw new \InvalidArgumentException('There is no ID.');
         }
 
-        $data = $this->gateway->fetchById($id);
+        $data = $this->gateway->fetchById($id, $request);
 
         return $this->mapper->create($data);
     }
@@ -137,20 +139,20 @@ class Repository extends Domain\Repository
      * $session    = $repository->fetch($conditions);
      * </code>
      *
-     * @param array  $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return Session
      */
-    public function fetch(array $conditions = array())
+    public function fetch(Request $request)
     {
-        if (!$conditions) {
+        if (!$request) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
         }
 
-        $data = $this->gateway->fetch($conditions);
+        $data = $this->gateway->fetch($request);
 
         return $this->mapper->create($data);
     }

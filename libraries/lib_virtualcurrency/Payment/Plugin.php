@@ -12,10 +12,14 @@ namespace Virtualcurrency\Payment;
 use Prism\Payment\Result as PaymentResult;
 use Virtualcurrency\Payment\Session\Session as PaymentSession;
 use Virtualcurrency\Payment\Session\Repository as PaymentSessionRepository;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
-use Prism;
+use Prism\Log;
+use Prism\Constants as PrismConstants;
 use Virtualcurrency;
 use Emailtemplates;
 
@@ -32,9 +36,9 @@ class Plugin extends \JPlugin
 
     protected $log;
     protected $textPrefix = 'PLG_VIRTUALCURRENCYPAYMENT';
-    protected $debugType  = 'DEBUG_PAYMENT_PLUGIN';
+    protected $debugType = 'DEBUG_PAYMENT_PLUGIN';
 
-    protected $logFile    = 'com_virtualcurrency.php';
+    protected $logFile = 'com_virtualcurrency.php';
 
     /**
      * Affects constructor behavior. If true, language files will be loaded automatically.
@@ -64,10 +68,10 @@ class Plugin extends \JPlugin
         // Set file writer.
         if ($this->logFile and $this->logFile !== '') {
             // Create log object
-            $this->log = new Prism\Log\Log();
+            $this->log = new Log\Log();
 
-            $file = \JPath::clean($this->app->get('log_path') .'/'. basename($this->logFile));
-            $this->log->addAdapter(new Prism\Log\Adapter\File($file));
+            $file = \JPath::clean($this->app->get('log_path') . '/' . basename($this->logFile));
+            $this->log->addAdapter(new Log\Adapter\File($file));
         }
 
         parent::__construct($subject, $config);
@@ -77,7 +81,7 @@ class Plugin extends \JPlugin
      * Send emails to the administrator and buyer of units.
      *
      * @param PaymentResult $paymentResult
-     * @param Registry $params
+     * @param Registry      $params
      */
     protected function sendMails(PaymentResult $paymentResult, $params)
     {
@@ -91,13 +95,13 @@ class Plugin extends \JPlugin
 
         // Prepare data for parsing
         $data = array(
-            'site_name'      => $this->app->get('sitename'),
-            'site_url'       => \JUri::root(),
-            'item_title'     => htmlentities($transaction->title, ENT_QUOTES, 'UTF-8'),
-            'items_number'   => $transaction->units,
-            'accounts_url'   => $website . \JRoute::_(\VirtualcurrencyHelperRoute::getAccountsRoute()),
-            'txn_amount'     => $transaction->txn_amount,
-            'txn_currency'   => htmlentities($transaction->txn_currency, ENT_QUOTES, 'UTF-8'),
+            'site_name'    => $this->app->get('sitename'),
+            'site_url'     => \JUri::root(),
+            'item_title'   => htmlentities($transaction->title, ENT_QUOTES, 'UTF-8'),
+            'items_number' => $transaction->units,
+            'accounts_url' => $website . \JRoute::_(\VirtualcurrencyHelperRoute::getAccountsRoute()),
+            'txn_amount'   => $transaction->txn_amount,
+            'txn_currency' => htmlentities($transaction->txn_currency, ENT_QUOTES, 'UTF-8'),
         );
 
         // DEBUG DATA
@@ -143,9 +147,9 @@ class Plugin extends \JPlugin
 
             $mailer = \JFactory::getMailer();
             if (strcmp('html', $emailMode) === 0) { // Send as HTML message
-                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_HTML);
+                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, PrismConstants::MAIL_MODE_HTML);
             } else { // Send as plain text.
-                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_PLAIN);
+                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, PrismConstants::MAIL_MODE_PLAIN);
             }
 
             // Check for an error.
@@ -184,9 +188,9 @@ class Plugin extends \JPlugin
 
             $mailer = \JFactory::getMailer();
             if (strcmp('html', $emailMode) === 0) { // Send as HTML message
-                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_HTML);
+                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, PrismConstants::MAIL_MODE_HTML);
             } else { // Send as plain text.
-                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_PLAIN);
+                $return = $mailer->sendMail($email->getSenderEmail(), $email->getSenderName(), $recipientMail, $subject, $body, PrismConstants::MAIL_MODE_PLAIN);
             }
 
             // Check for an error.
@@ -252,12 +256,12 @@ class Plugin extends \JPlugin
         $html = '
         <div id="system-message-container">
 			<div id="system-message">
-                <div class="alert alert-'.$type.'">
+                <div class="alert alert-' . $type . '">
                     <a data-dismiss="alert" class="close">×</a>
                     ';
 
         if ($title !== '') {
-            $html .= '<h4 class="alert-heading">'.$title.'</h4>';
+            $html .= '<h4 class="alert-heading">' . $title . '</h4>';
         }
 
         $html .= '  <div>
@@ -288,34 +292,47 @@ class Plugin extends \JPlugin
         $uniqueKey = ArrayHelper::getValue($options, 'unique_key', '');
         $orderId   = ArrayHelper::getValue($options, 'order_id', '');
 
-        // Prepare keys for anonymous user.
+        // Prepare conditions.
         if ($id > 0) {
-            $keys = array('id' => $id);
+            $conditionId = new Condition(['column' => 'id', 'value' => $id, 'operator' => '=', 'table' => 'a']);
+            $conditions  = new Conditions();
+            $conditions->addCondition($conditionId);
+
         } elseif ($sessionId !== '') {
-            $keys = array(
-                'session_id'   => $sessionId
-            );
+            $conditionSession = new Condition(['column' => 'session_id', 'value' => $sessionId, 'operator' => '=', 'table' => 'a']);
+            $conditions       = new Conditions();
+            $conditions->addCondition($conditionSession);
+
         } elseif ($uniqueKey !== '' and $orderId !== '') { // Prepare keys to get record by unique key and order ID.
-            $keys = array(
-                'unique_key' => $uniqueKey,
-                'order_id' => $orderId
-            );
+            $conditionUniqueKey = new Condition(['column' => 'unique_key', 'value' => $uniqueKey, 'operator' => '=', 'table' => 'a']);
+            $conditionOrderId   = new Condition(['column' => 'order_id', 'value' => $orderId, 'operator' => '=', 'table' => 'a']);
+            $conditions         = new Conditions();
+            $conditions
+                ->addCondition($conditionUniqueKey)
+                ->addCondition($conditionOrderId);
+
         } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
-            $keys = array(
-                'unique_key' => $uniqueKey
-            );
+            $conditionUniqueKey = new Condition(['column' => 'unique_key', 'value' => $uniqueKey, 'operator' => '=', 'table' => 'a']);
+            $conditions         = new Conditions();
+            $conditions->addCondition($conditionUniqueKey);
+
         } elseif ($orderId !== '') { // Prepare keys to get record by order ID.
-            $keys = array(
-                'order_id' => $orderId
-            );
+            $conditionOrderId = new Condition(['column' => 'order_id', 'value' => $orderId, 'operator' => '=', 'table' => 'a']);
+            $conditions       = new Conditions();
+            $conditions->addCondition($conditionOrderId);
+
         } else {
             throw new \UnexpectedValueException('Invalid payment session key.');
         }
 
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
         $mapper     = new Virtualcurrency\Payment\Session\Mapper(new Virtualcurrency\Payment\Session\Gateway\JoomlaGateway(\JFactory::getDbo()));
         $repository = new Virtualcurrency\Payment\Session\Repository($mapper);
 
-        return $repository->fetch($keys);
+        return $repository->fetch($databaseRequest);
     }
 
     /**
@@ -330,7 +347,7 @@ class Plugin extends \JPlugin
         $value1 = strtolower($this->serviceAlias);
         $value2 = strtolower($gateway);
 
-        return (bool)(strcmp($value1, $value2) === 0);
+        return (strcmp($value1, $value2) === 0);
     }
 
     /**
@@ -348,9 +365,9 @@ class Plugin extends \JPlugin
      * $paymentResult->triggerEvents;
      * </code>
      *
-     * @param string $context
-     * @param PaymentResult $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
-     * @param Registry $params Component parameters
+     * @param string        $context
+     * @param PaymentResult $paymentResult Object that contains Transaction, Reward, Project, PaymentSession, etc.
+     * @param Registry      $params        Component parameters
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
@@ -358,7 +375,7 @@ class Plugin extends \JPlugin
      */
     public function onAfterPaymentNotify($context, $paymentResult, $params)
     {
-        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.'.$this->serviceAlias.'$/', $context)) {
+        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.' . $this->serviceAlias . '$/', $context)) {
             return;
         }
 
@@ -391,16 +408,16 @@ class Plugin extends \JPlugin
      * $paymentResult->triggerEvents;
      * </code>
      *
-     * @param string $context
-     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
-     * @param Registry $params Component parameters
+     * @param string    $context
+     * @param \stdClass $paymentResult Object that contains Transaction, Reward, Project, PaymentSession, etc.
+     * @param Registry  $params        Component parameters
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
     public function onAfterPayment($context, $paymentResult, $params)
     {
-        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.'.$this->serviceAlias.'$/', $context)) {
+        if (!preg_match('/com_virtualcurrency\.(notify|payments).*\.' . $this->serviceAlias . '$/', $context)) {
             return;
         }
 

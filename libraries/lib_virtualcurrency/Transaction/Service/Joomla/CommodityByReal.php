@@ -21,6 +21,9 @@ use Virtualcurrency\User\Commodity\Command\Gateway\JoomlaStoreNumber;
 use Virtualcurrency\User\Commodity\Mapper as UserCommodityMapper;
 use Virtualcurrency\User\Commodity\Repository as UserCommodityRepository;
 use Virtualcurrency\User\Commodity\Gateway\JoomlaGateway as UserCommodityJoomlaGateway;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 class CommodityByReal implements ApplicationService
 {
@@ -35,16 +38,22 @@ class CommodityByReal implements ApplicationService
 
     public function execute(array $request = array())
     {
-        // Increase the number of user commodities.
-        $conditions = [
-            'user_id'      => $this->transaction->getReceiverId(),
-            'commodity_id' => $this->transaction->getItemId(),
-        ];
+        // Prepare conditions.
+        $conditionUserId = new Condition(['column' => 'user_id', 'value' => $this->transaction->getReceiverId(), 'operator' => '=', 'table' => 'a']);
+        $conditionCommodityId = new Condition(['column' => 'commodity_id', 'value' => $this->transaction->getItemId(), 'operator' => '=', 'table' => 'a']);
+        $conditions          = new Conditions();
+        $conditions
+            ->addCondition($conditionUserId)
+            ->addCondition($conditionCommodityId);
+
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
 
         // Create user commodity object.
         $commodityMapper      = new UserCommodityMapper(new UserCommodityJoomlaGateway($this->db));
         $commodityRepository  = new UserCommodityRepository($commodityMapper);
-        $userCommodity        = $commodityRepository->fetch($conditions);
+        $userCommodity        = $commodityRepository->fetch($databaseRequest);
 
         // Decrease the number of commodities.
         $commodity            = $userCommodity->getCommodity();

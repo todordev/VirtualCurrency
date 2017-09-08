@@ -10,7 +10,10 @@
 namespace Virtualcurrency\Currency\Gateway;
 
 use Joomla\Utilities\ArrayHelper;
-use Prism\Database\JoomlaDatabase;
+use Prism\Database\JoomlaDatabaseGateway;
+use Prism\Database\Request\Request;
+use Prism\Database\Joomla\FetchMethods;
+use Prism\Database\Joomla\FetchCollectionMethod;
 
 /**
  * Joomla database gateway.
@@ -18,35 +21,9 @@ use Prism\Database\JoomlaDatabase;
  * @package      Virtualcurrency/Currency
  * @subpackage   Gateway
  */
-class JoomlaGateway extends JoomlaDatabase implements CurrencyGateway
+class JoomlaGateway extends JoomlaDatabaseGateway implements CurrencyGateway
 {
-    /**
-     * Load the data from database by conditions and return an entity.
-     *
-     * @param array  $conditions
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array())
-    {
-        if (!$conditions) {
-            throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
-        }
-
-        $query = $this->getQuery();
-
-        // Filter by conditions.
-        foreach ($conditions as $key => $value) {
-            $query->where($this->db->quoteName('a.' . $key) . '=' . $this->db->quote($value));
-        }
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssoc();
-    }
+    use FetchMethods, FetchCollectionMethod;
 
     /**
      * Load all data from database.
@@ -66,94 +43,74 @@ class JoomlaGateway extends JoomlaDatabase implements CurrencyGateway
     }
 
     /**
-     * Load the data from database and return a collection.
-     *
-     * @param array  $conditions
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetchCollection(array $conditions = array())
-    {
-        if (!$conditions) {
-            throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
-        }
-
-        $query = $this->getQuery();
-
-        // Filter by IDs
-        if (array_key_exists('ids', $conditions) and is_array($conditions['ids'])) {
-            $ids = ArrayHelper::toInteger($conditions['ids']);
-
-            if (count($ids) > 0) {
-                $query->where($this->db->quoteName('a.id') .' IN ('. implode(',', $ids) .')');
-            }
-
-            unset($conditions['ids']);
-        }
-
-        // Filter by codes.
-        if (array_key_exists('codes', $conditions) and is_array($conditions['codes']) and count($conditions['codes']) > 0) {
-            $escapedCodes = array_map(function ($value) {
-                return $this->db->quote($value);
-            }, $conditions['codes']);
-
-            $query->where($this->db->quoteName('a.code') .' IN ('. implode(',', $escapedCodes) .')');
-            unset($conditions['codes']);
-        }
-
-        // Filter by other conditions.
-        foreach ($conditions as $key => $value) {
-            $query->where($this->db->quoteName('a.' . $key) .'='. $this->db->quote($value));
-        }
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssocList();
-    }
-
-    /**
-     * Fetch a data from database by item ID.
-     *
-     * @param int $id
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetchById($id)
-    {
-        if (!$id) {
-            throw new \InvalidArgumentException('There is no ID.');
-        }
-
-        $query = $this->getQuery();
-
-        // Filter by ID.
-        $query->where('a.id = ' . (int)$id);
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssoc();
-    }
-
-    /**
      * Prepare the query by query builder.
+     *
+     * @param Request $request
      *
      * @return \JDatabaseQuery
      *
      * @throws \RuntimeException
      */
-    protected function getQuery()
+    protected function getQuery(Request $request = null)
     {
+        $defaultFields  = ['a.id', 'a.title', 'a.description', 'a.code', 'a.symbol', 'a.position', 'a.image', 'a.image_icon', 'a.params', 'a.published'];
+        $fields         = $this->prepareFields($request, $defaultFields);
+
+        // If there are no fields, use default ones.
+        if (count($fields) === 0) {
+            $fields = $defaultFields;
+            unset($defaultFields);
+        }
+
         $query = $this->db->getQuery(true);
         $query
-            ->select('a.id, a.title, a.description, a.code, a.symbol, a.position, a.image, a.image_icon, a.params, a.published')
+            ->select($fields)
             ->from($this->db->quoteName('#__vc_currencies', 'a'));
 
         return $query;
+    }
+
+    /**
+     * Prepare some query filters.
+     *
+     * @param \JDatabaseQuery $query
+     * @param Request         $request
+     *
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     */
+    protected function filter(\JDatabaseQuery $query, Request $request)
+    {
+        $conditions = $request->getConditions();
+
+        // Filter by IDs
+        if ($conditions->getSpecificCondition('ids')) {
+            $condition = $conditions->getSpecificCondition('ids');
+            if (is_array($condition->getValue())) {
+                $ids = ArrayHelper::toInteger($condition->getValue());
+                $ids = array_filter(array_unique($ids));
+
+                if (count($ids) > 0) {
+                    $query->where($this->db->quoteName('a.id') . ' IN (' . implode(',', $ids) . ')');
+                }
+            }
+        }
+
+        // Filter by IDs
+        if ($conditions->getSpecificCondition('codes')) {
+            $condition = $conditions->getSpecificCondition('codes');
+            $codes     = $condition->getValue();
+
+            if (is_array($codes) && count($codes) > 0) {
+                $escapedCodes = array_map(function ($value) {
+                    return $this->db->quote($value);
+                }, $codes);
+
+                $query->where($this->db->quoteName('a.code') .' IN ('. implode(',', $escapedCodes) .')');
+            }
+        }
+
+        // Filter by standard conditions.
+        parent::filter($query, $request);
     }
 }

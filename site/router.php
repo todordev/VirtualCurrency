@@ -10,7 +10,7 @@
 defined('_JEXEC') or die;
 
 /**
- * Routing class from com_content
+ * Routing class from com_virtualcurrency
  *
  * @since  3.3
  */
@@ -39,7 +39,7 @@ class VirtualcurrencyRouter extends JComponentRouterBase
         }
 
         // Check again
-        if ($menuItemGiven and isset($menuItem) and $menuItem->component !== 'com_virtualcurrency') {
+        if ($menuItemGiven && $menuItem !== null && $menuItem->component !== 'com_virtualcurrency') {
             $menuItemGiven = false;
             unset($query['Itemid']);
         }
@@ -51,8 +51,8 @@ class VirtualcurrencyRouter extends JComponentRouterBase
             return $segments;
         }
 
-        $mOption = (empty($menuItem->query['option'])) ? null : $menuItem->query['option'];
-        $mView   = (empty($menuItem->query['view'])) ? null : $menuItem->query['view'];
+        $mOption = empty($menuItem->query['option']) ? null : $menuItem->query['option'];
+        $mView   = empty($menuItem->query['view']) ? null : $menuItem->query['view'];
 
         // Are we dealing with a view that is attached to a menu item?
         if (isset($view) and ($mView === $view)) {
@@ -76,7 +76,6 @@ class VirtualcurrencyRouter extends JComponentRouterBase
                     break;
 
             }
-
         }
 
         // Layout
@@ -90,12 +89,10 @@ class VirtualcurrencyRouter extends JComponentRouterBase
                     unset($query['layout']);
                 }
             }
-        };
+        }
 
-        $total = count($segments);
-
-        for ($i = 0; $i < $total; $i++) {
-            $segments[$i] = str_replace(':', '-', $segments[$i]);
+        foreach ($segments as $key => $segment) {
+            $segments[$key] = str_replace(':', '-', $segment);
         }
 
         return $segments;
@@ -115,15 +112,12 @@ class VirtualcurrencyRouter extends JComponentRouterBase
         $total = count($segments);
         $vars  = array();
 
-        for ($i = 0; $i < $total; $i++) {
-            $segments[$i] = preg_replace('/-/', ':', $segments[$i], 1);
+        foreach ($segments as $key => $segment) {
+            $segments[$key] = str_replace('-', ':', $segment);
         }
 
         // Get the active menu item.
         $item = $this->menu->getActive();
-
-        // Count route segments
-        $count = count($segments);
 
         /*
          * Standard routing for articles.  If we don't pick up an Itemid then we get the view from the segments
@@ -131,7 +125,7 @@ class VirtualcurrencyRouter extends JComponentRouterBase
          */
         if (!isset($item)) {
             $vars['view'] = $segments[0];
-            $vars['id']   = $segments[$count - 1];
+            $vars['id']   = $segments[$total - 1];
 
             return $vars;
         }
@@ -141,8 +135,8 @@ class VirtualcurrencyRouter extends JComponentRouterBase
          * We test it first to see if it is a category.  If the id and alias match a category,
          * then we assume it is a category.  If they don't we assume it is an article
          */
-        if ($count === 1) {
-            $view = $segments[$count - 1];
+        if ($total === 1) {
+            $view = $segments[$total - 1];
 
             switch ($view) {
                 case 'cart':

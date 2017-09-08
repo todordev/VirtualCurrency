@@ -13,6 +13,9 @@ use Virtualcurrency\Payment\Session\Session as PaymentSession;
 use Joomla\Utilities\ArrayHelper;
 use Virtualcurrency\Transaction\Transaction;
 use Virtualcurrency\Account\Account;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -43,6 +46,10 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
      * @param Joomla\Registry\Registry $params Component options.
      *
      * @return null|string
+     *
+     * @throws UnexpectedValueException
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function onPreparePayment($context, &$item, &$params)
     {
@@ -94,9 +101,22 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             return null;
         }
 
+        // Prepare conditions.
+        $conditionUserId = new Condition(['column' => 'user_id', 'value' => $userId, 'operator'=> '=', 'table' => 'a']);
+        $conditionState  = new Condition(['column' => 'currency_id', 'value' => $currency->getId(), 'operator'=> '=', 'table' => 'a']);
+
+        $conditions = new Conditions();
+        $conditions
+            ->addCondition($conditionUserId)
+            ->addCondition($conditionState);
+
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
+        // Fetch the data.
         $mapper     = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
         $repository = new Virtualcurrency\Account\Repository($mapper);
-        $account    = $repository->fetch(['user_id' => $userId, 'currency_id' => $currency->getId()]);
+        $account    = $repository->fetch($databaseRequest);
         if (!$account->getId() or !$account->isActive()) {
             return null;
         }
@@ -238,9 +258,22 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
             $payerId      = ArrayHelper::getValue($validData, 'receiver_id');
             $currencyId   = $item->order->price('virtual')->getCurrencyId();
 
+            // Prepare conditions.
+            $conditionUserId = new Condition(['column' => 'user_id', 'value' => $payerId, 'operator'=> '=', 'table' => 'a']);
+            $conditionState  = new Condition(['column' => 'currency_id', 'value' => $currencyId, 'operator'=> '=', 'table' => 'a']);
+
+            $conditions = new Conditions();
+            $conditions
+                ->addCondition($conditionUserId)
+                ->addCondition($conditionState);
+
+            $databaseRequest = new Request();
+            $databaseRequest->setConditions($conditions);
+
+            // Fetch the data
             $accountMapper      = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
             $accountRepository  = new Virtualcurrency\Account\Repository($accountMapper);
-            $account            = $accountRepository->fetch(['user_id' => $payerId, 'currency_id' => $currencyId]);
+            $account            = $accountRepository->fetch($databaseRequest);
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_ACCOUNT_OBJECT'), $this->debugType, $account->getProperties()) : null;
@@ -348,14 +381,20 @@ class plgVirtualcurrencyPaymentPaymentGateway extends Virtualcurrency\Payment\Pl
      */
     protected function storeTransaction($data, Account $account, $testMode)
     {
-        // Get transaction by txn ID
-        $keys        = array(
-            'txn_id' => ArrayHelper::getValue($data, 'txn_id')
-        );
+        // Prepare conditions.
+        $conditionTxnId = new Condition(['column' => 'txn_id', 'value' => ArrayHelper::getValue($data, 'txn_id'), 'operator'=> '=', 'table' => 'a']);
 
+        $conditions = new Conditions();
+        $conditions->addCondition($conditionTxnId);
+
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
+        // Fetch transaction by its ID.
         $txnMapper      = new Virtualcurrency\Transaction\Mapper(new Virtualcurrency\Transaction\Gateway\JoomlaGateway(JFactory::getDbo()));
         $txnRepository  = new Virtualcurrency\Transaction\Repository($txnMapper);
-        $transaction    = $txnRepository->fetch($keys);
+        $transaction    = $txnRepository->fetch($databaseRequest);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_TRANSACTION_OBJECT'), $this->debugType, $transaction->getProperties()) : null;

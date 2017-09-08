@@ -13,6 +13,9 @@ use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
 use Prism\Payment\Result as PaymentResult;
 use Virtualcurrency\Transaction\Transaction;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -364,13 +367,18 @@ class plgVirtualcurrencyPaymentPayPal extends Virtualcurrency\Payment\Plugin
      */
     protected function storeTransaction(array $data)
     {
-        // Get transaction by txn ID
-        $keys        = array(
-            'txn_id' => ArrayHelper::getValue($data, 'txn_id')
-        );
+        // Prepare conditions.
+        $conditionTxnId = new Condition(['column' => 'txn_id', 'value' => ArrayHelper::getValue($data, 'txn_id'), 'operator'=> '=', 'table' => 'a']);
+        $conditions = new Conditions();
+        $conditions->addCondition($conditionTxnId);
+
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
         $txnMapper      = new Virtualcurrency\Transaction\Mapper(new Virtualcurrency\Transaction\Gateway\JoomlaGateway(JFactory::getDbo()));
         $txnRepository  = new Virtualcurrency\Transaction\Repository($txnMapper);
-        $transaction    = $txnRepository->fetch($keys);
+        $transaction    = $txnRepository->fetch($databaseRequest);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add('Transaction object before bind().', $this->debugType, $transaction->getProperties()) : null;

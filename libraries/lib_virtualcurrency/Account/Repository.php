@@ -9,6 +9,7 @@
 
 namespace Virtualcurrency\Account;
 
+use Prism\Database\Request\Request;
 use Prism\Domain;
 use Virtualcurrency\Account\Gateway\AccountGateway;
 
@@ -65,19 +66,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * </code>
      *
      * @param int $id
+     * @param Request $request
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      *
      * @return Account
      */
-    public function fetchById($id)
+    public function fetchById($id, Request $request = null)
     {
         if (!$id) {
             throw new \InvalidArgumentException('There is no ID.');
         }
 
-        $data = $this->gateway->fetchById($id);
+        $data = $this->gateway->fetchById($id, $request);
 
         return $this->mapper->create($data);
     }
@@ -98,20 +100,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * $account     = $repository->fetch($conditions);
      * </code>
      *
-     * @param array  $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return Account
      */
-    public function fetch(array $conditions = array())
+    public function fetch(Request $request)
     {
-        if (!$conditions) {
+        if (!$request) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
         }
 
-        $data = $this->gateway->fetch($conditions);
+        $data = $this->gateway->fetch($request);
 
         return $this->mapper->create($data);
     }
@@ -131,20 +133,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * $accounts    = $repository->fetchCollection($conditions);
      * </code>
      *
-     * @param array  $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return Accounts
      */
-    public function fetchCollection(array $conditions = array())
+    public function fetchCollection(Request $request)
     {
-        if (!$conditions) {
+        if (!$request) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
         }
 
-        $data = $this->gateway->fetchCollection($conditions);
+        $data = $this->gateway->fetchCollection($request);
 
         if ($this->collection === null) {
             $this->collection = new Accounts;

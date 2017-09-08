@@ -13,6 +13,10 @@ defined('_JEXEC') or die;
 jimport('Prism.init');
 jimport('Virtualcurrency.init');
 
+use Joomla\Registry\Registry;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 use Virtualcurrency\Account\Command\Gateway\JoomlaCreateAccounts;
 use Virtualcurrency\Account\Command\Gateway\JoomlaUpdateAmount;
 use Virtualcurrency\Commodity\Command\Gateway\JoomlaCreateCommodities;
@@ -52,7 +56,13 @@ class plgUserVirtualcurrencyAccount extends JPlugin
             $createCommoditiesCommand->setGateway(new JoomlaCreateCommodities(JFactory::getDbo()))->handle();
 
             if ((bool)$this->params->get('give_units', 0)) {
-                $this->giveUnits($userId);
+                $options_ = new Registry([
+                    'units'   => (int)$this->params->get('units_number', 0),
+                    'unit_id' => (int)$this->params->get('unit_id', 0),
+                    'user_id' => $userId,
+                ]);
+
+                $this->giveUnits($options_);
             }
         }
     }
@@ -70,15 +80,24 @@ class plgUserVirtualcurrencyAccount extends JPlugin
      */
     public function onUserLogin($user, $options)
     {
-        if ((bool)$this->params->get('give_units', 0) and JComponentHelper::isEnabled('com_virtualcurrency')) {
+        if ((bool)$this->params->get('debug_mode', 0) and JComponentHelper::isEnabled('com_virtualcurrency')) {
             $username = Joomla\Utilities\ArrayHelper::getValue($user, 'username');
 
-            $user   = JFactory::getUser($username);
-            $userId = (int)$user->get('id');
+            $user       = JFactory::getUser($username);
+            $userId     = (int)$user->get('id');
+            $userGroups = Joomla\Utilities\ArrayHelper::toInteger($user->groups);
+            
+            $debugModeGroupId = (int)$this->params->get('usergroup', 0);
 
             // Used only for testing.
-            if ($user->authorise('core.admin')) {
-                $this->giveUnits($userId);
+            if ($userId > 0 and in_array($debugModeGroupId, $userGroups, true)) {
+                $options_ = new Registry([
+                    'units'   => (int)$this->params->get('debug_units_number', 0),
+                    'unit_id' => (int)$this->params->get('debug_unit_id', 0),
+                    'user_id' => $userId,
+                ]);
+
+                $this->giveUnits($options_);
             }
         }
     }
@@ -87,16 +106,17 @@ class plgUserVirtualcurrencyAccount extends JPlugin
      *
      * Add virtual currency to user account after registration.
      *
-     * @param int $userId
+     * @param Registry $options
      *
      * @throws InvalidArgumentException
      * @throws RuntimeException
      * @throws UnexpectedValueException
      */
-    protected function giveUnits($userId)
+    protected function giveUnits(Registry $options)
     {
-        $units      = (int)$this->params->get('number', 0);
-        $currencyId = (int)$this->params->get('unit', 0);
+        $units = $options->get('units');
+        $currencyId = $options->get('unit_id');
+        $userId = $options->get('user_id');
 
         if ($units > 0 and $currencyId > 0) {
             $mapper     = new Virtualcurrency\Currency\Mapper(new \Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
@@ -104,15 +124,21 @@ class plgUserVirtualcurrencyAccount extends JPlugin
             $currency   = $repository->fetchById($currencyId);
 
             if ($currency->getId()) {
-                $conditions = array(
-                    'user_id'     => $userId,
-                    'currency_id' => $currency->getId(),
-                );
+                $conditionUserId = new Condition(['column' => 'user_id', 'value' => $userId, 'operator'=> '=', 'table' => 'a']);
+                $conditionCurrencyId = new Condition(['column' => 'currency_id', 'value' => (int)$currency->getId(),  'operator'=> '=', 'table' => 'a']);
+
+                $conditions = new Conditions();
+                $conditions
+                    ->addCondition($conditionUserId)
+                    ->addCondition($conditionCurrencyId);
+
+                $databaseRequest = new Request();
+                $databaseRequest->setConditions($conditions);
 
                 // Add the units to the account
                 $mapper     = new Virtualcurrency\Account\Mapper(new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo()));
                 $repository = new Virtualcurrency\Account\Repository($mapper);
-                $account    = $repository->fetch($conditions);
+                $account    = $repository->fetch($databaseRequest);
 
                 if ($account->getId()) {
                     $this->loadLanguage();
@@ -148,7 +174,7 @@ class plgUserVirtualcurrencyAccount extends JPlugin
                     // Integrate with notifier
 
                     // Notification services
-                    $nServices = $this->params->get('integration');
+                    $nServices = strtolower($this->params->get('integration'));
                     if ($nServices) {
                         $message = JText::sprintf('PLG_USER_VIRTUALCURRENCYACCOUNT_NOTIFICATION_AFTER_REGISTRATION', $units, $currency->getTitle());
                         $this->notify($nServices, $message, $userId);
@@ -160,16 +186,18 @@ class plgUserVirtualcurrencyAccount extends JPlugin
 
     public function notify($nServices, $message, $userId)
     {
-        $options = new Joomla\Registry\Registry(array(
+        $config = new Joomla\Registry\Registry(array(
+            'env'      => 'joomla',
             'platform' => strtolower($nServices),
-            'user_id'  => $userId,
-            'title'    => JText::sprintf('PLG_USER_VIRTUALCURRENCYACCOUNT_NOTIFICATION_TITLE')
         ));
 
-        $factory  = new Prism\Integration\Notification\Factory($options);
-        $notifier = $factory->create();
-        $notifier->setDb(JFactory::getDbo());
+        $data = new Joomla\Registry\Registry(array(
+            'target_id' => $userId,
+            'title'     => JText::sprintf('PLG_USER_VIRTUALCURRENCYACCOUNT_NOTIFICATION_TITLE'),
+            'content'   => $message
+        ));
 
-        $notifier->send($message);
+        $notifier  = Prism\Integration\Notification\Builder::build($config, $data);
+        $notifier->send();
     }
 }

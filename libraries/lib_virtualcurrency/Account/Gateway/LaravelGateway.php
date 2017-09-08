@@ -37,11 +37,11 @@ class LaravelGateway extends LaravelDatabase implements AccountGateway
      * $item    = $gateway->fetch($conditions);
      * </code>
      *
-     * @param array $conditions
+     * @param Request $request
      *
      * @return array
      */
-    public function fetch(array $conditions = array())
+    public function fetch(Request $request)
     {
         if (!$conditions) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
@@ -70,14 +70,14 @@ class LaravelGateway extends LaravelDatabase implements AccountGateway
      * $items   = $dbGateway->fetchCollection($conditions);
      * </code>
      *
-     * @param array $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return array
      */
-    public function fetchCollection(array $conditions = array())
+    public function fetchCollection(Request $request)
     {
         if (!$conditions) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');

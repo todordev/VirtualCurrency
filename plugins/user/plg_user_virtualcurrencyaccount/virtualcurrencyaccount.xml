@@ -14,30 +14,47 @@
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
     <p>Please, <a href="http://extensions.joomla.org/extensions/e-commerce/credits-a-point-systems/24550" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
     ]]></description>
-    
+
     <files>
         <filename plugin="virtualcurrencyaccount">virtualcurrencyaccount.php</filename>
         <folder>language</folder>
     </files>
-    
+
     <config>
-        <fields name="params">
-            <fieldset name="basic" addfieldpath="/administrator/components/com_virtualcurrency/models/fields">
+        <fields name="params" addfieldpath="/administrator/components/com_virtualcurrency/models/fields">
+            <fieldset name="basic">
                 <field name="give_units" type="radio" default="0" label="PLG_USER_VIRTUALCURRENCYACCOUNT_GIVE_UNITS" description="PLG_USER_VIRTUALCURRENCYACCOUNT_GIVE_UNITS_DESC" class="btn-group">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
-                <field name="unit" type="vccurrency" label="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT_DESC" />
-                <field name="number" type="text" label="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER_DESC" />
+                <field name="unit_id" type="vccurrency" label="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT_DESC" />
+                <field name="units_number" type="text" label="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER_DESC" />
                 <field name="integration" type="list" default="" label="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE" description="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE_DESC">
                     <option value="">PLG_USER_VIRTUALCURRENCYACCOUNT_NONE</option>
                     <option value="Gamification">PLG_USER_VIRTUALCURRENCYACCOUNT_GAMIFICATION_PLATFORM</option>
                     <option value="Socialcommunity">PLG_USER_VIRTUALCURRENCYACCOUNT_SOCIAL_COMMUNITY</option>
-                    <option value="JomSocial">PLG_USER_VIRTUALCURRENCYACCOUNT_JOMSOCIAL</option>
-                    <option value="EasySocial">PLG_USER_VIRTUALCURRENCYACCOUNT_EASY_SOCIAL</option>
+                    <option value="Jomsocial">PLG_USER_VIRTUALCURRENCYACCOUNT_JOMSOCIAL</option>
+                    <option value="Easysocial">PLG_USER_VIRTUALCURRENCYACCOUNT_EASY_SOCIAL</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="debug" label="PLG_USER_VIRTUALCURRENCYACCOUNT_DEBUG_LABEL">
+                <field name="debug_mode" type="radio" default="0" label="PLG_USER_VIRTUALCURRENCYACCOUNT_ENABLE_DEBUG_MODE" description="PLG_USER_VIRTUALCURRENCYACCOUNT_ENABLE_DEBUG_MODE_DESC" class="btn-group">
+                    <option value="0">JENABLED</option>
+                    <option value="1">JDISABLED</option>
+                </field>
+                <field name="usergroup" type="usergrouplist" label="PLG_USER_VIRTUALCURRENCYACCOUNT_GROUPS_LABEL" description="PLG_USER_VIRTUALCURRENCYACCOUNT_GROUPS_DESC"/>
+                <field name="debug_unit_id" type="vccurrency" label="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT" description="PLG_USER_VIRTUALCURRENCYACCOUNT_UNIT_DESC" />
+                <field name="debug_units_number" type="text" label="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER" description="PLG_USER_VIRTUALCURRENCYACCOUNT_NUMBER_DESC" />
+                <field name="debug_integration" type="list" default="" label="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE" description="PLG_USER_VIRTUALCURRENCYACCOUNT_INTEGRATE_DESC">
+                    <option value="">PLG_USER_VIRTUALCURRENCYACCOUNT_NONE</option>
+                    <option value="Gamification">PLG_USER_VIRTUALCURRENCYACCOUNT_GAMIFICATION_PLATFORM</option>
+                    <option value="Socialcommunity">PLG_USER_VIRTUALCURRENCYACCOUNT_SOCIAL_COMMUNITY</option>
+                    <option value="Jomsocial">PLG_USER_VIRTUALCURRENCYACCOUNT_JOMSOCIAL</option>
+                    <option value="Easysocial">PLG_USER_VIRTUALCURRENCYACCOUNT_EASY_SOCIAL</option>
                 </field>
             </fieldset>
         </fields>
     </config>
-    
+
 </extension>

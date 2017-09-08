@@ -27,6 +27,9 @@ use Virtualcurrency\User\Commodity\Repository as UserCommodityRepository;
 use Virtualcurrency\User\Commodity\Gateway\JoomlaGateway as UserCommodityJoomlaGateway;
 use Virtualcurrency\Commodity\Command\Gateway\JoomlaUpdateInStock;
 use Virtualcurrency\Commodity\Command\UpdateInStock;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 class CommodityByVirtual implements ApplicationService
 {
@@ -57,14 +60,22 @@ class CommodityByVirtual implements ApplicationService
 
         // Increase units to other receiver account or commodity store.
         if (strcmp('currency', $this->transaction->getItemType()) === 0) {
-            $conditions = [
-                'user_id' => $this->transaction->getReceiverId(),
-                'currency_id' => $this->transaction->getItemId(),
-            ];
+            // Prepare conditions.
+            $conditionUserId = new Condition(['column' => 'user_id', 'value' => $this->transaction->getReceiverId(), 'operator'=> '=', 'table' => 'a']);
+            $conditionCurrencyId = new Condition(['column' => 'currency_id', 'value' => $this->transaction->getItemId(), 'operator'=> '=', 'table' => 'a']);
+
+            $conditions = new Conditions();
+            $conditions
+                ->addCondition($conditionUserId)
+                ->addCondition($conditionCurrencyId);
+
+            // Prepare database request.
+            $databaseRequest = new Request();
+            $databaseRequest->setConditions($conditions);
 
             $accountMapper      = new AccountMapper(new AccountJoomlaGateway($this->db));
             $accountRepository  = new AccountRepository($accountMapper);
-            $account = $accountRepository->fetch($conditions);
+            $account = $accountRepository->fetch($databaseRequest);
 
             // Update account amount.
             $account->increaseAmount($this->transaction->getUnits());
@@ -73,14 +84,22 @@ class CommodityByVirtual implements ApplicationService
             $updateAmountCommand->setGateway(new JoomlaUpdateAmount($this->db));
             $updateAmountCommand->handle();
         } else {
-            $conditions = [
-                'user_id' => $this->transaction->getReceiverId(),
-                'commodity_id' => $this->transaction->getItemId(),
-            ];
+            // Prepare conditions.
+            $conditionUserId = new Condition(['column' => 'user_id', 'value' => $this->transaction->getReceiverId(), 'operator'=> '=', 'table' => 'a']);
+            $conditionCurrencyId = new Condition(['column' => 'commodity_id', 'value' => $this->transaction->getItemId(), 'operator'=> '=', 'table' => 'a']);
+
+            $conditions = new Conditions();
+            $conditions
+                ->addCondition($conditionUserId)
+                ->addCondition($conditionCurrencyId);
+
+            // Prepare database request.
+            $databaseRequest = new Request();
+            $databaseRequest->setConditions($conditions);
 
             $commodityMapper      = new UserCommodityMapper(new UserCommodityJoomlaGateway($this->db));
             $commodityRepository  = new UserCommodityRepository($commodityMapper);
-            $userCommodity        = $commodityRepository->fetch($conditions);
+            $userCommodity        = $commodityRepository->fetch($databaseRequest);
 
             // If there are no enough units to be given, leave a message to the administrator.
             $commodity            = $userCommodity->getCommodity();

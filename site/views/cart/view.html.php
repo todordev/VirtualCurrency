@@ -8,6 +8,9 @@
  */
 
 use Joomla\Data\DataObject;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -122,24 +125,30 @@ class VirtualcurrencyViewCart extends JViewLegacy
 
     /**
      * @param DataObject $cartSession
+     *
+     * @throws \RuntimeException
      */
     protected function prepareCart($cartSession)
     {
         // Create payment session ID.
         $cartSession->session_id = (string)Ramsey\Uuid\Uuid::uuid4();
 
-        // Load virtual currencies.
-        $conditions = array(
-            'published' => Prism\Constants::PUBLISHED
-        );
+        // Prepare conditions.
+        $conditionTxnId = new Condition(['column' => 'published', 'value' => Prism\Constants::PUBLISHED, 'operator'=> '=', 'table' => 'a']);
+        $conditions = new Conditions();
+        $conditions->addCondition($conditionTxnId);
+
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
 
         $mapper           = new Virtualcurrency\Currency\Mapper(new Virtualcurrency\Currency\Gateway\JoomlaGateway(JFactory::getDbo()));
         $repository       = new Virtualcurrency\Currency\Repository($mapper);
-        $this->currencies = $repository->fetchCollection($conditions);
+        $this->currencies = $repository->fetchCollection($databaseRequest);
 
         $mapper            = new Virtualcurrency\Commodity\Mapper(new Virtualcurrency\Commodity\Gateway\JoomlaGateway(JFactory::getDbo()));
         $repository        = new Virtualcurrency\Commodity\Repository($mapper);
-        $this->commodities = $repository->fetchCollection($conditions);
+        $this->commodities = $repository->fetchCollection($databaseRequest);
 
         // Check days left. If there is no days, disable the button.
         $this->disabledButton = '';

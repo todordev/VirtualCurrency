@@ -19,6 +19,9 @@ use Virtualcurrency\Transaction\Gateway\JoomlaGateway as TransactionJoomlaGatewa
 use Virtualcurrency\Account\Gateway\JoomlaGateway as AccountJoomlaGateway;
 use Virtualcurrency\Account\Mapper as AccountMapper;
 use Virtualcurrency\Account\Repository as AccountRepository;
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
 
 class VirtualByReal implements ApplicationService
 {
@@ -33,14 +36,22 @@ class VirtualByReal implements ApplicationService
 
     public function execute(array $request = array())
     {
-        $conditions = [
-            'user_id'     => $this->transaction->getReceiverId(),
-            'currency_id' => $this->transaction->getItemId()
-        ];
+        // Prepare conditions.
+        $conditionUserId = new Condition(['column' => 'user_id', 'value' => $this->transaction->getReceiverId(), 'operator' => '=', 'table' => 'a']);
+        $conditionCurrencyId = new Condition(['column' => 'currency_id', 'value' => $this->transaction->getItemId(), 'operator' => '=', 'table' => 'a']);
+        $conditions          = new Conditions();
+        $conditions
+            ->addCondition($conditionUserId)
+            ->addCondition($conditionCurrencyId);
 
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
+        // Fetch the result.
         $accountMapper      = new AccountMapper(new AccountJoomlaGateway($this->db));
         $accountRepository  = new AccountRepository($accountMapper);
-        $account            = $accountRepository->fetch($conditions);
+        $account            = $accountRepository->fetch($databaseRequest);
 
         // Update account amount.
         $account->increaseAmount($this->transaction->getUnits());

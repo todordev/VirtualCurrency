@@ -10,9 +10,12 @@
 namespace Virtualcurrency\Account\Gateway;
 
 use Prism\Constants;
-use Prism\Database\JoomlaDatabase;
+use Prism\Database\JoomlaDatabaseGateway;
 use Joomla\Utilities\ArrayHelper;
 use Virtualcurrency\Account\Account;
+use Prism\Database\Request\Request;
+use Prism\Database\Joomla\FetchMethods;
+use Prism\Database\Joomla\FetchCollectionMethod;
 
 /**
  * Joomla database gateway.
@@ -20,134 +23,37 @@ use Virtualcurrency\Account\Account;
  * @package      Virtualcurrency\Account
  * @subpackage   Gateway
  */
-class JoomlaGateway extends JoomlaDatabase implements AccountGateway
+class JoomlaGateway extends JoomlaDatabaseGateway implements AccountGateway
 {
-    /**
-     * Load the data from database by conditions and return an entity.
-     *
-     * <code>
-     * $conditions = array(
-     *     'user_id'   => 1,
-     *     'currency_id' => 2
-     * );
-     *
-     * $gateway = new JoomlaGateway(\JFactory::getDbo());
-     * $item    = $dbGateway->fetch($conditions);
-     * </code>
-     *
-     * @param array  $conditions
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array())
-    {
-        if (!$conditions) {
-            throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
-        }
-
-        $query = $this->getQuery();
-        $this->filter($query, $conditions);
-
-        // Filter by conditions.
-        foreach ($conditions as $key => $value) {
-            $query->where($this->db->quoteName('a.' . $key) . '=' . $this->db->quote($value));
-        }
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssoc();
-    }
-
-    /**
-     * Load the data from database and return a collection.
-     *
-     * <code>
-     * $conditions = array(
-     *     'ids' => array(1,2,3,4)
-     * );
-     *
-     * $gateway = new JoomlaGateway(\JFactory::getDbo());
-     * $items   = $dbGateway->fetchCollection($conditions);
-     * </code>
-     *
-     * @param array  $conditions
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetchCollection(array $conditions = array())
-    {
-        if (!$conditions) {
-            throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
-        }
-
-        $query = $this->getQuery();
-        $this->filter($query, $conditions);
-
-        // Filter by other conditions.
-        foreach ($conditions as $key => $value) {
-            $query->where($this->db->quoteName('a.'.$key) .'='. $this->db->quote($value));
-        }
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssocList();
-    }
-
-    /**
-     * Fetch a data from database by item ID.
-     *
-     * <code>
-     * $itemId = 1;
-     *
-     * $gateway = new JoomlaGateway(\JFactory::getDbo());
-     * $items   = $dbGateway->fetchById($itemId);
-     * </code>
-     *
-     * @param int $id
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetchById($id)
-    {
-        if (!$id) {
-            throw new \InvalidArgumentException('There is no ID.');
-        }
-
-        $query = $this->getQuery();
-
-        // Filter by ID.
-        $query->where('a.id = ' . (int)$id);
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssoc();
-    }
+    use FetchMethods, FetchCollectionMethod;
 
     /**
      * Prepare the query by query builder.
      *
+     * @param Request $request
      * @return \JDatabaseQuery
      *
      * @throws \RuntimeException
      */
-    protected function getQuery()
+    protected function getQuery(Request $request = null)
     {
+        $defaultFields  = [
+            'a.id', 'a.amount', 'a.note', 'a.user_id', 'a.currency_id', 'a.published', 'a.created_at',
+            'b.id AS c_id', 'b.title AS c_title', 'b.code AS c_code', 'b.symbol AS c_symbol', 'b.image AS c_image',
+            'b.image_icon AS c_image_icon', 'b.params AS c_params',
+            'c.name',
+        ];
+        $fields  = $this->prepareFields($request, $defaultFields);
+
+        // If there are no fields, use default ones.
+        if (count($fields) === 0) {
+            $fields = $defaultFields;
+            unset($defaultFields);
+        }
+
         $query = $this->db->getQuery(true);
         $query
-            ->select(
-                'a.id, a.amount, a.note, a.user_id, a.currency_id, a.published, a.created_at, ' .
-                'b.id AS c_id, b.title AS c_title, b.code AS c_code, b.symbol AS c_symbol, b.image AS c_image, b.image_icon AS c_image_icon, b.params AS c_params, ' .
-                'c.name'
-            )
+            ->select($fields)
             ->from($this->db->quoteName('#__vc_accounts', 'a'))
             ->innerJoin($this->db->quoteName('#__vc_currencies', 'b') . ' ON a.currency_id = b.id')
             ->innerJoin($this->db->quoteName('#__users', 'c') . ' ON a.user_id = c.id');
@@ -194,38 +100,45 @@ class JoomlaGateway extends JoomlaDatabase implements AccountGateway
     }
 
     /**
+     * Prepare some query filters.
+     *
      * @param \JDatabaseQuery $query
-     * @param array $conditions
+     * @param Request         $request
+     *
+     * @throws \InvalidArgumentException
      */
-    protected function filter(\JDatabaseQuery $query, array &$conditions)
+    protected function filter(\JDatabaseQuery $query, Request $request)
     {
+        $conditions = $request->getConditions();
+
         // Filter by IDs
-        if (array_key_exists('ids', $conditions) and is_array($conditions['ids'])) {
-            $ids = ArrayHelper::toInteger($conditions['ids']);
+        if ($conditions->getSpecificCondition('ids')) {
+            $condition = $conditions->getSpecificCondition('ids');
+            if (is_array($condition->getValue())) {
+                $ids = ArrayHelper::toInteger($condition->getValue());
+                $ids = array_filter(array_unique($ids));
 
-            if (count($ids) > 0) {
-                $query->where($this->db->quoteName('a.id') .' IN ('. implode(',', $ids) .')');
+                if (count($ids) > 0) {
+                    $query->where($this->db->quoteName('a.id') . ' IN (' . implode(',', $ids) . ')');
+                }
             }
-
-            unset($conditions['ids']);
         }
 
-        // Filter by currency IDs
-        if (array_key_exists('currency_ids', $conditions) and is_array($conditions['currency_ids'])) {
-            $ids = ArrayHelper::toInteger($conditions['currency_ids']);
+        // Filter by currency IDs.
+        if ($conditions->getSpecificCondition('currency_ids')) {
+            $condition   = $conditions->getSpecificCondition('currency_ids');
+            $currencyIds = $condition->getValue();
 
-            if (count($ids) > 0) {
-                $query->where($this->db->quoteName('a.currency_id') .' IN ('. implode(',', $ids) .')');
+            if (is_array($currencyIds) && count($currencyIds) > 0) {
+                $currencyIds = ArrayHelper::toInteger($currencyIds);
+                $currencyIds = array_filter(array_unique($currencyIds));
+
+                $query->where($this->db->quoteName('a.currency_id') .' IN ('. implode(',', $currencyIds) .')');
             }
-
-            unset($conditions['currency_ids']);
         }
 
-        // Filter by state.
-        if (array_key_exists('state', $conditions)) {
-            $query->where($this->db->quoteName('a.published') .'='. (int)$conditions['state']);
-            unset($conditions['state']);
-        }
+        // Filter by standard conditions.
+        parent::filter($query, $request);
 
         $query->where($this->db->quoteName('b.published') .'='. Constants::PUBLISHED);
     }

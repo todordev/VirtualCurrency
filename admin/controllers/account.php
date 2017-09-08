@@ -7,6 +7,10 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Prism\Database\Condition\Condition;
+use Prism\Database\Condition\Conditions;
+use Prism\Database\Request\Request;
+
 // No direct access
 defined('_JEXEC') or die;
 
@@ -61,10 +65,23 @@ class VirtualcurrencyControllerAccount extends Prism\Controller\Form\Backend
         // Check for existing account for that currency
         $currencyId = Joomla\Utilities\ArrayHelper::getValue($data, 'currency_id');
 
+        // Prepare conditions.
+        $conditionUserId = new Condition(['column' => 'user_id', 'value' => $userId, 'operator' => '=', 'table' => 'a']);
+        $conditionCurrencyId = new Condition(['column' => 'currency_id', 'value' => $currencyId, 'operator' => '=', 'table' => 'a']);
+        $conditions          = new Conditions();
+        $conditions
+            ->addCondition($conditionUserId)
+            ->addCondition($conditionCurrencyId);
+
+        // Prepare database request.
+        $databaseRequest = new Request();
+        $databaseRequest->setConditions($conditions);
+
+        // Fetch results
         $gateway    = new Virtualcurrency\Account\Gateway\JoomlaGateway(JFactory::getDbo());
         $repository = new Virtualcurrency\Account\Repository(new Virtualcurrency\Account\Mapper($gateway));
 
-        $account    = $repository->fetch(['user_id' => $userId, 'currency_id' => $currencyId]);
+        $account    = $repository->fetch($databaseRequest);
         if (!$itemId or $account->getId()) {
             $this->displayNotice(JText::_('COM_VIRTUALCURRENCY_ERROR_ACCOUNT_EXISTS'), $redirectOptions);
             return;

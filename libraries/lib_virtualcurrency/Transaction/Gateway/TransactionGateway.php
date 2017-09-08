@@ -9,6 +9,7 @@
 
 namespace Virtualcurrency\Transaction\Gateway;
 
+use Prism\Domain\RichFetcher;
 use Virtualcurrency\Transaction\Transaction;
 
 /**
@@ -17,35 +18,8 @@ use Virtualcurrency\Transaction\Transaction;
  * @package         Virtualcurrency\Transaction
  * @subpackage      Gateway
  */
-interface TransactionGateway
+interface TransactionGateway extends RichFetcher
 {
-    /**
-     * Return an item filtering by its ID.
-     *
-     * @param int $id
-     *
-     * @return array
-     */
-    public function fetchById($id);
-
-    /**
-     * Return an item filtering results by conditions.
-     *
-     * @param array $conditions
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array());
-
-    /**
-     * Return a collection of items filtering by conditions.
-     *
-     * @param array $conditions
-     *
-     * @return array
-     */
-    public function fetchCollection(array $conditions = array());
-
     public function insertObject(Transaction $object);
     public function updateObject(Transaction $object);
 }

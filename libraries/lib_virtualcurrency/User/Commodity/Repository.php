@@ -10,6 +10,7 @@
 namespace Virtualcurrency\User\Commodity;
 
 use Prism\Domain;
+use Prism\Database\Request\Request;
 
 /**
  * This class provides a glue between persistence layer and commodity object.
@@ -64,19 +65,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * </code>
      *
      * @param int $id
+     * @param Request $request
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      *
      * @return Commodity
      */
-    public function fetchById($id)
+    public function fetchById($id, Request $request = null)
     {
         if (!$id) {
             throw new \InvalidArgumentException('There is no ID.');
         }
 
-        $data = $this->gateway->fetchById($id);
+        $data = $this->gateway->fetchById($id, $request);
 
         return $this->mapper->create($data);
     }
@@ -97,20 +99,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * $commodity   = $repository->fetch($conditions);
      * </code>
      *
-     * @param array  $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return Commodity
      */
-    public function fetch(array $conditions = array())
+    public function fetch(Request $request)
     {
-        if (!$conditions) {
+        if (!$request) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
         }
 
-        $data = $this->gateway->fetch($conditions);
+        $data = $this->gateway->fetch($request);
 
         return $this->mapper->create($data);
     }
@@ -130,20 +132,20 @@ class Repository extends Domain\Repository implements Domain\CollectionFetcher
      * $commodities = $repository->fetchCollection($conditions);
      * </code>
      *
-     * @param array  $conditions
+     * @param Request $request
      *
      * @throws \UnexpectedValueException
      * @throws \RuntimeException
      *
      * @return Commodities
      */
-    public function fetchCollection(array $conditions = array())
+    public function fetchCollection(Request $request)
     {
-        if (!$conditions) {
+        if (!$request) {
             throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
         }
 
-        $data = $this->gateway->fetchCollection($conditions);
+        $data = $this->gateway->fetchCollection($request);
 
         if ($this->collection === null) {
             $this->collection = new Commodities;

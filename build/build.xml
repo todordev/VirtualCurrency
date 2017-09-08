@@ -16,7 +16,6 @@
 	<property name="cfg.siteSourceDir" location="${cfg.sourceDir}/site" />
 	<property name="cfg.librariesSourceDir" location="${cfg.sourceDir}/libraries" />
 	<property name="cfg.packagesDir" location="${cfg.sourceDir}/packages" />
-	
 	<property name="cfg.pluginsSourceDir" location="${cfg.sourceDir}/plugins" />
 	<property name="cfg.modulesSourceDir" location="${cfg.sourceDir}/modules" />
 	
@@ -34,7 +33,7 @@
 		<mkdir dir="${cfg.packagesDir}" />
 	</target>
 	
-	<target name="build_component" depends="clean" description="packages the finally component file">
+	<target name="build_component" depends="init" description="packages the finally component file">
 		
 		<!-- build component -->
 		<zip destfile="${cfg.packagesDir}/com_${cfg.name}.zip" basedir="${cfg.sourceDir}" includes="admin/**,media/**,site/**,${cfg.name}.xml" />

@@ -9,8 +9,11 @@
 
 namespace Virtualcurrency\Payment\Session\Gateway;
 
-use Prism\Database\JoomlaDatabase;
+use Prism\Database\Request\Request;
+use Prism\Database\JoomlaDatabaseGateway;
 use Virtualcurrency\Payment\Session\Session;
+use Prism\Database\Joomla\FetchMethods;
+use Prism\Database\Joomla\FetchCollectionMethod;
 
 /**
  * Joomla database gateway.
@@ -18,53 +21,28 @@ use Virtualcurrency\Payment\Session\Session;
  * @package      Virtualcurrency\Payment\Session
  * @subpackage   Gateway
  */
-class JoomlaGateway extends JoomlaDatabase implements SessionGateway
+class JoomlaGateway extends JoomlaDatabaseGateway implements SessionGateway
 {
-    /**
-     * Load the data from database by conditions and return an entity.
-     *
-     * @param array $conditions
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function fetch(array $conditions = array())
-    {
-        if (!$conditions) {
-            throw new \UnexpectedValueException('There are no conditions that the system should use to fetch data.');
-        }
-
-        $query = $this->getQuery();
-
-        // Filter by conditions.
-        foreach ($conditions as $key => $value) {
-            $query->where($this->db->quoteName('a.' . $key) . '=' . $this->db->quote($value));
-        }
-
-        $this->db->setQuery($query);
-
-        return (array)$this->db->loadAssoc();
-    }
+    use FetchMethods, FetchCollectionMethod;
 
     /**
      * Fetch a data from database by item ID.
      *
      * @param int $id
+     * @param Request $request
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      *
      * @return array
      */
-    public function fetchById($id)
+    public function fetchById($id, Request $request = null)
     {
         if (!$id) {
             throw new \InvalidArgumentException('There is no ID.');
         }
 
-        $query = $this->getQuery();
+        $query = $this->getQuery($request);
 
         // Filter by ID.
         $query->where('a.id = ' . (int)$id);
@@ -90,15 +68,26 @@ class JoomlaGateway extends JoomlaDatabase implements SessionGateway
     /**
      * Prepare the query by query builder.
      *
+     * @param Request $request
+     *
      * @return \JDatabaseQuery
      *
      * @throws \RuntimeException
      */
-    protected function getQuery()
+    protected function getQuery(Request $request = null)
     {
+        $defaultFields  = ['a.id', 'a.user_id', 'a.item_id', 'a.items_number', 'a.item_type', 'a.gateway', 'a.session_id', 'a.record_date'];
+        $fields  = $this->prepareFields($request, $defaultFields);
+
+        // If there are no fields, use default ones.
+        if (count($fields) === 0) {
+            $fields = $defaultFields;
+            unset($defaultFields);
+        }
+
         $query = $this->db->getQuery(true);
         $query
-            ->select('a.id, a.user_id, a.item_id, a.items_number, a.item_type, a.gateway, a.session_id, a.record_date')
+            ->select($fields)
             ->from($this->db->quoteName('#__vc_paymentsessions', 'a'));
 
         return $query;
